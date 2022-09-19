@@ -1,16 +1,15 @@
 import express, {Request, Response} from 'express';
-import bodyParser from "body-parser";
 import {videosRouter} from "./routes/videos-router";
-
+import {testingRouter} from "./routes/testing-router";
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-const parserMiddleware = bodyParser;
-app.use(parserMiddleware.urlencoded());
-app.use(parserMiddleware.json());
+const parserMiddleware = express.json();
+app.use(parserMiddleware);
 
 app.use("/videos", videosRouter);
+app.use("/testing",testingRouter);
 
 app.get("/", (req: Request, res: Response) => {
     let helloMessage = 'Hello World!!!';

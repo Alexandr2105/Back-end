@@ -1,67 +1,39 @@
 import {Request, Response, Router} from "express";
+import {videosRepository} from "../repositories/video-repository";
 
 export const videosRouter = Router();
 
-const videos = [
-    {
-        id: 0,
-        title: "video-00",
-        author: "Alex",
-        canBeDownloaded: true,
-        minAgeRestriction: null,
-        createdAt: new Date().toISOString(),
-        publicationDate: new Date().toISOString(),
-        availableResolutions: [
-            "P144"
-        ]
-    }, {
-        id: 1,
-        title: "video-01",
-        author: "Alex",
-        canBeDownloaded: true,
-        minAgeRestriction: null,
-        createdAt: new Date().toISOString(),
-        publicationDate: new Date().toISOString(),
-        availableResolutions: [
-            "P144"
-        ]
-    },
-    {
-        id: 2,
-        title: "video-02",
-        author: "Alex",
-        canBeDownloaded: true,
-        minAgeRestriction: null,
-        createdAt: new Date().toISOString(),
-        publicationDate: new Date().toISOString(),
-        availableResolutions: [
-            "P144"
-        ]
-    }
-];
-
 videosRouter.get("/", (req: Request, res: Response) => {
+    const videos = videosRepository.getAllVideo();
     res.send(videos);
 });
 
 videosRouter.get("/:id", (req: Request, res: Response) => {
-    let id = videos.find(p => p.id === +req.params.id);
-    if (id) {
-        res.send(id);
+    let videoId = videosRepository.findVideosId(+req.params.id);
+    if (videoId) {
+        res.send(videoId);
     } else {
-        res.send(404);
+        res.sendStatus(404);
     }
 });
 
 videosRouter.delete("/:id", (req: Request, res: Response) => {
-    for (let a = 0; a < videos.length; a++) {
-        if (videos[a].id === +req.params.id) {
-            videos.splice(a, 1);
-            res.send(204);
-            return;
-        }
+    let video = videosRepository.videoDelete(+req.params.id);
+    if (video) {
+        res.sendStatus(204);
+    } else {
+        res.sendStatus(404);
     }
-    res.send(404);
 });
 
-// videosRouter.post("/",(req:Request,res:Response)=>{});
+videosRouter.post("/", (req: Request, res: Response) => {
+    const newVideo = videosRepository.createVideo(req.body.title, req.body.author, req.body.availableResolutions);
+    res.status(201).send(newVideo);
+});
+
+videosRouter.put("/:id", (req: Request, res: Response) => {
+    const updateVideo=videosRepository.updateVideo(+req.params.id,req.body.author,
+        req.body.author,req.body.availableResolutions,req.body.canBeDownloaded,
+        req.body.minAgeRestriction,req.body.publicationDate);
+    res.sendStatus(updateVideo);
+});
