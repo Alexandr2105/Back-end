@@ -50,13 +50,13 @@ export const videosRepository = {
         }
     },
     videoDelete(id: number) {
-        for (let a = 0; a < videos.length; a++) {
-            if (a === id) {
-                videos.splice(a, 1);
+        for (let video of videos) {
+            if(video.id===id){
+                videos.splice(+video,1)
                 return true;
             }
         }
-        return;
+        return false;
     },
     createVideo(title: string, author: string, availableResolutions: availableResolutionsType) {
         const dateNow = new Date();
