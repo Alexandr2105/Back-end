@@ -11,7 +11,7 @@ const titleLength = body("title").trim().isLength({min: 1, max: 40}).withMessage
 const authorLength = body("author").trim().isLength({min: 1, max: 20}).withMessage("Не верно заполнено поле");
 const minAgeRestriction = body("minAgeRestriction").isInt({min: 0, max: 18}).withMessage("Не верно заполнено поле");
 const canBeDownloaded = body("canBeDownloaded").isBoolean().withMessage("Не верно заполнено поле");
-const publicationDate = body("publicationDate").trim().notEmpty().optional().withMessage("Не верно заполнено поле");
+const publicationDate = body("publicationDate").trim().notEmpty().optional().isDate().withMessage("Не верно заполнено поле");
 const findAvailableResolutions = body("availableResolutions").trim().isIn(availableResolutions).withMessage("Не верно заполнено поле");
 // const findAvailableResolutions=(array:string[])=>{
 //     for (let s of array) {
