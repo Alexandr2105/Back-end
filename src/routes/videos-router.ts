@@ -64,7 +64,7 @@ videosRouter.put("/:id", titleLength, authorLength, minAgeRestriction, canBeDown
     if (!findAvailableResolutions(req.body.availableResolutions)) {
         errors.push({
             message: "Не верно заполнено поле",
-            field: "findAvailableResolutions"
+            field: "availableResolutions"
         });
         res.status(400).send(errors);
     } else {
