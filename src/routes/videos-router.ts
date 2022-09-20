@@ -39,9 +39,9 @@ videosRouter.get("/:id", (req: Request, res: Response) => {
 videosRouter.delete("/:id", (req: Request, res: Response) => {
     let video = videosRepository.videoDelete(+req.params.id);
     if (video) {
-        res.sendStatus(404);
-    } else {
         res.sendStatus(204);
+    } else {
+        res.sendStatus(404);
     }
 });
 
