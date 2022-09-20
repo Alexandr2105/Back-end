@@ -50,7 +50,7 @@ videosRouter.post("/", titleLength, authorLength, middleWare, (req: Request, res
     if (!findAvailableResolutions(req.body.availableResolutions)) {
         errors.push({
             message: "Не верно заполнено поле",
-            field: "findAvailableResolutions"
+            field: "AvailableResolutions"
         });
         res.status(400).send(errors);
     } else {
