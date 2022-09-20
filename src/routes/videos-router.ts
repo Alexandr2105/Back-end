@@ -1,7 +1,29 @@
 import {Request, Response, Router} from "express";
 import {videosRepository} from "../repositories/video-repository";
+import {middleWare} from "../middlewares/middleware";
+import {body} from "express-validator";
 
 export const videosRouter = Router();
+
+const availableResolutions = ["P144", "P240", "P360", "P480", "P720", "P1080", "P1440", "P2160"];
+
+const titleLength = body("title").trim().isLength({min: 1, max: 40}).withMessage("Не верно заполнено поле");
+const authorLength = body("author").trim().isLength({min: 1, max: 20}).withMessage("Не верно заполнено поле");
+const minAgeRestriction = body("minAgeRestriction").isInt({min: 0, max: 18}).withMessage("Не верно заполнено поле");
+const canBeDownloaded = body("canBeDownloaded").isBoolean().withMessage("Не верно заполнено поле");
+const publicationDate = body("publicationDate").trim().notEmpty().optional().withMessage("Не верно заполнено поле");
+const findAvailableResolutions = body("availableResolutions").trim().isIn(availableResolutions).withMessage("Не верно заполнено поле");
+// const findAvailableResolutions=(array:string[])=>{
+//     for (let s of array) {
+//         if(availableResolutions.includes(s)){
+//             return{
+//                 message:"Не верно заполнено поле",
+//                 field:"findAvailableResolutions"
+//             }
+//         }
+//     }
+//     return true;
+// }
 
 videosRouter.get("/", (req: Request, res: Response) => {
     const videos = videosRepository.getAllVideo();
@@ -26,14 +48,16 @@ videosRouter.delete("/:id", (req: Request, res: Response) => {
     }
 });
 
-videosRouter.post("/", (req: Request, res: Response) => {
+videosRouter.post("/", titleLength, authorLength,findAvailableResolutions,middleWare, (req: Request, res: Response) => {
+    // findAvailableResolutions(req.body.availableResolutions);
     const newVideo = videosRepository.createVideo(req.body.title, req.body.author, req.body.availableResolutions);
     res.status(201).send(newVideo);
 });
 
-videosRouter.put("/:id", (req: Request, res: Response) => {
-    const updateVideo=videosRepository.updateVideo(+req.params.id,req.body.author,
-        req.body.author,req.body.availableResolutions,req.body.canBeDownloaded,
-        req.body.minAgeRestriction,req.body.publicationDate);
+videosRouter.put("/:id", titleLength, authorLength, minAgeRestriction, canBeDownloaded, publicationDate, findAvailableResolutions,middleWare, (req: Request, res: Response) => {
+    // findAvailableResolutions(req.body.availableResolutions);
+    const updateVideo = videosRepository.updateVideo(+req.params.id, req.body.author,
+        req.body.author, req.body.availableResolutions, req.body.canBeDownloaded,
+        req.body.minAgeRestriction, req.body.publicationDate);
     res.sendStatus(updateVideo);
 });
