@@ -48,7 +48,7 @@ videosRouter.delete("/:id", (req: Request, res: Response) => {
 videosRouter.post("/", titleLength, authorLength, middleWare, (req: Request, res: Response) => {
     if (!findAvailableResolutions(req.body.availableResolutions)) {
         res.send(["message: Не верно заполнено поле",
-            "field: findAvailableResolutions"])
+            "field: findAvailableResolutions"]).sendStatus(400);
     } else {
         const newVideo = videosRepository.createVideo(req.body.title, req.body.author, req.body.availableResolutions);
         res.status(201).send(newVideo);
