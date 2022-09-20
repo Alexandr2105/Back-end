@@ -41,7 +41,11 @@ export const videos: VideoType[] = [
 
 export const videosRepository = {
     getAllVideo() {
-        return videos;
+        if(videos.length>0) {
+            return videos;
+        }else {
+            return 404;
+        }
     },
     findVideosId(id: number) {
         let video = videos.find(v => v.id === id);
