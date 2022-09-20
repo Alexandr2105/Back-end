@@ -57,7 +57,6 @@ videosRouter.post("/", titleLength, authorLength, middleWare, (req: Request, res
         const newVideo = videosRepository.createVideo(req.body.title, req.body.author, req.body.availableResolutions);
         res.status(201).send(newVideo);
     }
-
 });
 
 videosRouter.put("/:id", titleLength, authorLength, minAgeRestriction, canBeDownloaded, publicationDate, middleWare, (req: Request, res: Response) => {
@@ -69,7 +68,7 @@ videosRouter.put("/:id", titleLength, authorLength, minAgeRestriction, canBeDown
         });
         res.status(400).send(errors);
     } else {
-        const updateVideo = videosRepository.updateVideo(+req.params.id, req.body.author,
+        const updateVideo = videosRepository.updateVideo(+req.params.id, req.body.title,
             req.body.author, req.body.availableResolutions, req.body.canBeDownloaded,
             req.body.minAgeRestriction, req.body.publicationDate);
         res.sendStatus(updateVideo);
