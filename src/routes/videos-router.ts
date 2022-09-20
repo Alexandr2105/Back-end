@@ -57,6 +57,7 @@ videosRouter.post("/", titleLength, authorLength, middleWare, (req: Request, res
         const newVideo = videosRepository.createVideo(req.body.title, req.body.author, req.body.availableResolutions);
         res.status(201).send(newVideo);
     }
+
 });
 
 videosRouter.put("/:id", titleLength, authorLength, minAgeRestriction, canBeDownloaded, publicationDate, middleWare, (req: Request, res: Response) => {
