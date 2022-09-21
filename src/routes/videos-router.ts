@@ -15,7 +15,7 @@ const publicationDate = body("publicationDate").trim().notEmpty().isLength({
     min: 24,
     max: 24
 }).optional().withMessage("Не верно заполнено поле");
-// const findAvailableResolutions = body("availableResolutions").trim().withMessage("Не верно заполнено поле");
+// const findAvailableResolutions = body("availableResolutions").trim().isIn(availableResolutions).withMessage("Не верно заполнено поле");
 const findAvailableResolutions = (array: string[]) => {
     for (let s of array) {
         if (!availableResolutions.includes(s)) {
@@ -49,15 +49,15 @@ videosRouter.delete("/:id", (req: Request, res: Response) => {
 });
 
 videosRouter.post("/", titleLength, authorLength, middleWare, (req: Request, res: Response) => {
-    // const errors = [];
+    const errors = [];
     if (!findAvailableResolutions(req.body.availableResolutions)) {
-        // errors.push({
-        //     errorsMessages: [{
-        //         message: "Не верно заполнено поле",
-        //         field: "availableResolutions"
-        //     }],
-        // });
-        res.status(400).send("{ errorsMessages: [{message: Не верно заполнено поле, field: availableResolutions }] }");
+        errors.push({
+            "errorsMessages": [{
+                "message": "Не верно заполнено поле",
+                "field": "availableResolutions"
+            }],
+        });
+        res.status(400).send(errors);
     } else {
         const newVideo = videosRepository.createVideo(req.body.title, req.body.author, req.body.availableResolutions);
         res.status(201).send(newVideo);
