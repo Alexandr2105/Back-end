@@ -57,7 +57,7 @@ videosRouter.post("/", titleLength, authorLength, middleWare, (req: Request, res
         //         field: "availableResolutions"
         //     }],
         // });
-        res.status(400).send("errorsMessages:[{message:Не верно заполнено поле,field:availableResolutions}]");
+        res.status(400).send("{ errorsMessages: [{message: Не верно заполнено поле, field: availableResolutions }] }");
     } else {
         const newVideo = videosRepository.createVideo(req.body.title, req.body.author, req.body.availableResolutions);
         res.status(201).send(newVideo);
