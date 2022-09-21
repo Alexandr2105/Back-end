@@ -56,7 +56,7 @@ videosRouter.post("/", titleLength, authorLength, middleWare, (req: Request, res
                 field: "availableResolutions"
             },
         );
-        res.status(400).send({"errorsMessages":errors});
+        res.status(400).send({"errorsMessages": errors});
     } else {
         const newVideo = videosRepository.createVideo(req.body.title, req.body.author, req.body.availableResolutions);
         res.status(201).send(newVideo);
@@ -66,12 +66,12 @@ videosRouter.post("/", titleLength, authorLength, middleWare, (req: Request, res
 videosRouter.put("/:id", titleLength, authorLength, minAgeRestriction, canBeDownloaded, publicationDate, middleWare, (req: Request, res: Response) => {
     const errors = [];
     if (!findAvailableResolutions(req.body.availableResolutions)) {
-        errors.push([{
+        errors.push({
                 message: "Не верно заполнено поле",
                 field: "availableResolutions"
-            }],
+            },
         );
-        res.status(400).send(errors);
+        res.status(400).send({"errorsMessages": errors});
     } else {
         const updateVideo = videosRepository.updateVideo(+req.params.id, req.body.title,
             req.body.author, req.body.availableResolutions, req.body.canBeDownloaded,
