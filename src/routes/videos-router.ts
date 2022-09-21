@@ -11,7 +11,10 @@ const titleLength = body("title").trim().isLength({min: 1, max: 40}).withMessage
 const authorLength = body("author").trim().isLength({min: 1, max: 20}).withMessage("Не верно заполнено поле");
 const minAgeRestriction = body("minAgeRestriction").isInt({min: 1, max: 18}).withMessage("Не верно заполнено поле");
 const canBeDownloaded = body("canBeDownloaded").isBoolean().withMessage("Не верно заполнено поле");
-const publicationDate = body("publicationDate").trim().notEmpty().isLength({min:24,max:24}).optional().withMessage("Не верно заполнено поле");
+const publicationDate = body("publicationDate").trim().notEmpty().isLength({
+    min: 24,
+    max: 24
+}).optional().withMessage("Не верно заполнено поле");
 // const findAvailableResolutions = body("availableResolutions").trim().withMessage("Не верно заполнено поле");
 const findAvailableResolutions = (array: string[]) => {
     for (let s of array) {
@@ -64,13 +67,13 @@ videosRouter.post("/", titleLength, authorLength, middleWare, (req: Request, res
 videosRouter.put("/:id", titleLength, authorLength, minAgeRestriction, canBeDownloaded, publicationDate, middleWare, (req: Request, res: Response) => {
     const errors = [];
     if (!findAvailableResolutions(req.body.availableResolutions)) {
-        errors.push({
-            errorsMessages: [{
+        errors.push([{
                 message: "Не верно заполнено поле",
                 field: "availableResolutions"
             }],
-        });
-        res.status(400).send(errors);
+        );
+        res.status(400).send("errorsMessages:"+
+            "[{message: Не верно заполнено поле,field: availableResolutions}]");
     } else {
         const updateVideo = videosRepository.updateVideo(+req.params.id, req.body.title,
             req.body.author, req.body.availableResolutions, req.body.canBeDownloaded,
