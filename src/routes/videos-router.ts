@@ -52,12 +52,11 @@ videosRouter.post("/", titleLength, authorLength, middleWare, (req: Request, res
     const errors = [];
     if (!findAvailableResolutions(req.body.availableResolutions)) {
         errors.push({
-            "errorsMessages": [{
-                "message": "Не верно заполнено поле",
-                "field": "availableResolutions"
-            }],
-        });
-        res.status(400).send(errors);
+                message: "Не верно заполнено поле",
+                field: "availableResolutions"
+            },
+        );
+        res.status(400).send({"errorsMessages":errors});
     } else {
         const newVideo = videosRepository.createVideo(req.body.title, req.body.author, req.body.availableResolutions);
         res.status(201).send(newVideo);
