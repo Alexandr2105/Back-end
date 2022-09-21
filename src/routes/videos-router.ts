@@ -15,6 +15,7 @@ const publicationDate = body("publicationDate").trim().notEmpty().isLength({
     min: 24,
     max: 24
 }).optional().withMessage("Не верно заполнено поле");
+const id=body("id").trim().notEmpty().isLength({min:13,max:13});
 // const findAvailableResolutions = body("availableResolutions").trim().isIn(availableResolutions).withMessage("Не верно заполнено поле");
 const findAvailableResolutions = (array: string[]) => {
     for (let s of array) {
@@ -30,7 +31,7 @@ videosRouter.get("/", (req: Request, res: Response) => {
     res.send(videos);
 });
 
-videosRouter.get("/:id", (req: Request, res: Response) => {
+videosRouter.get("/:id", id,(req: Request, res: Response) => {
     let videoId = videosRepository.findVideosId(+req.params.id);
     if (videoId) {
         res.send(videoId);
@@ -39,7 +40,7 @@ videosRouter.get("/:id", (req: Request, res: Response) => {
     }
 });
 
-videosRouter.delete("/:id", (req: Request, res: Response) => {
+videosRouter.delete("/:id", id,(req: Request, res: Response) => {
     let video = videosRepository.videoDelete(+req.params.id);
     if (video) {
         res.sendStatus(204);
@@ -63,7 +64,7 @@ videosRouter.post("/", titleLength, authorLength, middleWare, (req: Request, res
     }
 });
 
-videosRouter.put("/:id", titleLength, authorLength, minAgeRestriction, canBeDownloaded, publicationDate, middleWare, (req: Request, res: Response) => {
+videosRouter.put("/:id",id, titleLength, authorLength, minAgeRestriction, canBeDownloaded, publicationDate, middleWare, (req: Request, res: Response) => {
     const errors = [];
     if (!findAvailableResolutions(req.body.availableResolutions)) {
         errors.push({
