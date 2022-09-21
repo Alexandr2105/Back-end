@@ -79,5 +79,6 @@ videosRouter.put("/:id", titleLength, authorLength, minAgeRestriction, canBeDown
             req.body.author, req.body.availableResolutions, req.body.canBeDownloaded,
             req.body.minAgeRestriction, req.body.publicationDate);
         res.sendStatus(updateVideo);
+
     }
 });
