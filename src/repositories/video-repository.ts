@@ -77,9 +77,6 @@ export const videosRepository = {
                 canBeDownloaded: boolean, minAgeRestriction: number, publicationDate: Date) {
         let video = videos.find(v => v.id === id);
         if (video) {
-            if(video.id!==13){
-             return 404;
-            }
             video.title = title;
             video.author = author;
             video.availableResolutions = availableResolutions;
