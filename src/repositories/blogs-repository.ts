@@ -38,13 +38,13 @@ export const blogsRepository = {
         for (let a = 0; a < blogs.length; a++) {
             if (blogs[a].id === id) {
                 blogs.splice(a, 1);
-                return;
+                return true;
             }
         }
         return false;
     },
     createBlog(name: string, url: string) {
-        const dateNow = +new Date()+"";
+        const dateNow = +new Date() + "";
         const newBlog = {
             id: dateNow,
             name: name,
@@ -53,11 +53,11 @@ export const blogsRepository = {
         blogs.push(newBlog);
         return newBlog;
     },
-    updateBlog(id:string,name:string,url:string){
+    updateBlog(id: string, name: string, url: string) {
         for (let blog of blogs) {
-            if(blog.id==id){
-                blog.name=name;
-                blog.youtubeUrl=url;
+            if (blog.id == id) {
+                blog.name = name;
+                blog.youtubeUrl = url;
                 return 204;
             }
         }

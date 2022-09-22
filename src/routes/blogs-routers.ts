@@ -1,7 +1,12 @@
 import {Router, Request, Response} from "express";
 import {blogsRepository} from "../repositories/blogs-repository";
+import {body} from "express-validator";
+import {middleWare} from "../middlewares/middleware";
 
 export const blogsRouters = Router();
+
+const nameLength=body("name").isLength({max:15});
+const urlLength=body("youtubeUrl").isLength({max:100}).isURL({});
 
 blogsRouters.get("/", (req: Request, res: Response) => {
     const blogs = blogsRepository.getAllBlogs();
@@ -26,12 +31,12 @@ blogsRouters.delete("/:id", (req: Request, res: Response) => {
     }
 });
 
-blogsRouters.post("/", (req: Request, res: Response) => {
+blogsRouters.post("/", nameLength,urlLength,middleWare,(req: Request, res: Response) => {
     const createBlogs = blogsRepository.createBlog(req.body.name, req.body.youtubeUrl);
     res.send(createBlogs).status(201);
 });
 
 blogsRouters.put("/:id", (req: Request, res: Response) => {
-   const updateBlog=blogsRepository.updateBlog(req.params.id,req.body.name,req.body.youtubeUrl);
-   res.send(updateBlog);
+    const updateBlog = blogsRepository.updateBlog(req.params.id, req.body.name, req.body.youtubeUrl);
+    res.sendStatus(updateBlog);
 });
