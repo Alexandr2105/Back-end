@@ -36,7 +36,7 @@ blogsRouters.post("/", nameLength,urlLength,middleWare,(req: Request, res: Respo
     res.send(createBlogs).status(201);
 });
 
-blogsRouters.put("/:id", (req: Request, res: Response) => {
+blogsRouters.put("/:id",nameLength,urlLength,middleWare, (req: Request, res: Response) => {
     const updateBlog = blogsRepository.updateBlog(req.params.id, req.body.name, req.body.youtubeUrl);
     res.sendStatus(updateBlog);
 });
