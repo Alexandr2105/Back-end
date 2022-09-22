@@ -15,8 +15,6 @@ const publicationDate = body("publicationDate").trim().notEmpty().isLength({
     min: 24,
     max: 24
 }).optional().withMessage("Не верно заполнено поле");
-// const id=body("id").trim().notEmpty().isLength({min:13,max:13});
-// const findAvailableResolutions = body("availableResolutions").trim().isIn(availableResolutions).withMessage("Не верно заполнено поле");
 const findAvailableResolutions = (array: string[]) => {
     for (let s of array) {
         if (!availableResolutions.includes(s)) {
@@ -31,7 +29,7 @@ videosRouter.get("/", (req: Request, res: Response) => {
     res.send(videos);
 });
 
-videosRouter.get("/:id",(req: Request, res: Response) => {
+videosRouter.get("/:id", (req: Request, res: Response) => {
     let videoId = videosRepository.findVideosId(+req.params.id);
     if (videoId) {
         res.send(videoId);
@@ -40,7 +38,7 @@ videosRouter.get("/:id",(req: Request, res: Response) => {
     }
 });
 
-videosRouter.delete("/:id",(req: Request, res: Response) => {
+videosRouter.delete("/:id", (req: Request, res: Response) => {
     let video = videosRepository.videoDelete(+req.params.id);
     if (video) {
         res.sendStatus(204);
