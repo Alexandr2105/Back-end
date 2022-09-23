@@ -18,6 +18,12 @@ const blogIdTrue = body("blogId").custom((b, {req}) => {
     }
     throw new Error("Нет такого id");
 });
+// const aut = body("aut").custom((b, {req}) => {
+//     if ( b=== usersPassword[0]) {
+//         return true;
+//     }
+//     throw new Error(b.sendStatus(401));
+// });
 
 postsRouters.get("/", (req: Request, res: Response) => {
     const posts = postsRepository.getAllPosts();
@@ -34,7 +40,7 @@ postsRouters.get("/:id", (req: Request, res: Response) => {
 });
 
 postsRouters.delete("/:id", (req: Request, res: Response) => {
-    const aut = usersPassword[0] === req.headers.authorization ? true : res.sendStatus(401);
+    // const aut = usersPassword[0] === req.headers.authorization ? true : res.sendStatus(401);
     const postId = postsRepository.deletePostId(req.params.id);
     if (postId) {
         res.sendStatus(204);
@@ -45,15 +51,13 @@ postsRouters.delete("/:id", (req: Request, res: Response) => {
 
 postsRouters.post("/", titleLength, shortDescriptionLength, contentLength, blogIdTrue, middleWare,
     (req: Request, res: Response) => {
-        const aut = usersPassword[0] === req.headers.authorization ? true : res.sendStatus(401);
         const post = postsRepository.createPost(req.body.title, req.body.shortDescription,
             req.body.content, req.body.blogId);
-        res.send(post);
+        res.send(post).status(201);
     });
 
 postsRouters.put("/:id", titleLength, shortDescriptionLength, contentLength, blogIdTrue, middleWare,
     (req: Request, res: Response) => {
-        const aut = usersPassword[0] === req.headers.authorization ? true : res.sendStatus(401);
         const postUpdate = postsRepository.updatePostId(req.params.id, req.body.title, req.body.shortDescription,
             req.body.content, req.body.blogId);
         res.sendStatus(postUpdate);
