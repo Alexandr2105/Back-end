@@ -7,10 +7,10 @@ import {usersPassword} from "../repositories/usersPasswords";
 
 export const postsRouters = Router();
 
-const titleLength = body("title").isLength({max: 30}).withMessage("Не верно заполнено поле");
-const shortDescriptionLength = body("shortDescription").isLength({max: 100}).withMessage("Не верно заполнено поле");
-const contentLength = body("content").isLength({max: 1000}).withMessage("Не верно заполнено поле");
-const blogIdTrue = body("id").custom((b, {req}) => {
+const titleLength = body("title").isEmpty().isLength({max: 30}).withMessage("Не верно заполнено поле");
+const shortDescriptionLength = body("shortDescription").isEmpty().isLength({max: 100}).withMessage("Не верно заполнено поле");
+const contentLength = body("content").isLength({max: 1000}).isEmpty().withMessage("Не верно заполнено поле");
+const blogIdTrue = body("id").isEmpty().custom((b, {req}) => {
     for (let blog of blogs) {
         if (blog.id === req.body.blogId) {
             return true;
@@ -18,12 +18,6 @@ const blogIdTrue = body("id").custom((b, {req}) => {
     }
     throw new Error("Нет такого id");
 });
-// const authorization = body("authorization").custom((b, {req}) => {
-//     if (usersPassword[0] === req.headers) {
-//         return true;
-//     }
-//     throw new Error(usersPassword[0]+" Введены не верные данные "+req.header.authorization);
-// })
 
 postsRouters.get("/", (req: Request, res: Response) => {
     const posts = postsRepository.getAllPosts();
@@ -31,7 +25,6 @@ postsRouters.get("/", (req: Request, res: Response) => {
 });
 
 postsRouters.get("/:id", (req: Request, res: Response) => {
-    // req.headers.authorization
     const post = postsRepository.getPostId(req.params.id);
     if (post) {
         res.send(post)

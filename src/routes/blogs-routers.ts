@@ -6,8 +6,8 @@ import {usersPassword} from "../repositories/usersPasswords";
 
 export const blogsRouters = Router();
 
-const nameLength = body("name").isLength({max: 15}).withMessage("Не верно заполнено поле");
-const urlLength = body("youtubeUrl").isLength({max: 100}).isURL({}).withMessage("Не верно заполнено поле");
+const nameLength = body("name").isEmpty().isLength({max: 15}).withMessage("Не верно заполнено поле");
+const urlLength = body("youtubeUrl").isEmpty().isLength({max: 100}).isURL({}).withMessage("Не верно заполнено поле");
 
 blogsRouters.get("/", (req: Request, res: Response) => {
     const blogs = blogsRepository.getAllBlogs();
