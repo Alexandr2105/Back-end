@@ -10,7 +10,7 @@ export const postsRouters = Router();
 const titleLength = body("title").trim().notEmpty().isLength({max: 30}).withMessage("Не верно заполнено поле");
 const shortDescriptionLength = body("shortDescription").trim().notEmpty().isLength({max: 100}).withMessage("Не верно заполнено поле");
 const contentLength = body("content").isLength({max: 1000}).trim().notEmpty().withMessage("Не верно заполнено поле");
-const blogIdTrue = body("id").trim().notEmpty().custom((b, {req}) => {
+const blogIdTrue = body("id").custom((b, {req}) => {
     for (let blog of blogs) {
         if (blog.id === req.body.blogId) {
             return true;
