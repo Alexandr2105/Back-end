@@ -3,19 +3,27 @@ import {postsRepository} from "../repositories/posts-repository";
 import {body} from "express-validator";
 import {blogs} from "../repositories/blogs-repository";
 import {middleWare} from "../middlewares/middleware";
+import {usersPassword} from "../repositories/usersPasswords";
 
 export const postsRouters = Router();
 
-const titleLength=body("title").isLength({max:30});
-const shortDescriptionLength=body("shortDescription").isLength({max:100});
-const contentLength=body("content").isLength({max:1000});
-const blogIdTrue=body("id").custom((b,{req})=>{
+const titleLength = body("title").isLength({max: 30}).withMessage("Не верно заполнено поле");
+const shortDescriptionLength = body("shortDescription").isLength({max: 100}).withMessage("Не верно заполнено поле");
+const contentLength = body("content").isLength({max: 1000}).withMessage("Не верно заполнено поле");
+const blogIdTrue = body("id").custom((b, {req}) => {
     for (let blog of blogs) {
-        if(blog.id===req.body.blogId){
+        if (blog.id === req.body.blogId) {
             return true;
         }
-    }throw new Error("Нет такого id");
+    }
+    throw new Error("Нет такого id");
 });
+// const authorization = body("authorization").custom((b, {req}) => {
+//     if (usersPassword[0] === req.headers) {
+//         return true;
+//     }
+//     throw new Error(usersPassword[0]+" Введены не верные данные "+req.header.authorization);
+// })
 
 postsRouters.get("/", (req: Request, res: Response) => {
     const posts = postsRepository.getAllPosts();
@@ -23,6 +31,7 @@ postsRouters.get("/", (req: Request, res: Response) => {
 });
 
 postsRouters.get("/:id", (req: Request, res: Response) => {
+    // req.headers.authorization
     const post = postsRepository.getPostId(req.params.id);
     if (post) {
         res.send(post)
@@ -32,6 +41,7 @@ postsRouters.get("/:id", (req: Request, res: Response) => {
 });
 
 postsRouters.delete("/:id", (req: Request, res: Response) => {
+    const aut = usersPassword[0] === req.headers.authorization ? true : res.sendStatus(401);
     const postId = postsRepository.deletePostId(req.params.id);
     if (postId) {
         res.sendStatus(204);
@@ -40,16 +50,18 @@ postsRouters.delete("/:id", (req: Request, res: Response) => {
     }
 });
 
-postsRouters.post("/", titleLength,shortDescriptionLength,contentLength,blogIdTrue,middleWare,
+postsRouters.post("/", titleLength, shortDescriptionLength, contentLength, blogIdTrue, middleWare,
     (req: Request, res: Response) => {
-    const post = postsRepository.createPost(req.body.title, req.body.shortDescription,
-        req.body.content, req.body.blogId);
-    res.send(post);
-});
+        const aut = usersPassword[0] === req.headers.authorization ? true : res.sendStatus(401);
+        const post = postsRepository.createPost(req.body.title, req.body.shortDescription,
+            req.body.content, req.body.blogId);
+        res.send(post);
+    });
 
-postsRouters.put("/:id", titleLength,shortDescriptionLength,contentLength,blogIdTrue,middleWare,
+postsRouters.put("/:id", titleLength, shortDescriptionLength, contentLength, blogIdTrue, middleWare,
     (req: Request, res: Response) => {
-    const postUpdate = postsRepository.updatePostId(req.params.id, req.body.title, req.body.shortDescription,
-        req.body.content, req.body.blogId);
-    res.sendStatus(postUpdate);
-});
+        const aut = usersPassword[0] === req.headers.authorization ? true : res.sendStatus(401);
+        const postUpdate = postsRepository.updatePostId(req.params.id, req.body.title, req.body.shortDescription,
+            req.body.content, req.body.blogId);
+        res.sendStatus(postUpdate);
+    });
