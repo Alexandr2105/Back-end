@@ -34,7 +34,7 @@ blogsRouters.delete("/:id", (req: Request, res: Response) => {
 
 blogsRouters.post("/", nameLength, urlLength, middleWare, (req: Request, res: Response) => {
     const createBlogs = blogsRepository.createBlog(req.body.name, req.body.youtubeUrl);
-    res.send(createBlogs).status(201);
+    res.status(201).send(createBlogs);
 });
 
 blogsRouters.put("/:id", nameLength, urlLength, middleWare, (req: Request, res: Response) => {

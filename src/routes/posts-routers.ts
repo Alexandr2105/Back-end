@@ -53,7 +53,7 @@ postsRouters.post("/", titleLength, shortDescriptionLength, contentLength, blogI
     (req: Request, res: Response) => {
         const post = postsRepository.createPost(req.body.title, req.body.shortDescription,
             req.body.content, req.body.blogId);
-        res.send(post).status(201);
+        res.status(201).send(post);
     });
 
 postsRouters.put("/:id", titleLength, shortDescriptionLength, contentLength, blogIdTrue, middleWare,
