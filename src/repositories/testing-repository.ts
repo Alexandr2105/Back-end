@@ -1,5 +1,5 @@
 import {videos} from "./video-repository";
-import {blogs} from "./blogs-repository";
+import {blogs} from "./blogs-in-memory-repository";
 import {posts} from "./posts-repository";
 
 export const testingRepository = {

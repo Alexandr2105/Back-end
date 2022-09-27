@@ -1,4 +1,4 @@
-import {blogs} from "./blogs-repository";
+import {blogs} from "./blogs-in-memory-repository";
 
 type PostsType = {
     id: string,
@@ -6,7 +6,8 @@ type PostsType = {
     shortDescription: string,
     content: string,
     blogId: string,
-    blogName: string
+    blogName: string,
+    "createdAt": string
 }
 
 export const posts: PostsType[] = [
@@ -16,24 +17,24 @@ export const posts: PostsType[] = [
         "shortDescription": "asdf asf",
         "content": "qwer",
         "blogId": "1",
-        "blogName": "qwer"
-
+        "blogName": "qwer",
+        "createdAt": new Date().toISOString()
     }, {
         "id": "2",
         "title": "asdf",
         "shortDescription": "adf adsf",
         "content": "asdf",
         "blogId": "2",
-        "blogName": "adf"
-
+        "blogName": "adf",
+        "createdAt": new Date().toISOString()
     }, {
         "id": "3",
         "title": "zccv",
         "shortDescription": "zxcv zxcv",
         "content": "zxcv",
         "blogId": "3",
-        "blogName": "zxcv"
-
+        "blogName": "zxcv",
+        "createdAt": new Date().toISOString()
     },
 ];
 
@@ -64,11 +65,12 @@ export const postsRepository = {
                 post.title = title;
                 post.shortDescription = shortDescription;
                 post.content = content;
-                post.blogId = blogId
-                return 204;
+                post.blogId = blogId;
+                post.createdAt = new Date().toISOString();
+                return true;
             }
         }
-        return 404;
+        return false;
     },
     createPost(title: string, shortDescription: string, content: string, blogId: string) {
         let name = "string";
@@ -84,7 +86,8 @@ export const postsRepository = {
             shortDescription: shortDescription,
             content: content,
             blogId: blogId,
-            blogName: name
+            blogName: name,
+            createdAt: new Date().toISOString()
         }
         posts.push(newPost);
         return newPost;

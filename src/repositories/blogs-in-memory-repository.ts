@@ -1,32 +1,36 @@
-type VideoType = {
+type BlogsType = {
     id: string,
     name: string,
     youtubeUrl: string,
+    createdAt: string;
 };
 
-export const blogs: VideoType[] = [
+export const blogs: BlogsType[] = [
     {
         "id": "1",
         "name": "Bob",
-        "youtubeUrl": "https://www.youtube.com"
+        "youtubeUrl": "https://www.youtube.com",
+        "createdAt": new Date().toISOString()
     },
     {
         "id": "2",
         "name": "Alex",
-        "youtubeUrl": "https://learn.javascript.ru"
+        "youtubeUrl": "https://learn.javascript.ru",
+        "createdAt": new Date().toISOString()
     },
     {
         "id": "3",
         "name": "Petr",
-        "youtubeUrl": "https://github.com"
+        "youtubeUrl": "https://github.com",
+        "createdAt": new Date().toISOString()
     }
 ]
 
 export const blogsRepository = {
-    getAllBlogs() {
+    async getAllBlogs(): Promise<BlogsType[]> {
         return blogs;
     },
-    getBlogsId(id: string) {
+    async getBlogsId(id: string): Promise<BlogsType | boolean> {
         for (let blog of blogs) {
             if (blog.id === id) {
                 return blog;
@@ -34,7 +38,7 @@ export const blogsRepository = {
         }
         return false;
     },
-    deleteBlogsId(id: string) {
+    async deleteBlogsId(id: string): Promise<boolean> {
         for (let a = 0; a < blogs.length; a++) {
             if (blogs[a].id === id) {
                 blogs.splice(a, 1);
@@ -43,24 +47,26 @@ export const blogsRepository = {
         }
         return false;
     },
-    createBlog(name: string, url: string) {
+    async createBlog(name: string, url: string): Promise<BlogsType> {
         const dateNow = +new Date() + "";
         const newBlog = {
             id: dateNow,
             name: name,
-            youtubeUrl: url
+            youtubeUrl: url,
+            createdAt: new Date().toISOString()
         };
         blogs.push(newBlog);
         return newBlog;
     },
-    updateBlog(id: string, name: string, url: string) {
+    async updateBlog(id: string, name: string, url: string): Promise<boolean> {
         for (let blog of blogs) {
             if (blog.id == id) {
                 blog.name = name;
                 blog.youtubeUrl = url;
-                return 204;
+                blog.createdAt = new Date().toISOString();
+                return true;
             }
         }
-        return 404;
+        return false;
     }
 };

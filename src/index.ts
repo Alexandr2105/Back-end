@@ -3,7 +3,7 @@ import {videosRouter} from "./routes/videos-router";
 import {testingRouter} from "./routes/testing-router";
 import {blogsRouters} from "./routes/blogs-routers";
 import {postsRouters} from "./routes/posts-routers";
-
+import {runDb} from "./repositories/db";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -21,6 +21,11 @@ app.get("/", (req: Request, res: Response) => {
     res.send(helloMessage);
 });
 
-app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`);
-});
+const startApp = async () => {
+    await runDb();
+    app.listen(port, () => {
+        console.log(`Example app listening on port ${port}`);
+    })
+};
+
+startApp();

@@ -1,5 +1,5 @@
 import {Router, Request, Response, NextFunction} from "express";
-import {blogsRepository} from "../repositories/blogs-repository";
+import {blogsRepository} from "../repositories/blogs-db-repository";
 import {body} from "express-validator";
 import {middleWare} from "../middlewares/middleware";
 import {usersPassword} from "../repositories/usersPasswords";
@@ -16,13 +16,13 @@ const aut = (req: Request, res: Response, next: NextFunction) => {
     }
 }
 
-blogsRouters.get("/", (req: Request, res: Response) => {
-    const blogs = blogsRepository.getAllBlogs();
+blogsRouters.get("/", async (req: Request, res: Response) => {
+    const blogs = await blogsRepository.getAllBlogs();
     res.send(blogs);
 });
 
-blogsRouters.get("/:id", (req: Request, res: Response) => {
-    const blogsId = blogsRepository.getBlogsId(req.params.id);
+blogsRouters.get("/:id", async (req: Request, res: Response) => {
+    const blogsId = await blogsRepository.getBlogsId(req.params.id);
     if (blogsId) {
         res.send(blogsId);
     } else {
@@ -30,8 +30,8 @@ blogsRouters.get("/:id", (req: Request, res: Response) => {
     }
 });
 
-blogsRouters.delete("/:id", aut, (req: Request, res: Response) => {
-    const blogsDelId = blogsRepository.deleteBlogsId(req.params.id);
+blogsRouters.delete("/:id", aut, async (req: Request, res: Response) => {
+    const blogsDelId = await blogsRepository.deleteBlogsId(req.params.id);
     if (blogsDelId) {
         res.sendStatus(204);
     } else {
@@ -39,12 +39,16 @@ blogsRouters.delete("/:id", aut, (req: Request, res: Response) => {
     }
 });
 
-blogsRouters.post("/", aut, nameLength, urlLength, middleWare, (req: Request, res: Response) => {
-    const createBlogs = blogsRepository.createBlog(req.body.name, req.body.youtubeUrl);
+blogsRouters.post("/", aut, nameLength, urlLength, middleWare, async (req: Request, res: Response) => {
+    const createBlogs = await blogsRepository.createBlog(req.body.name, req.body.youtubeUrl);
     res.status(201).send(createBlogs);
 });
 
-blogsRouters.put("/:id", aut, nameLength, urlLength, middleWare, (req: Request, res: Response) => {
-    const updateBlog = blogsRepository.updateBlog(req.params.id, req.body.name, req.body.youtubeUrl);
-    res.sendStatus(updateBlog);
+blogsRouters.put("/:id", aut, nameLength, urlLength, middleWare, async (req: Request, res: Response) => {
+    const updateBlog = await blogsRepository.updateBlog(req.params.id, req.body.name, req.body.youtubeUrl);
+    if (updateBlog) {
+        res.sendStatus(204);
+    } else {
+        res.sendStatus(404);
+    }
 });

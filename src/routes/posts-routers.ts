@@ -1,7 +1,7 @@
 import {Router, Request, Response, NextFunction} from "express";
 import {postsRepository} from "../repositories/posts-repository";
 import {body} from "express-validator";
-import {blogs} from "../repositories/blogs-repository";
+import {blogs} from "../repositories/blogs-in-memory-repository";
 import {middleWare} from "../middlewares/middleware";
 import {usersPassword} from "../repositories/usersPasswords";
 
@@ -60,5 +60,9 @@ postsRouters.put("/:id", aut, titleLength, shortDescriptionLength, contentLength
     (req: Request, res: Response) => {
         const postUpdate = postsRepository.updatePostId(req.params.id, req.body.title, req.body.shortDescription,
             req.body.content, req.body.blogId);
-        res.sendStatus(postUpdate);
+        if (postUpdate) {
+            res.sendStatus(204);
+        } else {
+            res.sendStatus(404);
+        }
     });
