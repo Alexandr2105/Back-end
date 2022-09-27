@@ -63,7 +63,7 @@ export const blogsRepository = {
             if (blog.id == id) {
                 blog.name = name;
                 blog.youtubeUrl = url;
-                blog.createdAt = new Date().toISOString();
+                blog.createdAt;
                 return true;
             }
         }

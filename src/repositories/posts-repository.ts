@@ -66,7 +66,7 @@ export const postsRepository = {
                 post.shortDescription = shortDescription;
                 post.content = content;
                 post.blogId = blogId;
-                post.createdAt = new Date().toISOString();
+                post.createdAt;
                 return true;
             }
         }
@@ -79,7 +79,6 @@ export const postsRepository = {
                 name = blog.name.toString()
             }
         }
-
         const newPost = {
             id: +new Date() + "",
             title: title,

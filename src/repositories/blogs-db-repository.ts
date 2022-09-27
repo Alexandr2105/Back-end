@@ -35,7 +35,6 @@ export const blogsRepository = {
                     {
                         name: name,
                         youtubeUrl: url,
-                        createdAt: new Date().toISOString()
                     }
             }
         );
