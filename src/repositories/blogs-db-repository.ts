@@ -1,11 +1,13 @@
 import {blogsCollection, BlogsType} from "./db";
 
+const option = {projection: {_id: 0}};
+
 export const blogsRepository = {
     async getAllBlogs(): Promise<BlogsType[]> {
-        return blogsCollection.find({}).toArray();
+        return blogsCollection.find({}, option).toArray();
     },
     async getBlogsId(id: string): Promise<BlogsType | boolean> {
-        let blog = await blogsCollection.findOne({id: id});
+        let blog = await blogsCollection.findOne({id: id},option);
         if (blog) {
             return blog;
         } else {
