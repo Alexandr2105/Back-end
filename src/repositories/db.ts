@@ -7,7 +7,7 @@ export type BlogsType = {
     createdAt: string;
 };
 
-const mongoUri = process.env.mongoUri || "mongodb://localhost:27017/";
+const mongoUri = process.env.mongoUri || "mongodb://localhost:27017/"||"mongodb+srv://Alex:admin@cluster0.g70qjhf.mongodb.net/tube?retryWrites=true&w=majority";
 
 const client=new MongoClient(mongoUri);
 const db = client.db("tube");
