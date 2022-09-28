@@ -72,7 +72,7 @@ export const postsRepository = {
         }
         return false;
     },
-    async createPost(title: string, shortDescription: string, content: string, blogId: string) {
+    async createPost(title: string, shortDescription: string, content: string, blogId: string):Promise<PostsType> {
         let name = "string";
         const a = await blogsCollection.findOne({id: blogId}, option);
         if (a?.id === blogId) {

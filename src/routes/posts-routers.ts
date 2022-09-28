@@ -50,8 +50,8 @@ postsRouters.delete("/:id", aut, (req: Request, res: Response) => {
 });
 
 postsRouters.post("/", aut, titleLength, shortDescriptionLength, contentLength, blogIdTrue, middleWare,
-    (req: Request, res: Response) => {
-        const post = postsRepository.createPost(req.body.title, req.body.shortDescription,
+    async (req: Request, res: Response) => {
+        const post = await postsRepository.createPost(req.body.title, req.body.shortDescription,
             req.body.content, req.body.blogId);
         res.status(201).send(post);
     });
