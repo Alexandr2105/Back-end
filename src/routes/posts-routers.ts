@@ -1,20 +1,19 @@
 import {Router, Request, Response, NextFunction} from "express";
 import {postsRepository} from "../repositories/posts-repository";
 import {body} from "express-validator";
-import {blogs} from "../repositories/blogs-in-memory-repository";
 import {middleWare} from "../middlewares/middleware";
 import {usersPassword} from "../repositories/usersPasswords";
+import {blogsCollection} from "../repositories/db";
 
 export const postsRouters = Router();
 
 const titleLength = body("title").trim().notEmpty().isLength({max: 30}).withMessage("Не верно заполнено поле");
 const shortDescriptionLength = body("shortDescription").trim().notEmpty().isLength({max: 100}).withMessage("Не верно заполнено поле");
 const contentLength = body("content").isLength({max: 1000}).trim().notEmpty().withMessage("Не верно заполнено поле");
-const blogIdTrue = body("blogId").custom((b, {req}) => {
-    for (let blog of blogs) {
-        if (blog.id === req.body.blogId) {
-            return true;
-        }
+const blogIdTrue = body("blogId").custom(async (b, {req}) => {
+    const a = await blogsCollection.findOne({id: req.body.blogId});
+    if (a?.id === req.body.blogId) {
+        return true;
     }
     throw new Error("Нет такого id");
 });

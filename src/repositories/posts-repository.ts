@@ -76,7 +76,7 @@ export const postsRepository = {
         let name = "string";
         const a = await blogsCollection.findOne({id: blogId}, option);
         if (a?.id === blogId) {
-            name=a.name;
+            name = a.name;
         }
         const newPost = {
             id: +new Date() + "",
