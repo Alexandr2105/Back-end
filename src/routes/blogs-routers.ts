@@ -41,7 +41,8 @@ blogsRouters.delete("/:id", aut, async (req: Request, res: Response) => {
 
 blogsRouters.post("/", aut, nameLength, urlLength, middleWare, async (req: Request, res: Response) => {
     const createBlogs = await blogsRepository.createBlog(req.body.name, req.body.youtubeUrl);
-    res.status(201).send(createBlogs);
+    const newBlog=await blogsRepository.getBlogsId(createBlogs.id);
+    res.status(201).send(newBlog);
 });
 
 blogsRouters.put("/:id", aut, nameLength, urlLength, middleWare, async (req: Request, res: Response) => {

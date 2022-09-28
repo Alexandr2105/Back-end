@@ -37,8 +37,8 @@ export const blogsRepository = {
                     {
                         name: name,
                         youtubeUrl: url,
-                    }
-            }
+                    },
+            },
         );
         return updateBlog.matchedCount === 1;
     }

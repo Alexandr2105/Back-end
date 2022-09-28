@@ -4,7 +4,7 @@ export type BlogsType = {
     id: string,
     name: string,
     youtubeUrl: string,
-    createdAt: string;
+    createdAt: string,
 };
 
 const mongoUri = process.env.mongoUri ||"mongodb+srv://Alex:admin@cluster0.g70qjhf.mongodb.net/tube?retryWrites=true&w=majority";
