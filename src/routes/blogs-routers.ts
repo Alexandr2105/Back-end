@@ -1,5 +1,5 @@
 import {Router, Request, Response, NextFunction} from "express";
-import {blogsRepository} from "../repositories/blogs-in-memory-repository";
+import {blogsRepository} from "../repositories/blogs-db-repository";
 import {body} from "express-validator";
 import {middleWare} from "../middlewares/middleware";
 import {usersPassword} from "../repositories/usersPasswords";

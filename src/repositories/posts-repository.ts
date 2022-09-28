@@ -1,5 +1,4 @@
 import {blogsCollection} from "./db";
-import {body} from "express-validator";
 
 type PostsType = {
     id: string,
@@ -74,13 +73,6 @@ export const postsRepository = {
         return false;
     },
     async createPost(title: string, shortDescription: string, content: string, blogId: string): Promise<PostsType> {
-        body("blogId").custom(async (b, {req}) => {
-            const id = await blogsCollection.findOne({id: req.body.blogId});
-            if (id?.id === req.body.blogId) {
-                return true;
-            }
-            throw new Error("Нет такого id");
-        });
         let name = "string";
         const a = await blogsCollection.findOne({id: blogId}, option);
         if (a?.id === blogId) {
