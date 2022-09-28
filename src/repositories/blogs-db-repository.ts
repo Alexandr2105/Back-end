@@ -7,7 +7,7 @@ export const blogsRepository = {
         return blogsCollection.find({}, option).toArray();
     },
     async getBlogsId(id: string): Promise<BlogsType | boolean> {
-        let blog = await blogsCollection.findOne({id: id},option);
+        let blog = await blogsCollection.findOne({id: id}, option);
         if (blog) {
             return blog;
         } else {
