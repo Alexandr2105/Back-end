@@ -1,4 +1,4 @@
-import {blogs} from "./blogs-in-memory-repository";
+import {blogsCollection} from "./db";
 
 type PostsType = {
     id: string,
@@ -9,7 +9,7 @@ type PostsType = {
     blogName: string,
     "createdAt": string
 }
-
+const option = {projection: {_id: 0}};
 export const posts: PostsType[] = [
     {
         "id": "1",
@@ -72,12 +72,11 @@ export const postsRepository = {
         }
         return false;
     },
-    createPost(title: string, shortDescription: string, content: string, blogId: string) {
+    async createPost(title: string, shortDescription: string, content: string, blogId: string) {
         let name = "string";
-        for (let blog of blogs) {
-            if (blog.id === blogId) {
-                name = blog.name.toString()
-            }
+        const a = await blogsCollection.findOne({id: blogId}, option);
+        if (a?.id === blogId) {
+            name=a.name;
         }
         const newPost = {
             id: +new Date() + "",
