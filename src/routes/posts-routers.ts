@@ -10,9 +10,9 @@ export const postsRouters = Router();
 const titleLength = body("title").trim().notEmpty().isLength({max: 30}).withMessage("Не верно заполнено поле");
 const shortDescriptionLength = body("shortDescription").trim().notEmpty().isLength({max: 100}).withMessage("Не верно заполнено поле");
 const contentLength = body("content").isLength({max: 1000}).trim().notEmpty().withMessage("Не верно заполнено поле");
-const blogIdTrue = body("blogId").custom(async (b, {req}) => {
-    const id = await blogsCollection.findOne({id: req.body.blogId});
-    if (id?.id === req.body.blogId) {
+const blogIdTrue = body("blogId").custom(async (blogId) => {
+    const id = await blogsCollection.findOne({id: blogId});
+    if (id?.id === blogId) {
         return true;
     }
     throw new Error("Нет такого id");
