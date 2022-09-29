@@ -3,7 +3,7 @@ import {videosRouter} from "./routes/videos-router";
 import {testingRouter} from "./routes/testing-router";
 import {blogsRouters} from "./routes/blogs-routers";
 import {postsRouters} from "./routes/posts-routers";
-import {runDb} from "./repositories/db";
+import {runDb} from "./db/db";
 
 const app = express();
 const port = process.env.PORT || 3000;

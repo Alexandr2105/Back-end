@@ -1,8 +1,8 @@
 import {Router, Request, Response, NextFunction} from "express";
-import {blogsRepository} from "../repositories/blogs-db-repository";
 import {body} from "express-validator";
 import {middleWare} from "../middlewares/middleware";
 import {usersPassword} from "../repositories/usersPasswords";
+import {blogsService} from "../domain/blogs-service";
 
 export const blogsRouters = Router();
 
@@ -17,12 +17,12 @@ const aut = (req: Request, res: Response, next: NextFunction) => {
 }
 
 blogsRouters.get("/", async (req: Request, res: Response) => {
-    const blogs = await blogsRepository.getAllBlogs();
+    const blogs = await blogsService.getAllBlogs();
     res.send(blogs);
 });
 
 blogsRouters.get("/:id", async (req: Request, res: Response) => {
-    const blogsId = await blogsRepository.getBlogsId(req.params.id);
+    const blogsId = await blogsService.getBlogsId(req.params.id);
     if (blogsId) {
         res.send(blogsId);
     } else {
@@ -31,7 +31,7 @@ blogsRouters.get("/:id", async (req: Request, res: Response) => {
 });
 
 blogsRouters.delete("/:id", aut, async (req: Request, res: Response) => {
-    const blogsDelId = await blogsRepository.deleteBlogsId(req.params.id);
+    const blogsDelId = await blogsService.deleteBlogsId(req.params.id);
     if (blogsDelId) {
         res.sendStatus(204);
     } else {
@@ -40,13 +40,13 @@ blogsRouters.delete("/:id", aut, async (req: Request, res: Response) => {
 });
 
 blogsRouters.post("/", aut, nameLength, urlLength, middleWare, async (req: Request, res: Response) => {
-    const createBlogs = await blogsRepository.createBlog(req.body.name, req.body.youtubeUrl);
-    const newBlog=await blogsRepository.getBlogsId(createBlogs.id);
+    const createBlogs = await blogsService.createBlog(req.body.name, req.body.youtubeUrl);
+    const newBlog=await blogsService.getBlogsId(createBlogs.id);
     res.status(201).send(newBlog);
 });
 
 blogsRouters.put("/:id", aut, nameLength, urlLength, middleWare, async (req: Request, res: Response) => {
-    const updateBlog = await blogsRepository.updateBlog(req.params.id, req.body.name, req.body.youtubeUrl);
+    const updateBlog = await blogsService.updateBlog(req.params.id, req.body.name, req.body.youtubeUrl);
     if (updateBlog) {
         res.sendStatus(204);
     } else {

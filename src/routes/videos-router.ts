@@ -1,7 +1,7 @@
 import {Request, Response, Router} from "express";
-import {videosRepository} from "../repositories/video-repository";
 import {middleWare} from "../middlewares/middleware";
 import {body} from "express-validator";
+import {videosService} from "../domain/video-service";
 
 export const videosRouter = Router();
 
@@ -25,12 +25,12 @@ const findAvailableResolutions = (array: string[]) => {
 }
 
 videosRouter.get("/", (req: Request, res: Response) => {
-    const videos = videosRepository.getAllVideo();
+    const videos = videosService.getAllVideo();
     res.send(videos);
 });
 
 videosRouter.get("/:id", (req: Request, res: Response) => {
-    let videoId = videosRepository.findVideosId(+req.params.id);
+    let videoId = videosService.findVideosId(+req.params.id);
     if (videoId) {
         res.send(videoId);
     } else {
@@ -39,7 +39,7 @@ videosRouter.get("/:id", (req: Request, res: Response) => {
 });
 
 videosRouter.delete("/:id", (req: Request, res: Response) => {
-    let video = videosRepository.videoDelete(+req.params.id);
+    let video = videosService.videoDelete(+req.params.id);
     if (video) {
         res.sendStatus(204);
     } else {
@@ -57,7 +57,7 @@ videosRouter.post("/", titleLength, authorLength, middleWare, (req: Request, res
         );
         res.status(400).send({"errorsMessages": errors});
     } else {
-        const newVideo = videosRepository.createVideo(req.body.title, req.body.author, req.body.availableResolutions);
+        const newVideo = videosService.createVideo(req.body.title, req.body.author, req.body.availableResolutions);
         res.status(201).send(newVideo);
     }
 });
@@ -72,7 +72,7 @@ videosRouter.put("/:id", titleLength, authorLength, minAgeRestriction, canBeDown
         );
         res.status(400).send({"errorsMessages": errors});
     } else {
-        const updateVideo = videosRepository.updateVideo(+req.params.id, req.body.title,
+        const updateVideo = videosService.updateVideo(+req.params.id, req.body.title,
             req.body.author, req.body.availableResolutions, req.body.canBeDownloaded,
             req.body.minAgeRestriction, req.body.publicationDate);
         res.sendStatus(updateVideo);

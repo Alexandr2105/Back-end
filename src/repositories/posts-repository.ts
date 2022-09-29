@@ -1,6 +1,4 @@
-import {blogsCollection} from "./db";
-
-type PostsType = {
+export type PostsType = {
     id: string,
     title: string,
     shortDescription: string,
@@ -9,7 +7,6 @@ type PostsType = {
     blogName: string,
     "createdAt": string
 }
-const option = {projection: {_id: 0}};
 export const posts: PostsType[] = [
     {
         "id": "1",
@@ -72,21 +69,7 @@ export const postsRepository = {
         }
         return false;
     },
-    async createPost(title: string, shortDescription: string, content: string, blogId: string): Promise<PostsType> {
-        let name = "string";
-        const a = await blogsCollection.findOne({id: blogId}, option);
-        if (a?.id === blogId) {
-            name = a.name;
-        }
-        const newPost = {
-            id: +new Date() + "",
-            title: title,
-            shortDescription: shortDescription,
-            content: content,
-            blogId: blogId,
-            blogName: name,
-            createdAt: new Date().toISOString()
-        }
+    async createPost(newPost: PostsType): Promise<PostsType> {
         posts.push(newPost);
         return newPost;
     }

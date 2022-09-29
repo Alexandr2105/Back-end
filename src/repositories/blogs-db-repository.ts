@@ -1,4 +1,4 @@
-import {blogsCollection, BlogsType} from "./db";
+import {blogsCollection, BlogsType} from "../db/db";
 
 const option = {projection: {_id: 0}};
 
@@ -18,14 +18,7 @@ export const blogsRepository = {
         let result = await blogsCollection.deleteOne({"id": id});
         return result.deletedCount === 1;
     },
-    async createBlog(name: string, url: string): Promise<BlogsType> {
-        const dateNow = +new Date() + "";
-        const newBlog = {
-            id: dateNow,
-            name: name,
-            youtubeUrl: url,
-            createdAt: new Date().toISOString()
-        };
+    async createBlog(newBlog:BlogsType): Promise<BlogsType> {
         await blogsCollection.insertOne(newBlog);
         return newBlog;
     },

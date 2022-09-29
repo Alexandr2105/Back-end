@@ -1,9 +1,9 @@
 import {Router, Request, Response, NextFunction} from "express";
-import {postsRepository} from "../repositories/posts-repository";
+import {postsService} from "../domain/posts-service";
 import {body} from "express-validator";
 import {middleWare} from "../middlewares/middleware";
 import {usersPassword} from "../repositories/usersPasswords";
-import {blogsCollection} from "../repositories/db";
+import {blogsCollection} from "../db/db";
 
 export const postsRouters = Router();
 
@@ -26,12 +26,12 @@ const aut = (req: Request, res: Response, next: NextFunction) => {
 }
 
 postsRouters.get("/", (req: Request, res: Response) => {
-    const posts = postsRepository.getAllPosts();
+    const posts = postsService.getAllPosts();
     res.send(posts);
 });
 
 postsRouters.get("/:id", (req: Request, res: Response) => {
-    const post = postsRepository.getPostId(req.params.id);
+    const post = postsService.getPostId(req.params.id);
     if (post) {
         res.send(post)
     } else {
@@ -40,7 +40,7 @@ postsRouters.get("/:id", (req: Request, res: Response) => {
 });
 
 postsRouters.delete("/:id", aut, (req: Request, res: Response) => {
-    const postId = postsRepository.deletePostId(req.params.id);
+    const postId = postsService.deletePostId(req.params.id);
     if (postId) {
         res.sendStatus(204);
     } else {
@@ -50,7 +50,7 @@ postsRouters.delete("/:id", aut, (req: Request, res: Response) => {
 
 postsRouters.post("/", aut, titleLength, shortDescriptionLength, contentLength, blogIdTrue, middleWare,
     async (req: Request, res: Response) => {
-        const post = await postsRepository.createPost(req.body.title, req.body.shortDescription,
+        const post = await postsService.createPost(req.body.title, req.body.shortDescription,
             req.body.content, req.body.blogId);
         res.status(201).send(post);
     }
@@ -59,7 +59,7 @@ postsRouters.post("/", aut, titleLength, shortDescriptionLength, contentLength, 
 
 postsRouters.put("/:id", aut, titleLength, shortDescriptionLength, contentLength, blogIdTrue, middleWare,
     (req: Request, res: Response) => {
-        const postUpdate = postsRepository.updatePostId(req.params.id, req.body.title, req.body.shortDescription,
+        const postUpdate = postsService.updatePostId(req.params.id, req.body.title, req.body.shortDescription,
             req.body.content, req.body.blogId);
         if (postUpdate) {
             res.sendStatus(204);
