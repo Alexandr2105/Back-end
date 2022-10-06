@@ -3,6 +3,7 @@ import {body} from "express-validator";
 import {middleWare} from "../middlewares/middleware";
 import {usersPassword} from "../repositories/usersPasswords";
 import {blogsService} from "../domain/blogs-service";
+// import {queryRepository} from "../queryReposytories/query";
 
 export const blogsRouters = Router();
 
@@ -19,6 +20,8 @@ const aut = (req: Request, res: Response, next: NextFunction) => {
 blogsRouters.get("/", async (req: Request, res: Response) => {
     const blogs = await blogsService.getAllBlogs();
     res.send(blogs);
+    // const blogs=await queryRepository.getQueryBlogs(req.query);
+    // res.send(blogs);
 });
 
 blogsRouters.get("/:id", async (req: Request, res: Response) => {
@@ -40,8 +43,8 @@ blogsRouters.delete("/:id", aut, async (req: Request, res: Response) => {
 });
 
 blogsRouters.post("/", aut, nameLength, urlLength, middleWare, async (req: Request, res: Response) => {
-    const createBlogs = await blogsService.createBlog(req.body.name, req.body.youtubeUrl);
-    const newBlog=await blogsService.getBlogsId(createBlogs.id);
+    const createBlog = await blogsService.createBlog(req.body.name, req.body.youtubeUrl);
+    const newBlog = await blogsService.getBlogsId(createBlog.id);
     res.status(201).send(newBlog);
 });
 
@@ -53,3 +56,11 @@ blogsRouters.put("/:id", aut, nameLength, urlLength, middleWare, async (req: Req
         res.sendStatus(404);
     }
 });
+
+// blogsRouters.get("/:blogId/posts", (req: Request, res: Response) => {
+//     queryRepository.getQueryBlogs(req.query);
+// });
+
+// blogsRouters.post("/:blogId/posts", (req: Request, res: Response) => {
+//
+// });

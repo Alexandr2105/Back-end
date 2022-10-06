@@ -7,7 +7,7 @@ export const blogsRepository = {
         return blogsCollection.find({}, option).toArray();
     },
     async getBlogsId(id: string): Promise<BlogsType | boolean> {
-        let blog = await blogsCollection.findOne({id: id}, option);
+        const blog = await blogsCollection.findOne({id: id}, option);
         if (blog) {
             return blog;
         } else {
@@ -15,17 +15,15 @@ export const blogsRepository = {
         }
     },
     async deleteBlogsId(id: string): Promise<boolean> {
-        let result = await blogsCollection.deleteOne({"id": id});
+        let result = await blogsCollection.deleteOne({id: id});
         return result.deletedCount === 1;
     },
-    async createBlog(newBlog:BlogsType): Promise<BlogsType> {
+    async createBlog(newBlog: BlogsType): Promise<BlogsType> {
         await blogsCollection.insertOne(newBlog);
         return newBlog;
     },
     async updateBlog(id: string, name: string, url: string): Promise<boolean> {
-        const updateBlog = await blogsCollection.updateOne({
-                id: id
-            }, {
+        const updateBlog = await blogsCollection.updateOne({id: id}, {
                 $set:
                     {
                         name: name,

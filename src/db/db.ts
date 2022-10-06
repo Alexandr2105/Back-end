@@ -7,18 +7,29 @@ export type BlogsType = {
     createdAt: string,
 };
 
-const mongoUri = process.env.mongoUri ||"mongodb+srv://Alex:admin@cluster0.g70qjhf.mongodb.net/tube?retryWrites=true&w=majority";
+export type PostsType = {
+    id: string,
+    title: string,
+    shortDescription: string,
+    content: string,
+    blogId: string,
+    blogName: string,
+    "createdAt": string
+};
 
-const client=new MongoClient(mongoUri);
+const mongoUri = process.env.mongoUri || "mongodb+srv://Alex:admin@cluster0.g70qjhf.mongodb.net/tube?retryWrites=true&w=majority";
+
+const client = new MongoClient(mongoUri);
 const db = client.db("tube");
 export const blogsCollection = db.collection<BlogsType>("blogs");
+export const postsCollection = db.collection<PostsType>("posts");
 
-export async function runDb(){
+export async function runDb() {
     try {
-    await client.connect();
-    await  client.db("blogs").command({ping:1});
-    console.log("Подключились к монго серверу");
-        }catch{
+        await client.connect();
+        await client.db("blogs").command({ping: 1});
+        console.log("Подключились к монго серверу");
+    } catch {
         console.log("Нет подключения к БД");
         await client.close();
     }

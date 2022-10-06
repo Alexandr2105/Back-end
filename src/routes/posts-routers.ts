@@ -4,6 +4,8 @@ import {body} from "express-validator";
 import {middleWare} from "../middlewares/middleware";
 import {usersPassword} from "../repositories/usersPasswords";
 import {blogsCollection} from "../db/db";
+// import {blogsService} from "../domain/blogs-service";
+// import {queryRepository} from "../queryReposytories/query";
 
 export const postsRouters = Router();
 
@@ -25,13 +27,15 @@ const aut = (req: Request, res: Response, next: NextFunction) => {
     }
 }
 
-postsRouters.get("/", (req: Request, res: Response) => {
-    const posts = postsService.getAllPosts();
+postsRouters.get("/", async (req: Request, res: Response) => {
+    const posts = await postsService.getAllPosts();
     res.send(posts);
+    // const posts = await queryRepository.getQueryPosts(req.query);
+    // res.send(posts);
 });
 
-postsRouters.get("/:id", (req: Request, res: Response) => {
-    const post = postsService.getPostId(req.params.id);
+postsRouters.get("/:id", async (req: Request, res: Response) => {
+    const post = await postsService.getPostId(req.params.id);
     if (post) {
         res.send(post)
     } else {
@@ -39,8 +43,8 @@ postsRouters.get("/:id", (req: Request, res: Response) => {
     }
 });
 
-postsRouters.delete("/:id", aut, (req: Request, res: Response) => {
-    const postId = postsService.deletePostId(req.params.id);
+postsRouters.delete("/:id", aut, async (req: Request, res: Response) => {
+    const postId = await postsService.deletePostId(req.params.id);
     if (postId) {
         res.sendStatus(204);
     } else {
@@ -50,16 +54,15 @@ postsRouters.delete("/:id", aut, (req: Request, res: Response) => {
 
 postsRouters.post("/", aut, titleLength, shortDescriptionLength, contentLength, blogIdTrue, middleWare,
     async (req: Request, res: Response) => {
-        const post = await postsService.createPost(req.body.title, req.body.shortDescription,
+        const createPost = await postsService.createPost(req.body.title, req.body.shortDescription,
             req.body.content, req.body.blogId);
-        res.status(201).send(post);
-    }
-)
-;
+        const newPost = await postsService.getPostId(createPost.id);
+        res.status(201).send(newPost);
+    });
 
 postsRouters.put("/:id", aut, titleLength, shortDescriptionLength, contentLength, blogIdTrue, middleWare,
-    (req: Request, res: Response) => {
-        const postUpdate = postsService.updatePostId(req.params.id, req.body.title, req.body.shortDescription,
+    async (req: Request, res: Response) => {
+        const postUpdate = await postsService.updatePostId(req.params.id, req.body.title, req.body.shortDescription,
             req.body.content, req.body.blogId);
         if (postUpdate) {
             res.sendStatus(204);
