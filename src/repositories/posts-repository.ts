@@ -3,9 +3,9 @@ import {postsCollection, PostsType} from "../db/db";
 const option = {projection: {_id: 0}}
 
 export const postsRepository = {
-    async getAllPosts(): Promise<PostsType[]> {
-        return postsCollection.find({}, option).toArray();
-    },
+    // async getAllPosts(): Promise<PostsType[]> {
+    //     return postsCollection.find({}, option).toArray();
+    // },
     async getPostId(id: string): Promise<PostsType | boolean> {
         const blog = await postsCollection.findOne({"id": id}, option);
         if (blog) {

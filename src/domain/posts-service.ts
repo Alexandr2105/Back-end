@@ -4,9 +4,9 @@ import {postsRepository} from "../repositories/posts-repository";
 const option = {projection: {_id: 0}};
 
 export const postsService = {
-    async getAllPosts(): Promise<PostsType[]> {
-        return postsRepository.getAllPosts();
-    },
+    // async getAllPosts(): Promise<PostsType[]> {
+    //     return postsRepository.getAllPosts();
+    // },
     async getPostId(id: string): Promise<PostsType | boolean> {
         return postsRepository.getPostId(id);
     },

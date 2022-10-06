@@ -3,7 +3,7 @@ import {body} from "express-validator";
 import {middleWare} from "../middlewares/middleware";
 import {usersPassword} from "../repositories/usersPasswords";
 import {blogsService} from "../domain/blogs-service";
-// import {queryRepository} from "../queryReposytories/query";
+import {queryRepository} from "../queryReposytories/query";
 
 export const blogsRouters = Router();
 
@@ -18,10 +18,10 @@ const aut = (req: Request, res: Response, next: NextFunction) => {
 }
 
 blogsRouters.get("/", async (req: Request, res: Response) => {
-    const blogs = await blogsService.getAllBlogs();
-    res.send(blogs);
-    // const blogs=await queryRepository.getQueryBlogs(req.query);
+    // const blogs = await blogsService.getAllBlogs();
     // res.send(blogs);
+    const blogs=await queryRepository.getQueryBlogs(req.query);
+    res.send(blogs);
 });
 
 blogsRouters.get("/:id", async (req: Request, res: Response) => {

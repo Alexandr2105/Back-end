@@ -4,8 +4,7 @@ import {body} from "express-validator";
 import {middleWare} from "../middlewares/middleware";
 import {usersPassword} from "../repositories/usersPasswords";
 import {blogsCollection} from "../db/db";
-// import {blogsService} from "../domain/blogs-service";
-// import {queryRepository} from "../queryReposytories/query";
+import {queryRepository} from "../queryReposytories/query";
 
 export const postsRouters = Router();
 
@@ -28,10 +27,10 @@ const aut = (req: Request, res: Response, next: NextFunction) => {
 }
 
 postsRouters.get("/", async (req: Request, res: Response) => {
-    const posts = await postsService.getAllPosts();
-    res.send(posts);
-    // const posts = await queryRepository.getQueryPosts(req.query);
+    // const posts = await postsService.getAllPosts();
     // res.send(posts);
+    const posts = await queryRepository.getQueryPosts(req.query);
+    res.send(posts);
 });
 
 postsRouters.get("/:id", async (req: Request, res: Response) => {
