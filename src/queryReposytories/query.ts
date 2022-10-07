@@ -1,4 +1,4 @@
-import {blogsCollection, postsCollection} from "../db/db";
+import {blogsCollection, postsCollection, usersCollection} from "../db/db";
 
 type ItemsBlogs = {
     id: string,
@@ -32,6 +32,21 @@ type PostQueryType = {
     totalCount: number,
     items: ItemsPosts[]
 };
+
+type ItemsUsers = {
+    id: string,
+    login: string,
+    email: string,
+    createdAt: string
+}
+
+type UsersType = {
+    pagesCount: number,
+    page: number,
+    pageSize: number,
+    totalCount: number,
+    items: ItemsUsers[]
+}
 
 
 export const queryRepository = {
@@ -122,5 +137,35 @@ export const queryRepository = {
                 };
             })
         }
+    },
+
+    async getQueryUsers(query: any): Promise<UsersType> {
+        const searchLoginTerm = query.searchLoginTerm === "" || query.searchLoginTerm === undefined ? "" : query.searchLoginTerm;
+        const searchEmailTerm = query.searchEmailTerm === "" || query.searchEmailTerm === undefined ? "" : query.searchEmailTerm;
+        const pageNumber = query.pageNumber <= 0 || isNaN(query.pageNumber) ? 1 : +query.pageNumber;
+        const pageSize = query.pageSize <= 0 || isNaN(query.pageSize) ? 10 : +query.pageSize;
+        const sortBy = query.sortBy === "" || query.sortBy === undefined ? "createdAt" : query.sortBy;
+        const sortDirection = query.sortDirection === "" || query.sortDirection === undefined ? "desc" : query.sortDirection;
+        const totalCount = await usersCollection.countDocuments({
+            $or: [{login: {$regex: searchLoginTerm, $options: "i"}}, {email: {$regex: searchEmailTerm, $options: "i"}}]
+        });
+        const pagesCount = Math.ceil(totalCount / pageSize);
+        const sortArrayUsers = await usersCollection.find({
+            $or: [{login: {$regex: searchLoginTerm, $options: "i"}}, {email: {$regex: searchEmailTerm, $options: "i"}}]
+        }).skip((pageNumber - 1) * pageSize).limit(pageSize).sort(sortBy, sortDirection).toArray();
+        return {
+            pagesCount: pagesCount,
+            page: pageNumber,
+            pageSize: pageSize,
+            totalCount: totalCount,
+            items: sortArrayUsers.map(a => {
+                return {
+                    id: a.id,
+                    login: a.login,
+                    email: a.email,
+                    createdAt: a.createdAt,
+                }
+            })
+        }
     }
-};
+}

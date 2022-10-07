@@ -7,7 +7,7 @@ import {queryRepository} from "../queryReposytories/query";
 import {postsService} from "../domain/posts-service";
 import {blogsCollection} from "../db/db";
 
-export const blogsRouters = Router();
+export const blogsRouter = Router();
 
 const nameLength = body("name").isLength({max: 15}).withMessage("Длина больше 15 символов").trim().notEmpty().withMessage("Это поле должно быть заплнено");
 const urlLength = body("youtubeUrl").isLength({max: 100}).trim().notEmpty().isURL().withMessage("Не верно заполнено поле");
@@ -30,14 +30,14 @@ const trueId = async (req: Request, res: Response, next: NextFunction) => {
     }
 }
 
-blogsRouters.get("/", async (req: Request, res: Response) => {
+blogsRouter.get("/", async (req: Request, res: Response) => {
     // const blogs = await blogsService.getAllBlogs();
     // res.send(blogs);
     const blogs = await queryRepository.getQueryBlogs(req.query);
     res.send(blogs);
 });
 
-blogsRouters.get("/:id", async (req: Request, res: Response) => {
+blogsRouter.get("/:id", async (req: Request, res: Response) => {
     const blogsId = await blogsService.getBlogsId(req.params.id);
     if (blogsId) {
         res.send(blogsId);
@@ -46,7 +46,7 @@ blogsRouters.get("/:id", async (req: Request, res: Response) => {
     }
 });
 
-blogsRouters.delete("/:id", aut, async (req: Request, res: Response) => {
+blogsRouter.delete("/:id", aut, async (req: Request, res: Response) => {
     const blogsDelId = await blogsService.deleteBlogsId(req.params.id);
     if (blogsDelId) {
         res.sendStatus(204);
@@ -55,13 +55,13 @@ blogsRouters.delete("/:id", aut, async (req: Request, res: Response) => {
     }
 });
 
-blogsRouters.post("/", aut, nameLength, urlLength, middleWare, async (req: Request, res: Response) => {
+blogsRouter.post("/", aut, nameLength, urlLength, middleWare, async (req: Request, res: Response) => {
     const createBlog = await blogsService.createBlog(req.body.name, req.body.youtubeUrl);
     const newBlog = await blogsService.getBlogsId(createBlog.id);
     res.status(201).send(newBlog);
 });
 
-blogsRouters.put("/:id", aut, nameLength, urlLength, middleWare, async (req: Request, res: Response) => {
+blogsRouter.put("/:id", aut, nameLength, urlLength, middleWare, async (req: Request, res: Response) => {
     const updateBlog = await blogsService.updateBlog(req.params.id, req.body.name, req.body.youtubeUrl);
     if (updateBlog) {
         res.sendStatus(204);
@@ -70,7 +70,7 @@ blogsRouters.put("/:id", aut, nameLength, urlLength, middleWare, async (req: Req
     }
 });
 
-blogsRouters.get("/:blogId/posts", async (req: Request, res: Response) => {
+blogsRouter.get("/:blogId/posts", async (req: Request, res: Response) => {
     const postsBlogId = await queryRepository.getQueryPostsBlogsId(req.query, req.params.blogId);
     if (postsBlogId.items.length !== 0) {
         res.send(postsBlogId);
@@ -79,7 +79,7 @@ blogsRouters.get("/:blogId/posts", async (req: Request, res: Response) => {
     }
 });
 
-blogsRouters.post("/:blogId/posts", aut, titleLength, shortDescriptionLength, contentLength, trueId, middleWare, async (req: Request, res: Response) => {
+blogsRouter.post("/:blogId/posts", aut, titleLength, shortDescriptionLength, contentLength, trueId, middleWare, async (req: Request, res: Response) => {
     const newPostForBlogId = await postsService.createPost(req.body.title, req.body.shortDescription, req.body.content, req.params.blogId);
     if (newPostForBlogId) {
         const newPost = await postsService.getPostId(newPostForBlogId.id);

@@ -17,12 +17,20 @@ export type PostsType = {
     "createdAt": string
 };
 
+export type UsersType = {
+    id: string,
+    login: string,
+    email: string,
+    createdAt: string
+};
+
 const mongoUri = process.env.mongoUri || "mongodb+srv://Alex:admin@cluster0.g70qjhf.mongodb.net/tube?retryWrites=true&w=majority";
 
 const client = new MongoClient(mongoUri);
 const db = client.db("tube");
 export const blogsCollection = db.collection<BlogsType>("blogs");
 export const postsCollection = db.collection<PostsType>("posts");
+export const usersCollection=db.collection<UsersType>("users");
 
 export async function runDb() {
     try {

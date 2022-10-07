@@ -1,5 +1,5 @@
 import {videos} from "./video-repository";
-import {blogsCollection, postsCollection} from "../db/db";
+import {blogsCollection, postsCollection, usersCollection} from "../db/db";
 
 export const testingRepository = {
     deleteAllVideo() {
@@ -8,5 +8,6 @@ export const testingRepository = {
         //posts.length = 0;
         blogsCollection.deleteMany({});
         postsCollection.deleteMany({});
+        usersCollection.deleteMany({});
     },
 }
