@@ -33,6 +33,7 @@ type PostQueryType = {
     items: ItemsPosts[]
 };
 
+
 export const queryRepository = {
     async getQueryBlogs(query: any): Promise<BlogsQueryType> {
         const sortBy = query.sortBy.length > 0 ? query.sortBy : "createdAt";
