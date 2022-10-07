@@ -117,7 +117,7 @@ export const queryRepository = {
                     shortDescription: a.shortDescription,
                     content: a.content,
                     blogId: a.blogId,
-                    blogName: a.blogId,
+                    blogName: a.blogName,
                     createdAt: a.createdAt,
                 };
             })
