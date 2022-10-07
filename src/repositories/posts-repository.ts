@@ -7,7 +7,7 @@ export const postsRepository = {
     //     return postsCollection.find({}, option).toArray();
     // },
     async getPostId(id: string): Promise<PostsType | boolean> {
-        const blog = await postsCollection.findOne({"id": id}, option);
+        const blog = await postsCollection.findOne({id: id}, option);
         if (blog) {
             return blog;
         } else {
@@ -15,7 +15,7 @@ export const postsRepository = {
         }
     },
     async deletePostId(id: string): Promise<boolean> {
-        const result = await postsCollection.deleteOne({"id": id});
+        const result = await postsCollection.deleteOne({id: id});
         return result.deletedCount === 1;
     },
     async updatePostId(id: string, title: string, shortDescription: string, content: string, blogId: string): Promise<boolean> {

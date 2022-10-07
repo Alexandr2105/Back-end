@@ -24,11 +24,10 @@ export const blogsRepository = {
     },
     async updateBlog(id: string, name: string, url: string): Promise<boolean> {
         const updateBlog = await blogsCollection.updateOne({id: id}, {
-                $set:
-                    {
-                        name: name,
-                        youtubeUrl: url,
-                    },
+                $set: {
+                    name: name,
+                    youtubeUrl: url,
+                },
             },
         );
         return updateBlog.matchedCount === 1;

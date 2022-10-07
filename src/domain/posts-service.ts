@@ -33,4 +33,7 @@ export const postsService = {
         }
         return postsRepository.createPost(newPost);
     }
+    // async createPostForBlogId(title: string, shortDescription: string, content: string, blogId: string):Promise<PostsType>{
+    //
+    // }
 };
