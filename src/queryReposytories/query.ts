@@ -36,11 +36,11 @@ type PostQueryType = {
 
 export const queryRepository = {
     async getQueryBlogs(query: any): Promise<BlogsQueryType> {
-        const sortBy = query.sortBy.length > 0 ? query.sortBy : "createdAt";
-        const searchNameTerm = query.searchNameTerm.length === null ? "" : query.searchNameTerm;
-        const sortDirection = query.sortDirection === "" ? "desc" : query.sortDirection;
-        const pageNumber = query.pageNumber <= 0 ? 1 : +query.pageNumber;
-        const pageSize = query.pageSize <= 0 ? 10 : +query.pageSize;
+        const sortBy = query.sortBy === undefined || query.sortBy === "" ? "createdAt" : query.sortBy;
+        const searchNameTerm = query.searchNameTerm === undefined ? "" : query.searchNameTerm;
+        const sortDirection = query.sortDirection === "" || query.sortDirection === undefined ? "desc" : query.sortDirection;
+        const pageNumber = query.pageNumber <= 0 || isNaN(query.pageNumber) ? 1 : +query.pageNumber;
+        const pageSize = query.pageSize <= 0 || isNaN(query.pageSize) ? 10 : +query.pageSize;
         const totalCount = await blogsCollection.countDocuments({
             name: {
                 $regex: searchNameTerm,
@@ -71,10 +71,10 @@ export const queryRepository = {
     },
 
     async getQueryPosts(query: any): Promise<PostQueryType> {
-        const page = query.pageNumber <= 0 ? 1 : +query.pageNumber;
-        const pageSize = query.pageSize <= 0 ? 10 : +query.pageSize;
-        const sortBy = query.sortBy === "" ? "createdAt" : query.sortBy;
-        const sortDirection = query.sortDirection === "" ? "desc" : query.sortDirection;
+        const page = isNaN(query.pageNumber) || query.pageNumber <= 0 ? 1 : +query.pageNumber;
+        const pageSize = isNaN(query.pageSize) || query.pageSize <= 0 ? 10 : +query.pageSize;
+        const sortBy = query.sortBy === undefined || query.sortBy === "" ? "createdAt" : query.sortBy;
+        const sortDirection = query.sortDirection === undefined || query.sortBy === "" ? "desc" : query.sortDirection;
         const sortPostsArray = await postsCollection.find({}).sort(sortBy, sortDirection).skip((page - 1) * pageSize).limit(+pageSize).toArray();
         const totalCount = await postsCollection.countDocuments({});
         const pageCount = Math.ceil(totalCount / pageSize);
@@ -99,11 +99,11 @@ export const queryRepository = {
 
     async getQueryPostsBlogsId(query: any, blogId: string): Promise<PostQueryType> {
         const totalCount = await postsCollection.countDocuments({blogId: blogId});
-        const pageNumber = query.pageNumber <= 0 ? 1 : +query.pageNumber;
-        const pageSize = query.pageSize <= 0 ? 10 : +query.pageSize;
+        const pageNumber = query.pageNumber <= 0 || isNaN(query.pageNumber) ? 1 : +query.pageNumber;
+        const pageSize = query.pageSize <= 0 || isNaN(query.pageSize) ? 10 : +query.pageSize;
         const pagesCount = Math.ceil(totalCount / pageSize);
-        const sortBy = query.sortBy === "" ? "createdAt" : query.sortBy;
-        const sortDirection = query.sortDirection === "" ? "desc" : query.sortDirection;
+        const sortBy = query.sortBy === "" || query.sortBy === undefined ? "createdAt" : query.sortBy;
+        const sortDirection = query.sortDirection === "" || query.sortDirection === undefined ? "desc" : query.sortDirection;
         const sortPostsId = await postsCollection.find({blogId: blogId}).sort(sortBy, sortDirection).skip((pageNumber - 1) * pageSize).limit(pageSize).toArray();
         return {
             pagesCount: pagesCount,
