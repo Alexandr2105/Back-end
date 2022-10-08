@@ -8,7 +8,7 @@ authRouter.post("/login", async (res: Response, req: Request) => {
     if (checkResult) {
         res.status(204)
     } else {
-        res.sendStatus(400);
+        res.sendStatus(401);
     }
 })
 

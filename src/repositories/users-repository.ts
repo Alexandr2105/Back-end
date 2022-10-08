@@ -6,7 +6,7 @@ export const usersRepository = {
         return newUser;
     },
     async deleteUser(id: string): Promise<boolean> {
-        const result = await usersCollection.deleteOne({id});
+        const result = await usersCollection.deleteOne({id:id});
         return result.deletedCount === 1;
     },
     async findLoginOrEmail(logOrEmail: string) {

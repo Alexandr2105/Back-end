@@ -20,7 +20,7 @@ usersRouter.post("/", loginLength, passwordLength, emailIsCorrect, middleWare, a
     res.status(201).send(newUser);
 });
 
-usersRouter.delete("/:id", loginLength, passwordLength, emailIsCorrect, middleWare, async (req: Request, res: Response) => {
+usersRouter.delete("/:id", async (req: Request, res: Response) => {
     const deleteUser = await usersService.deleteUser(req.params.id);
     if (deleteUser) {
         res.sendStatus(204);
