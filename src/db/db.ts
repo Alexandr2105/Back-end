@@ -20,6 +20,7 @@ export type PostsType = {
 export type UsersType = {
     id: string,
     login: string,
+    password: string,
     email: string,
     createdAt: string
 };
@@ -30,7 +31,7 @@ const client = new MongoClient(mongoUri);
 const db = client.db("tube");
 export const blogsCollection = db.collection<BlogsType>("blogs");
 export const postsCollection = db.collection<PostsType>("posts");
-export const usersCollection=db.collection<UsersType>("users");
+export const usersCollection = db.collection<UsersType>("users");
 
 export async function runDb() {
     try {

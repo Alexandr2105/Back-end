@@ -1,7 +1,7 @@
 import {Router, Request, Response, NextFunction} from "express";
 import {body} from "express-validator";
 import {middleWare} from "../middlewares/middleware";
-import {usersPassword} from "../repositories/usersPasswords";
+import {usersPassword} from "../auth-users/usersPasswords";
 import {blogsService} from "../domain/blogs-service";
 import {queryRepository} from "../queryReposytories/query";
 import {postsService} from "../domain/posts-service";

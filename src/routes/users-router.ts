@@ -16,11 +16,11 @@ usersRouter.get("/", async (req: Request, res: Response) => {
 });
 
 usersRouter.post("/", loginLength, passwordLength, emailIsCorrect, middleWare, async (req: Request, res: Response) => {
-    const newUser = await usersService.creatNewUsers(req.body.login, req.body.email);
+    const newUser = await usersService.creatNewUsers(req.body.login, req.body.email, req.body.password);
     res.status(201).send(newUser);
 });
 
-usersRouter.delete("/:id", async (req: Request, res: Response) => {
+usersRouter.delete("/:id", loginLength, passwordLength, emailIsCorrect, middleWare, async (req: Request, res: Response) => {
     const deleteUser = await usersService.deleteUser(req.params.id);
     if (deleteUser) {
         res.sendStatus(204);

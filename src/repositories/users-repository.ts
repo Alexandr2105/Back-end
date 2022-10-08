@@ -8,5 +8,8 @@ export const usersRepository = {
     async deleteUser(id: string): Promise<boolean> {
         const result = await usersCollection.deleteOne({id});
         return result.deletedCount === 1;
+    },
+    async findLoginOrEmail(logOrEmail: string) {
+        return await usersCollection.findOne({$or: [{login: logOrEmail}, {email: logOrEmail}]});
     }
 }
