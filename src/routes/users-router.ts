@@ -23,7 +23,7 @@ usersRouter.get("/", async (req: Request, res: Response) => {
     res.send(users);
 });
 
-usersRouter.post("/", loginLength, passwordLength, emailIsCorrect, middleWare, aut, async (req: Request, res: Response) => {
+usersRouter.post("/", aut, loginLength, passwordLength, emailIsCorrect, middleWare, async (req: Request, res: Response) => {
     const newUser = await usersService.creatNewUsers(req.body.login, req.body.email, req.body.password);
     const newUserId = await usersService.getUserById(newUser.id);
     res.status(201).send(newUserId);
