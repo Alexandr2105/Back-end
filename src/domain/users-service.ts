@@ -25,6 +25,9 @@ export const usersService = {
     async generateHash(pass: string, salt: string) {
         return bcrypt.hash(pass, salt);
     },
+    async getUserById(id: string) {
+        return usersRepository.getUserId(id);
+    },
     async deleteUser(id: string): Promise<boolean> {
         return usersRepository.deleteUser(id);
     }

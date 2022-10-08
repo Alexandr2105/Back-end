@@ -25,7 +25,8 @@ usersRouter.get("/", async (req: Request, res: Response) => {
 
 usersRouter.post("/", loginLength, passwordLength, emailIsCorrect, middleWare, aut, async (req: Request, res: Response) => {
     const newUser = await usersService.creatNewUsers(req.body.login, req.body.email, req.body.password);
-    res.status(201).send(newUser);
+    const newUserId = await usersService.getUserById(newUser.id);
+    res.status(201).send(newUserId);
 });
 
 usersRouter.delete("/:id", aut, async (req: Request, res: Response) => {

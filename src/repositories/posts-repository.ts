@@ -1,6 +1,6 @@
 import {postsCollection, PostsType} from "../db/db";
 
-const option = {projection: {_id: 0}}
+const option = {projection: {_id: 0}};
 
 export const postsRepository = {
     // async getAllPosts(): Promise<PostsType[]> {
