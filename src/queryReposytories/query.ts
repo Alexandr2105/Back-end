@@ -1,53 +1,5 @@
 import {blogsCollection, postsCollection, usersCollection} from "../db/db";
-
-type ItemsBlogs = {
-    id: string,
-    youtubeUrl: string,
-    name: string,
-    createdAt: string,
-}
-
-type BlogsQueryType = {
-    pagesCount: number,
-    pageSize: number,
-    page: number,
-    totalCount: number,
-    items: ItemsBlogs[]
-};
-
-type ItemsPosts = {
-    id: string,
-    title: string,
-    shortDescription: string,
-    content: string,
-    blogId: string,
-    blogName: string,
-    createdAt: string
-};
-
-type PostQueryType = {
-    pagesCount: number,
-    page: number,
-    pageSize: number,
-    totalCount: number,
-    items: ItemsPosts[]
-};
-
-type ItemsUsers = {
-    id: string,
-    login: string,
-    email: string,
-    createdAt: string
-}
-
-type UsersType = {
-    pagesCount: number,
-    page: number,
-    pageSize: number,
-    totalCount: number,
-    items: ItemsUsers[]
-}
-
+import {BlogsQueryType, PostQueryType, UsersType} from "../helper/allTypes";
 
 export const queryRepository = {
     async getQueryBlogs(query: any): Promise<BlogsQueryType> {
@@ -167,5 +119,9 @@ export const queryRepository = {
                 }
             })
         }
-    }
+    },
+
+    getQueryCommentsById(query: any, id: string) {
+
+    },
 }

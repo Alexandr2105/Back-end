@@ -69,3 +69,11 @@ postsRouter.put("/:id", aut, titleLength, shortDescriptionLength, contentLength,
             res.sendStatus(404);
         }
     });
+
+postsRouter.get("/:postId/comments", (req: Request, res: Response) => {
+    const comment = queryRepository.getQueryPostsBlogsId(req.query, req.params.postId);
+});
+
+postsRouter.post("/:postId/comments", (req: Request, res: Response) => {
+    const post = postsService.creatNewCommentByPostId(req.params.postId, req.body.content);
+});
