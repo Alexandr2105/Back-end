@@ -5,6 +5,8 @@ import {middleWare} from "../middlewares/middleware";
 import {usersPassword} from "../auth-users/usersPasswords";
 import {blogsCollection} from "../db/db";
 import {queryRepository} from "../queryReposytories/query";
+import {jwtService} from "../application/jwt-service";
+import {usersService} from "../domain/users-service";
 
 export const postsRouter = Router();
 
@@ -24,7 +26,20 @@ const aut = (req: Request, res: Response, next: NextFunction) => {
     } else {
         res.sendStatus(401);
     }
-}
+};
+const checkToken = async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.headers.authorization) {
+        res.sendStatus(404);
+    }
+    const token = req.headers.authorization!.split(" ")[1];
+    const userId = await jwtService.getUserIdByToken(token);
+    if (userId) {
+        req.user = await usersService.getUserById(userId.toString());
+        next();
+    } else {
+        res.sendStatus(401);
+    }
+};
 
 postsRouter.get("/", async (req: Request, res: Response) => {
     // const posts = await postsService.getAllPosts();
@@ -70,10 +85,13 @@ postsRouter.put("/:id", aut, titleLength, shortDescriptionLength, contentLength,
         }
     });
 
-postsRouter.get("/:postId/comments", (req: Request, res: Response) => {
-    const comment = queryRepository.getQueryPostsBlogsId(req.query, req.params.postId);
+postsRouter.get("/:postId/comments", async (req: Request, res: Response) => {
+    const comment = await queryRepository.getQueryPostsBlogsId(req.query, req.params.postId);
+    res.send(comment);
 });
 
-postsRouter.post("/:postId/comments", (req: Request, res: Response) => {
-    const post = postsService.creatNewCommentByPostId(req.params.postId, req.body.content);
+postsRouter.post("/:postId/comments", checkToken, async (req: Request, res: Response) => {
+    const post = await postsService.creatNewCommentByPostId(req.params.postId, req.body.content, req.user!.id, req.user!.login);
+    const newPost = await postsService.getPostId(post.id);
+    res.send(newPost);
 });

@@ -16,11 +16,15 @@ export const usersService = {
         await usersRepository.creatNewUsers(newUser);
         return newUser;
     },
-    async checkUserOrLogin(loginOrEmail: string, pass: string) {
+    async checkUserOrLogin(loginOrEmail: string, pass: string): Promise<UsersType | boolean> {
         const user = await usersRepository.findLoginOrEmail(loginOrEmail)
         if (!user) return false;
         const hashPassword = await this.generateHash(pass, user.password);
-        return user.password === hashPassword;
+        if (user.password === hashPassword) {
+            return user;
+        } else {
+            return false;
+        }
     },
     async generateHash(pass: string, salt: string) {
         return bcrypt.hash(pass, salt);

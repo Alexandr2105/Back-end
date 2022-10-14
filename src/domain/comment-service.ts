@@ -1,13 +1,13 @@
 import {commentsRepository} from "../repositories/comments-repository";
 
 export const commentService = {
-    getCommentById(id: string) {
-        return commentsRepository.getCommentById(id);
+    async getCommentById(id: string) {
+        return await commentsRepository.getCommentById(id);
     },
-    deleteCommentById(id: string) {
-        return commentsRepository.deleteCommentById(id);
+    async deleteCommentById(id: string) {
+        return await commentsRepository.deleteCommentById(id);
     },
-    updateCommentById(id: string, content: string) {
-        return commentsRepository.updateCommentById(id, content);
+    async updateCommentById(id: string, content: string) {
+        return await commentsRepository.updateCommentById(id, content);
     }
 }

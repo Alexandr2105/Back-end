@@ -14,7 +14,7 @@ export type PostsType = {
     content: string,
     blogId: string,
     blogName: string,
-    "createdAt": string
+    createdAt: string
 };
 
 export type UsersType = {
