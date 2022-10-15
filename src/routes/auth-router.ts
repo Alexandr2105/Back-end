@@ -11,7 +11,6 @@ const checkPassword = body("password").trim().notEmpty().withMessage("Не за�
 
 authRouter.post("/login", checkLoginOrPassword, checkPassword, middleWare, async (req: Request, res: Response) => {
     const checkResult: any = await usersService.checkUserOrLogin(req.body.loginOrEmail, req.body.password);
-    debugger
     if (checkResult) {
         const token = jwtService.creatJWT(checkResult);
         res.send(token.toString());
