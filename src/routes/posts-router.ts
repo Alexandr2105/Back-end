@@ -1,12 +1,11 @@
-import {Router, Request, Response, NextFunction} from "express";
+import {Router, Request, Response} from "express";
 import {postsService} from "../domain/posts-service";
 import {body} from "express-validator";
-import {middleWare} from "../middlewares/middleware";
-import {usersPassword} from "../auth-users/usersPasswords";
+import {aut, checkToken, middleWare} from "../middlewares/middleware";
 import {blogsCollection} from "../db/db";
 import {queryRepository} from "../queryReposytories/query";
-import {jwtService} from "../application/jwt-service";
-import {usersService} from "../domain/users-service";
+import {queryCheckHelper} from "../helper/queryCount";
+import {commentService} from "../domain/comment-service";
 
 export const postsRouter = Router();
 
@@ -20,31 +19,14 @@ const blogIdTrue = body("blogId").custom(async (blogId) => {
     }
     throw new Error("Нет такого id");
 });
-const aut = (req: Request, res: Response, next: NextFunction) => {
-    if (req.headers.authorization === usersPassword[0]) {
-        next();
-    } else {
-        res.sendStatus(401);
-    }
-};
-const checkToken = async (req: Request, res: Response, next: NextFunction) => {
-    if (!req.headers.authorization) {
-        res.sendStatus(404);
-    }
-    const token = req.headers.authorization!.split(" ")[1];
-    const userId = await jwtService.getUserIdByToken(token);
-    if (userId) {
-        req.user = await usersService.getUserById(userId.toString());
-        next();
-    } else {
-        res.sendStatus(401);
-    }
-};
+const contentLengthByPostId = body("content").isLength({
+    min: 20,
+    max: 300
+}).withMessage("Неверная длинна поля");
 
 postsRouter.get("/", async (req: Request, res: Response) => {
-    // const posts = await postsService.getAllPosts();
-    // res.send(posts);
-    const posts = await queryRepository.getQueryPosts(req.query);
+    const query = queryCheckHelper(req.query);
+    const posts = await queryRepository.getQueryPosts(query);
     res.send(posts);
 });
 
@@ -86,12 +68,17 @@ postsRouter.put("/:id", aut, titleLength, shortDescriptionLength, contentLength,
     });
 
 postsRouter.get("/:postId/comments", async (req: Request, res: Response) => {
-    const comment = await queryRepository.getQueryPostsBlogsId(req.query, req.params.postId);
-    res.send(comment);
+    const query = queryCheckHelper(req.query);
+    const comments = await queryRepository.getQueryCommentsByPostId(query, req.params.postId);
+    if (comments) {
+        res.status(201).send(comments);
+    } else {
+        res.sendStatus(404);
+    }
 });
 
-postsRouter.post("/:postId/comments", checkToken, async (req: Request, res: Response) => {
+postsRouter.post("/:postId/comments", checkToken, contentLengthByPostId, async (req: Request, res: Response) => {
     const post = await postsService.creatNewCommentByPostId(req.params.postId, req.body.content, req.user!.id, req.user!.login);
-    const newPost = await postsService.getPostId(post.id);
+    const newPost = await commentService.getCommentById(post.id);
     res.send(newPost);
 });

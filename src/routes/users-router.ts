@@ -1,25 +1,19 @@
-import {Router, Request, Response, NextFunction} from "express";
+import {Router, Request, Response} from "express";
 import {queryRepository} from "../queryReposytories/query";
 import {body} from "express-validator";
-import {middleWare} from "../middlewares/middleware";
+import {aut, middleWare} from "../middlewares/middleware";
 import {usersService} from "../domain/users-service";
-import {usersPassword} from "../auth-users/usersPasswords";
+import {queryCheckHelper} from "../helper/queryCount";
 
 export const usersRouter = Router();
 
 const loginLength = body("login").isLength({max: 10, min: 3}).withMessage("Не верная длина");
 const passwordLength = body("password").isLength({min: 6, max: 20}).withMessage("Не верная длина");
 const emailIsCorrect = body("email").isEmail().withMessage("Не верный ввод");
-const aut = (req: Request, res: Response, next: NextFunction) => {
-    if (req.headers.authorization === usersPassword[0]) {
-        next();
-    } else {
-        res.sendStatus(401);
-    }
-};
 
 usersRouter.get("/", async (req: Request, res: Response) => {
-    const users = await queryRepository.getQueryUsers(req.query);
+    const query = queryCheckHelper(req.query);
+    const users = await queryRepository.getQueryUsers(query);
     res.send(users);
 });
 

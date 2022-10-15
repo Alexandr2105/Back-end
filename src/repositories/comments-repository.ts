@@ -1,13 +1,13 @@
 import {commentsCollection, CommentType} from "../db/db";
 
-const option = {projection: {_id: 0}};
+const option = {projection: {_id: 0, idPost: 0}};
 
 export const commentsRepository = {
     async getCommentById(id: string) {
-        return await commentsCollection.findOne({id}, option);
+        return await commentsCollection.findOne({id: id}, option);
     },
     async deleteCommentById(id: string): Promise<boolean> {
-        const result = await commentsCollection.deleteOne({id});
+        const result = await commentsCollection.deleteOne({id: id});
         return result.deletedCount === 1;
     },
     async updateCommentById(id: string, content: string) {

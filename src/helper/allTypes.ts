@@ -46,7 +46,7 @@ export type UsersType = {
     items: ItemsUsers[]
 };
 
-type ItemsComments = {
+export type ItemsComments = {
     id: string,
     content: string,
     userId: string,
@@ -54,7 +54,7 @@ type ItemsComments = {
     createdAt: string
 };
 
-type CommentsType = {
+export type CommentsType = {
     pagesCount: number,
     page: number,
     pageSize: number,

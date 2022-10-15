@@ -3,9 +3,6 @@ import {postsRepository} from "../repositories/posts-repository";
 import {commentsRepository} from "../repositories/comments-repository";
 
 export const postsService = {
-    // async getAllPosts(): Promise<PostsType[]> {
-    //     return postsRepository.getAllPosts();
-    // },
     async getPostId(id: string): Promise<PostsType | boolean> {
         return await postsRepository.getPostId(id);
     },
@@ -30,7 +27,8 @@ export const postsService = {
     },
     async creatNewCommentByPostId(postId: string, content: string, userId: string, userLogin: string): Promise<CommentType> {
         const newComment = {
-            id: postId,
+            id: +new Date() + "",
+            idPost: postId,
             content: content,
             userId: userId,
             userLogin: userLogin,
@@ -38,7 +36,4 @@ export const postsService = {
         }
         return commentsRepository.createComment(newComment);
     }
-    // async createPostForBlogId(title: string, shortDescription: string, content: string, blogId: string):Promise<PostsType>{
-    //
-    // }
 };

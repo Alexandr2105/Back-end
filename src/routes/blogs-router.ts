@@ -1,23 +1,16 @@
 import {Router, Request, Response, NextFunction} from "express";
 import {body} from "express-validator";
-import {middleWare} from "../middlewares/middleware";
-import {usersPassword} from "../auth-users/usersPasswords";
+import {aut, middleWare} from "../middlewares/middleware";
 import {blogsService} from "../domain/blogs-service";
 import {queryRepository} from "../queryReposytories/query";
 import {postsService} from "../domain/posts-service";
 import {blogsCollection} from "../db/db";
+import {queryCheckHelper} from "../helper/queryCount";
 
 export const blogsRouter = Router();
 
 const nameLength = body("name").isLength({max: 15}).withMessage("Длина больше 15 символов").trim().notEmpty().withMessage("Это поле должно быть заплнено");
 const urlLength = body("youtubeUrl").isLength({max: 100}).trim().notEmpty().isURL().withMessage("Не верно заполнено поле");
-const aut = (req: Request, res: Response, next: NextFunction) => {
-    if (req.headers.authorization === usersPassword[0]) {
-        next();
-    } else {
-        res.sendStatus(401);
-    }
-}
 const titleLength = body("title").trim().notEmpty().isLength({max: 30}).withMessage("Не верно заполнено поле");
 const shortDescriptionLength = body("shortDescription").trim().notEmpty().isLength({max: 100}).withMessage("Не верно заполнено поле");
 const contentLength = body("content").trim().notEmpty().isLength({max: 1000}).withMessage("Не верно заполнено поле");
@@ -28,12 +21,11 @@ const trueId = async (req: Request, res: Response, next: NextFunction) => {
     } else {
         res.sendStatus(404);
     }
-}
+};
 
 blogsRouter.get("/", async (req: Request, res: Response) => {
-    // const blogs = await blogsService.getAllBlogs();
-    // res.send(blogs);
-    const blogs = await queryRepository.getQueryBlogs(req.query);
+    const query = queryCheckHelper(req.query);
+    const blogs = await queryRepository.getQueryBlogs(query);
     res.send(blogs);
 });
 
@@ -71,7 +63,8 @@ blogsRouter.put("/:id", aut, nameLength, urlLength, middleWare, async (req: Requ
 });
 
 blogsRouter.get("/:blogId/posts", async (req: Request, res: Response) => {
-    const postsBlogId = await queryRepository.getQueryPostsBlogsId(req.query, req.params.blogId);
+    const query = queryCheckHelper(req.query);
+    const postsBlogId = await queryRepository.getQueryPostsBlogsId(query, req.params.blogId);
     if (postsBlogId.items.length !== 0) {
         res.send(postsBlogId);
     } else {

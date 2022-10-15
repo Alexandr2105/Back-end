@@ -27,6 +27,7 @@ export type UsersType = {
 
 export type CommentType = {
     id: string,
+    idPost: string,
     content: string,
     userId: string,
     userLogin: string,
