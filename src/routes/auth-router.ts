@@ -6,14 +6,14 @@ import {checkToken, middleWare} from "../middlewares/middleware";
 
 export const authRouter = Router();
 
-const checkLoginOrPassword = body("loginOrEmail").trim().notEmpty().withMessage("Не заполнено поле");
+const checkLogin = body("loginOrEmail").trim().notEmpty().withMessage("Не заполнено поле");
 const checkPassword = body("password").trim().notEmpty().withMessage("Не заполнено поле пароль");
 
-authRouter.post("/login", checkLoginOrPassword, checkPassword, middleWare, async (req: Request, res: Response) => {
-    const checkResult: any = await usersService.checkUserOrLogin(req.body.loginOrEmail, req.body.password);
+authRouter.post("/login", checkLogin, checkPassword, middleWare, async (req: Request, res: Response) => {
+    const checkResult: any = await usersService.checkUserOrLogin(req.body.login, req.body.password);
     if (checkResult) {
         const token = jwtService.creatJWT(checkResult);
-        res.send(token.toString());
+        res.send(token);
     } else {
         res.sendStatus(401);
     }
