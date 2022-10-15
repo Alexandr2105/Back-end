@@ -71,14 +71,18 @@ postsRouter.get("/:postId/comments", async (req: Request, res: Response) => {
     const query = queryCheckHelper(req.query);
     const comments = await queryRepository.getQueryCommentsByPostId(query, req.params.postId);
     if (comments) {
-        res.status(200).send(comments);
+        res.send(comments);
     } else {
         res.sendStatus(404);
     }
 });
 
 postsRouter.post("/:postId/comments", checkToken, contentLengthByPostId, middleWare, async (req: Request, res: Response) => {
-    const post = await postsService.creatNewCommentByPostId(req.params.postId, req.body.content, req.user!.id, req.user!.login);
-    const newPost = await commentService.getCommentById(post.id);
-    res.send(newPost);
+    const post: any = await postsService.creatNewCommentByPostId(req.params.postId, req.body.content, req.user!.id, req.user!.login);
+    if (post) {
+        const newPost = await commentService.getCommentById(post.id);
+        res.sendStatus(201).send(newPost);
+    } else {
+        res.sendStatus(404);
+    }
 });
