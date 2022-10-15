@@ -26,8 +26,10 @@ export const checkToken = async (req: Request, res: Response, next: NextFunction
         const userId = await jwtService.getUserIdByToken(token);
         if (userId) {
             req.user = await usersService.getUserById(userId.toString());
-            if(req.user!==null){
-             next();
+            if (req.user !== null) {
+                next();
+            } else {
+                res.sendStatus(403);
             }
         } else {
             res.sendStatus(403);
