@@ -13,7 +13,7 @@ authRouter.post("/login", checkLogin, checkPassword, middleWare, async (req: Req
     const checkResult: any = await usersService.checkUserOrLogin(req.body.login, req.body.password);
     if (checkResult) {
         const token = jwtService.creatJWT(checkResult);
-        res.send(token);
+        res.send({token: token});
     } else {
         res.sendStatus(401);
     }
