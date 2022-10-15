@@ -19,16 +19,19 @@ export const middleWare = (req: Request, res: Response, next: NextFunction) => {
 };
 
 export const checkToken = async (req: Request, res: Response, next: NextFunction) => {
-    if (!req.headers.authorization) {
+    if (!req.headers.authorization || req.headers.authorization.split(".").length !== 3) {
         res.sendStatus(401);
-    }
-    const token = req.headers.authorization!.split(" ")[1];
-    const userId = await jwtService.getUserIdByToken(token);
-    if (userId) {
-        req.user = await usersService.getUserById(userId.toString());
-        next();
     } else {
-        res.sendStatus(403);
+        const token = req.headers.authorization!.split(" ")[1];
+        const userId = await jwtService.getUserIdByToken(token);
+        if (userId) {
+            req.user = await usersService.getUserById(userId.toString());
+            if(req.user!==null){
+             next();
+            }
+        } else {
+            res.sendStatus(403);
+        }
     }
 };
 

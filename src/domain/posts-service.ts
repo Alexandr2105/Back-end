@@ -14,7 +14,6 @@ export const postsService = {
         return await postsRepository.updatePostId(id, title, shortDescription, content, blogId);
     },
     async createPost(title: string, shortDescription: string, content: string, blogId: string): Promise<PostsType> {
-        // const a = await blogsCollection.findOne({id: blogId});
         const post: any = await blogsService.getBlogsId(blogId);
         const newPost = {
             id: +new Date() + "",
@@ -28,7 +27,6 @@ export const postsService = {
         return postsRepository.createPost(newPost);
     },
     async creatNewCommentByPostId(postId: string, content: string, userId: string, userLogin: string): Promise<CommentType | boolean> {
-        // const idPost = await postsCollection.findOne({id: postId});
         const idPost = await postsService.getPostId(postId);
         if (idPost) {
             const newComment = {
