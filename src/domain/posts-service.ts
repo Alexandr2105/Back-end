@@ -1,7 +1,6 @@
-import {CommentType, PostsType} from "../db/db";
+import {blogsCollection, CommentType, postsCollection, PostsType} from "../db/db";
 import {postsRepository} from "../repositories/posts-repository";
 import {commentsRepository} from "../repositories/comments-repository";
-import {blogsRepository} from "../repositories/blogs-db-repository";
 
 export const postsService = {
     async getPostId(id: string): Promise<PostsType | boolean> {
@@ -14,20 +13,20 @@ export const postsService = {
         return await postsRepository.updatePostId(id, title, shortDescription, content, blogId);
     },
     async createPost(title: string, shortDescription: string, content: string, blogId: string): Promise<PostsType> {
-        const blog: any = await blogsRepository.getBlogsId(blogId);
+        const a = await blogsCollection.findOne({id: blogId});
         const newPost = {
             id: +new Date() + "",
             title: title,
             shortDescription: shortDescription,
             content: content,
             blogId: blogId,
-            blogName: blog!.name,
+            blogName: a!.name,
             createdAt: new Date().toISOString()
         }
         return postsRepository.createPost(newPost);
     },
     async creatNewCommentByPostId(postId: string, content: string, userId: string, userLogin: string): Promise<CommentType | boolean> {
-        const idPost: any = await postsRepository.getPostId(postId);
+        const idPost = await postsCollection.findOne({id: postId});
         if (idPost) {
             const newComment = {
                 id: +new Date() + "",
@@ -37,7 +36,7 @@ export const postsService = {
                 userLogin: userLogin,
                 createdAt: new Date().toISOString(),
             }
-            return await commentsRepository.createComment(newComment);
+            return commentsRepository.createComment(newComment);
         } else {
             return false;
         }
