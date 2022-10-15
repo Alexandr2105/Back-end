@@ -110,8 +110,11 @@ export const queryRepository = {
         }
     },
 
-    async getQueryCommentsByPostId(query: any, postId: string): Promise<CommentsType> {
+    async getQueryCommentsByPostId(query: any, postId: string): Promise<CommentsType | boolean> {
         const totalCount = await commentsCollection.countDocuments({idPost: postId});
+        if (totalCount === 0) {
+            return false;
+        }
         const sortCommentsByPostId = await commentsCollection.find({idPost: postId}).sort(query.sortBy, query.sortDirection)
             .skip(skipHelper(query.pageNumber, query.pageSize)).limit(query.pageSize).toArray();
         return {
