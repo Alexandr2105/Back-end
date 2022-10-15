@@ -6,7 +6,7 @@ import {checkToken, middleWare} from "../middlewares/middleware";
 
 export const authRouter = Router();
 
-const checkLogin = body("loginOrEmail").trim().notEmpty().withMessage("Не заполнено поле");
+const checkLogin = body("login").trim().notEmpty().withMessage("Не заполнено поле логин");
 const checkPassword = body("password").trim().notEmpty().withMessage("Не заполнено поле пароль");
 
 authRouter.post("/login", checkLogin, checkPassword, middleWare, async (req: Request, res: Response) => {
