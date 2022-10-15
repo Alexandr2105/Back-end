@@ -81,7 +81,7 @@ postsRouter.post("/:postId/comments", checkToken, contentLengthByPostId, middleW
     const post: any = await postsService.creatNewCommentByPostId(req.params.postId, req.body.content, req.user!.id, req.user!.login);
     if (post) {
         const newPost = await commentService.getCommentById(post.id);
-        res.sendStatus(201).send(newPost);
+        res.status(201).send(newPost);
     } else {
         res.sendStatus(404);
     }
