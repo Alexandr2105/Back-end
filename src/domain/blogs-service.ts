@@ -2,9 +2,6 @@ import {blogsRepository} from "../repositories/blogs-db-repository";
 import {BlogsType} from "../db/db";
 
 export const blogsService = {
-    // async getAllBlogs(): Promise<BlogsType[]> {
-    //     return blogsRepository.getAllBlogs();
-    // },
     async getBlogsId(id: string): Promise<BlogsType | boolean> {
         return blogsRepository.getBlogsId(id);
     },

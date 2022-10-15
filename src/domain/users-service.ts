@@ -17,7 +17,7 @@ export const usersService = {
         return newUser;
     },
     async checkUserOrLogin(loginOrEmail: string, pass: string): Promise<UsersType | boolean> {
-        const user = await usersRepository.findLoginOrEmail(loginOrEmail)
+        const user = await usersRepository.findLoginOrEmail(loginOrEmail);
         if (!user) return false;
         const hashPassword = await this.generateHash(pass, user.password);
         if (user.password === hashPassword) {
