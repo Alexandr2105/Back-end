@@ -8,6 +8,10 @@ export const commentsRouter = Router();
 const contentLength = body("content").isLength({min: 20, max: 300}).withMessage("Неверная длинна поля");
 const checkUser = async (req: Request, res: Response, next: NextFunction) => {
     const comment: any = await commentService.getCommentById(req.params.commentId);
+    if (comment === null) {
+        res.sendStatus(404);
+        return;
+    }
     if (comment.userId === req.user?.id) {
         next();
     } else {
