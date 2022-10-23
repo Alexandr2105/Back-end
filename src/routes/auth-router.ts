@@ -36,6 +36,12 @@ const emailIsOriginal = body("email").custom(async (email) => {
         throw new Error("Такое имя уже существует");
     }
 });
+const emailDontExist = body("email").custom(async (email) => {
+    const emailTrue = await usersRepository.findLoginOrEmail(email);
+    if (emailTrue === null) {
+        throw new Error("Такого email не существует");
+    }
+});
 const checkCode = body("code").custom(async (code) => {
     if (!await authService.confirmEmail(code)) {
         throw new Error("Не верный код");
@@ -71,7 +77,7 @@ authRouter.post("/registration", loginIsOriginal, emailIsOriginal, checkLoginFor
     res.sendStatus(204);
 });
 
-authRouter.post("/registration-email-resending", checkEmail, checkEmailConfirmation, middleWare, async (req: Request, res: Response) => {
+authRouter.post("/registration-email-resending", checkEmail, checkEmailConfirmation, emailDontExist, middleWare, async (req: Request, res: Response) => {
     const confirmationCode = await authService.getConfirmationCodeByEmail(req.body.email);
     const result = await emailManager.sendEmailAndConfirm(req.body.email, confirmationCode);
     if (result) res.sendStatus(204);
