@@ -17,7 +17,7 @@ export const emailAdapter = {
             text: "Finish registration",
             html: `<h1>Thank for your registration</h1>\n` +
                 `       <p>To finish registration please follow the link below:\n` +
-                `          http://localhost:3000/auth/registration-confirmation?code=${confirm}\n` +
+                `          https://localhost:3000/auth/registration-confirmation?code=${confirm}\n` +
                 `      </p>\n`,
 
             //http://localhost:3000/auth/registration-confirmation?code=your_confirmation_code
