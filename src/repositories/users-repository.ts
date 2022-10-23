@@ -31,6 +31,7 @@ export const usersRepository = {
         }
     },
     async getConfirmationId(id: string) {
+        debugger;
         const confirmation = await registrationUsersCollection.findOne({userId: id});
         if (confirmation) {
             return confirmation.isConfirmed;
