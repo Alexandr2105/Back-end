@@ -1,9 +1,9 @@
 import jwt from 'jsonwebtoken'
-import {UsersType} from "../db/db";
+import {UserType} from "../db/db";
 import {settings} from "../settings";
 
 export const jwtService = {
-    creatJWT(user: UsersType) {
+    creatJWT(user: UserType) {
         return jwt.sign({userId: user.id}, settings.JWT_SECRET, {expiresIn: "1h"});
     },
     getUserIdByToken(token: string) {

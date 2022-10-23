@@ -8,7 +8,7 @@ import {usersRouter} from "./routes/users-router";
 import {authRouter} from "./routes/auth-router";
 import {commentsRouter} from "./routes/comments-router";
 
-const app = express();
+export const app = express();
 const port = process.env.PORT || 3000;
 
 const parserMiddleware = express.json();

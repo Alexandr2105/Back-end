@@ -17,7 +17,7 @@ export type PostsType = {
     createdAt: string
 };
 
-export type UsersType = {
+export type UserType = {
     id: string,
     login: string,
     password: string,
@@ -34,19 +34,28 @@ export type CommentType = {
     createdAt: string
 };
 
-const mongoUri = process.env.mongoUri || "mongodb+srv://Alex:admin@cluster0.g70qjhf.mongodb.net/tube?retryWrites=true&w=majority";
+export type EmailConfirmation = {
+    userId: string
+    confirmationCode: any,
+    expirationDate: Date,
+    isConfirmed: boolean,
+};
+
+const mongoUri = process.env.mongoUri || 'mongodb://0.0.0.0:27017';
+// const mongoUri = process.env.mongoUri || 'mongodb+srv://Alex:admin@cluster0.g70qjhf.mongodb.net/tube?retryWrites=true&w=majority';
 
 const client = new MongoClient(mongoUri);
 const db = client.db("tube");
 export const blogsCollection = db.collection<BlogsType>("blogs");
 export const postsCollection = db.collection<PostsType>("posts");
-export const usersCollection = db.collection<UsersType>("users");
+export const usersCollection = db.collection<UserType>("users");
 export const commentsCollection = db.collection<CommentType>("comments");
+export const registrationUsersCollection = db.collection<EmailConfirmation>("emailConfirmation");
 
 export async function runDb() {
     try {
         await client.connect();
-        await client.db("blogs").command({ping: 1});
+        await client.db("tube").command({ping: 1});
         console.log("Подключились к монго серверу");
     } catch {
         console.log("Нет подключения к БД");

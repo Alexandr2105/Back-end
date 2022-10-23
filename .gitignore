@@ -3,3 +3,4 @@ project.iml
 out/
 dist/
 node_modules/
+.env
