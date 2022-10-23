@@ -23,5 +23,6 @@ export const emailAdapter = {
             //http://localhost:3000/auth/registration-confirmation?code=your_confirmation_code
         });
         return true;
+
     }
 }
