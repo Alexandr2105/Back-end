@@ -3,7 +3,7 @@ import {usersRepository} from "../repositories/users-repository";
 import bcrypt from "bcrypt";
 
 export const usersService = {
-    async creatNewUsers(login: string, password: string, email: string): Promise<UserType> {
+    async creatNewUsers(login: string, email: string, password: string): Promise<UserType> {
         const passwordSalt = await bcrypt.genSalt(10);
         const passwordHash = await this.generateHash(password, passwordSalt);
         const newUser = {

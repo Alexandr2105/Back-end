@@ -66,7 +66,7 @@ authRouter.post("/registration-confirmation", checkCode, middleWare, async (req:
 });
 
 authRouter.post("/registration", loginIsOriginal, emailIsOriginal, checkLoginForAuthLength, checkPasswordForAuthLength, checkEmail, middleWare, async (req: Request, res: Response) => {
-    const newUser = await usersService.creatNewUsers(req.body.login, req.body.password, req.body.email);
+    const newUser = await usersService.creatNewUsers(req.body.login, req.body.email, req.body.password);
     if (newUser) await authService.confirmation(newUser.id, req.body.login, req.body.email);
     res.sendStatus(204);
 });
