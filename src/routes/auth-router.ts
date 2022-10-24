@@ -78,7 +78,7 @@ authRouter.post("/registration", loginIsOriginal, emailIsOriginal, checkLoginFor
 });
 
 authRouter.post("/registration-email-resending", checkEmail, checkEmailConfirmation, emailDontExist, middleWare, async (req: Request, res: Response) => {
-    const confirmationCode = await authService.getConfirmationCodeByEmail(req.body.email);
-    const result = await emailManager.sendEmailAndConfirm(req.body.email, confirmationCode);
+    const newCode: any = await authService.getNewConfirmationCode(req.body.email);
+    const result = await emailManager.sendEmailAndConfirm(req.body.email, newCode);
     if (result) res.sendStatus(204);
 });

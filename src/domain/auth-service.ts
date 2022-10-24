@@ -28,7 +28,11 @@ export const authService = {
         if (user.expirationDate < new Date()) return false;
         return await usersRepository.updateEmailConfirmation(user.userId);
     },
-    async getConfirmationCodeByEmail(email: string) {
-        return await usersRepository.getConfirmationCodeByEmail(email);
+    async getNewConfirmationCode(email: string) {
+        const newCode = uuid4();
+        const updateCode = await usersRepository.setConfirm(email, newCode);
+        if (updateCode) {
+            return newCode;
+        }
     }
 };

@@ -30,16 +30,9 @@ export const usersRepository = {
             return idUser;
         }
     },
-    async getConfirmationId(id: string) {
-        debugger;
-        const confirmation = await registrationUsersCollection.findOne({userId: id});
-        if (confirmation) {
-            return confirmation.isConfirmed;
-        }
-    },
-    async getConfirmationCodeByEmail(email: string) {
+    async setConfirm(email: string, newCode: string) {
         const user = await usersCollection.findOne({email: email});
-        const regUser = await registrationUsersCollection.findOne({userId: user?.id});
-        return regUser?.confirmationCode;
+        const result = await registrationUsersCollection.updateOne({userId: user?.id}, {$set: {confirmationCode: newCode}});
+        return result.matchedCount === 1;
     }
 }
