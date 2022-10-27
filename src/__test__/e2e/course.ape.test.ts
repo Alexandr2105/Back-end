@@ -127,14 +127,19 @@ describe("video tests", () => {
 });
 describe("blogs tests", () => {
     const pass = {Authorization: "Basic YWRtaW46cXdlcnR5"};
-    // beforeAll(async () => {
+    const test = request(app);
+    let newBlog1: any = null;
+    let newBlog2: any = null;
+    let newPost1: any = null;
+    let newPost2: any = null;
+    beforeAll(async () => {
+        await test.delete("/testing/all-data").expect(204);
+    });
+    // it("Чистим коллекцию", async () => {
     //     await request(app).delete("/testing/all-data").expect(204);
     // });
-    it("Чистим коллекцию", async () => {
-        await request(app).delete("/testing/all-data").expect(204);
-    });
     it("Проверка на удаление", async () => {
-        await request(app).get("/blogs").expect(200, {
+        await test.get("/blogs").expect(200, {
             pagesCount: 0,
             page: 1,
             pageSize: 10,
@@ -142,14 +147,12 @@ describe("blogs tests", () => {
             items: [],
         });
     });
-    let newBlog1: any = null;
-    let newBlog2: any = null;
     it("Создаем новый blog1", async () => {
-        const createPost = await request(app).post("/blogs").set(pass).send({
+        const blog = await test.post("/blogs").set(pass).send({
             name: "Alex",
             youtubeUrl: "www.youtube.com"
         }).expect(201);
-        newBlog1 = createPost.body;
+        newBlog1 = blog.body;
         expect(newBlog1).toEqual({
             id: newBlog1.id,
             name: newBlog1.name,
@@ -158,11 +161,11 @@ describe("blogs tests", () => {
         });
     });
     it("Создаем новый blog2", async () => {
-        const createPost = await request(app).post("/blogs").set(pass).send({
+        const blog = await test.post("/blogs").set(pass).send({
             name: "Alex1",
             youtubeUrl: "www.youtube1.com"
         }).expect(201);
-        newBlog2 = createPost.body;
+        newBlog2 = blog.body;
         expect(newBlog2).toEqual({
             id: newBlog2.id,
             name: newBlog2.name,
@@ -170,14 +173,36 @@ describe("blogs tests", () => {
             createdAt: newBlog2.createdAt,
         });
     });
+    it("Создаем новый blog без авторизации", async () => {
+        await test.post("/blogs").send({
+            name: "Alex1",
+            youtubeUrl: "www.youtube1.com"
+        }).expect(401);
+    });
+    it("Создаем новый blog с не верными данными", async () => {
+        await test.post("/blogs").set(pass).send({
+            name: "",
+            youtubeUrl: "www.youtube1"
+        }).expect(400, {
+            errorsMessages: [
+                {
+                    message: "Это поле должно быть заплнено",
+                    field: "name"
+                }, {
+                    message: "Не верно заполнено поле",
+                    field: "youtubeUrl"
+                }
+            ]
+        });
+    });
     it("Получаем blog по id", async () => {
-        await request(app).get("/blogs/" + newBlog1.id).expect(200, newBlog1);
+        await test.get("/blogs/" + newBlog1.id).expect(200, newBlog1);
     });
     it("Получаем blog по не верному id", async () => {
-        await request(app).get("/blog/" + newBlog1).expect(404);
+        await test.get("/blog/" + newBlog1).expect(404);
     });
     it("Получаем все blogs", async () => {
-        await request(app).get("/blogs")
+        await test.get("/blogs")
             .expect(200, {
                 pagesCount: 1,
                 page: 1,
@@ -187,25 +212,387 @@ describe("blogs tests", () => {
             });
     });
     it("Удаляем blog", async () => {
-        await request(app).delete("/blogs/" + newBlog1.id).expect(401);
-        await request(app).delete("/blogs/" + newBlog1.id).set(pass).expect(204);
-        await request(app).get("/blogs/").expect(200, {
+        await test.delete("/blogs/" + newBlog1.id).expect(401);
+        await test.delete("/blogs/" + newBlog1.id).set(pass).expect(204);
+        await test.get("/blogs/").expect(200, {
             pagesCount: 1,
             page: 1,
             pageSize: 10,
             totalCount: 1,
             items: [newBlog2],
         });
-        await request(app).get("/blogs/" + newBlog1.id).expect(404);
-        await request(app).delete("/blogs/" + newBlog1.id).set(pass).expect(404);
+        await test.get("/blogs/" + newBlog1.id).expect(404);
+        await test.delete("/blogs/" + newBlog1.id).set(pass).expect(404);
     });
-    it("Удаляем не существующий blog", async () => {
+    it("Редактируем blog2", async () => {
+        await test.put("/blogs/123").expect(401);
+        // await test.put("/blogs/123").set(pass).expect(404);
+        const a = await test.put("/blogs/" + newBlog2).set(pass).send({
+            name: "Stringasdfasdfasdfasdfsdf",
+            youtubeUrl: "asdfde"
+        }).expect(400);
+        expect(a.body).toEqual({
+            errorsMessages: [
+                {
+                    message: expect.any(String),
+                    field: "name"
+                }, {
+                    message: expect.any(String),
+                    field: "youtubeUrl"
+                }
+            ]
+        });
+        await test.put("/blogs/" + newBlog2.id).set(pass).send({
+            name: "Jora",
+            youtubeUrl: "www.youtube.com"
+        }).expect(204);
+    });
+    it("Получаем blog по id", async () => {
+        await test.get("/blogs/" + newBlog2.id).expect(200, {...newBlog2, name: "Jora", youtubeUrl: "www.youtube.com"});
+    });
+    it("Создаем 2 posts по blogId с авторизацией", async () => {
+        const post1 = await test.post("/blogs/" + newBlog2.id + "/posts").set(pass).send({
+            title: "string1",
+            shortDescription: "string1",
+            content: "string1"
+        }).expect(201);
+        newPost1 = post1.body;
+        expect(post1.body).toEqual({
+            id: newPost1.id,
+            title: newPost1.title,
+            shortDescription: newPost1.shortDescription,
+            content: newPost1.content,
+            blogId: newPost1.blogId,
+            blogName: newPost1.blogName,
+            createdAt: newPost1.createdAt
+        });
+        const post2 = await test.post("/blogs/" + newBlog2.id + "/posts").set(pass).send({
+            title: "string1",
+            shortDescription: "string1",
+            content: "string1"
+        }).expect(201);
+        newPost2 = post2.body;
+        expect(post2.body).toEqual({
+            id: newPost2.id,
+            title: newPost2.title,
+            shortDescription: newPost2.shortDescription,
+            content: newPost2.content,
+            blogId: newPost2.blogId,
+            blogName: newPost2.blogName,
+            createdAt: newPost2.createdAt
+        });
+    });
+    it("Создаем post по blogId без авторизации", async () => {
+        await test.post("/blogs/" + newBlog2 + "/posts").send({
+            title: "string1",
+            shortDescription: "string1",
+            content: "string1"
+        }).expect(401);
+    });
+    it("Создаем post по blogId с авторизацией с не верными данными", async () => {
+        const post = await test.post("/blogs/" + newBlog2.id + "/posts").set(pass).send({
+            title: "",
+            shortDescription: "",
+            content: ""
+        }).expect(400);
+        expect(post.body).toEqual({
+            errorsMessages: [
+                {
+                    message: expect.any(String),
+                    field: "title"
+                }, {
+                    message: expect.any(String),
+                    field: "shortDescription",
+                }, {
+                    message: expect.any(String),
+                    field: "content"
+                }]
+        });
+    });
+    it("Создаем post по не верному blogId с авторизацией", async () => {
+        await test.post("/blogs/-1234/posts").set(pass).send({
+            title: "",
+            shortDescription: "",
+            content: ""
+        }).expect(404);
+    });
+    it("Создаем post по blogId", async () => {
 
     });
-    it("Удаляем не существующий blog", async () => {
+    it("Создаем post по blogId", async () => {
 
     });
+//TODO Сделать тесты на получение постов по id;
 });
 describe("posts tests", () => {
+    beforeAll(async () => {
+        await test.delete("/testing/all-data").expect(204);
+    });
+    const pass = {Authorization: "Basic YWRtaW46cXdlcnR5"};
+    const test = request(app);
+    let newPost1: any = null;
+    let newPost2: any = null;
+    let blog: any = null;
+    it("Проверка на удаление", async () => {
+        await test.get("/posts").expect(200, {
+            pagesCount: 0,
+            page: 1,
+            pageSize: 10,
+            totalCount: 0,
+            items: [],
+        });
+    });
+    it("Создаем два posts и один blog", async () => {
+        blog = await test.post("/blogs").set(pass).send({
+            name: "Alex",
+            youtubeUrl: "www.youtube.com"
+        }).expect(201);
+        const posts1 = await test.post("/posts").set(pass).send({
+            title: "string1",
+            shortDescription: "string1",
+            content: "string1",
+            blogId: blog.body.id
+        }).expect(201);
+        const posts2 = await test.post("/posts").set(pass).send({
+            title: "string2",
+            shortDescription: "string2",
+            content: "string2",
+            blogId: blog.body.id
+        }).expect(201);
+        newPost1 = posts1.body;
+        newPost2 = posts2.body;
+        expect(newPost1).toEqual({
+            id: newPost1.id,
+            title: newPost1.title,
+            shortDescription: newPost1.shortDescription,
+            content: newPost1.content,
+            blogId: newPost1.blogId,
+            blogName: newPost1.blogName,
+            createdAt: newPost1.createdAt
+        });
+        expect(newPost2).toEqual({
+            id: newPost2.id,
+            title: newPost2.title,
+            shortDescription: newPost2.shortDescription,
+            content: newPost2.content,
+            blogId: newPost2.blogId,
+            blogName: newPost2.blogName,
+            createdAt: newPost2.createdAt
+        });
+    });
+    it("Создаем не верный post без авторизации", async () => {
+        await test.post("/posts").send({
+            title: "",
+            shortDescription: "",
+            content: "",
+            blogId: "-12"
+        }).expect(401);
+    });
+    it("Создаем не верный post с авторизацией", async () => {
+        const post = await test.post("/posts").set(pass).send({
+            title: "",
+            shortDescription: "",
+            content: "",
+            blogId: "-12"
+        }).expect(400);
+        expect(post.body).toEqual({
+            "errorsMessages": [
+                {
+                    "message": expect.any(String),
+                    "field": "title"
+                }, {
+                    "message": expect.any(String),
+                    "field": "shortDescription"
+                }, {
+                    "message": expect.any(String),
+                    "field": "content"
+                }, {
+                    "message": expect.any(String),
+                    "field": "blogId"
+                }]
+        });
+    });
+    it("Возвращаем все posts", async () => {
+        test.get("posts").expect(200, {
+            "pagesCount": 1,
+            "page": 1,
+            "pageSize": 10,
+            "totalCount": 2,
+            "items": [newPost2, newPost2]
+        });
+    });
+    it("Получаем post по id", async () => {
+        await test.get("/posts/" + newPost1.id).expect(200, newPost1);
+    });
+    it("Получаем post по не верному id", async () => {
+        await test.get("/posts/234").expect(404);
+    });
+    it("Обновляем post по id", async () => {
+        await test.put("/posts/" + newPost1.id).set(pass).send({
+            title: "string",
+            shortDescription: "string",
+            content: "string",
+            blogId: blog.body.id
+        }).expect(204);
+        await test.get("/posts/" + newPost1.id).expect(200, {
+                ...newPost1,
+                title: "string",
+                shortDescription: "string",
+                content: "string",
+                blogId: blog.body.id
+            }
+        )
+    });
+    it("Обновляем post по id без авторизации", async () => {
+        await test.put("/posts/" + newPost1).send({
+            title: "string",
+            shortDescription: "string",
+            content: "string",
+            blogId: "string"
+        }).expect(401);
+    });
+    it("Обновляем post котрого нет", async () => {
+        await test.put("/posts/1234").set(pass).send({
+            title: "string",
+            shortDescription: "string",
+            content: "string",
+            blogId: blog.id
+        }).expect(404);
+    });
+    it("Обновляем post по id не верными данными", async () => {
+        const post = await test.put("/posts/" + newPost1.id).set(pass).send({
+            title: "",
+            shortDescription: "",
+            content: "",
+            blogId: "-12"
+        }).expect(400);
+        expect(post.body).toEqual({
+            "errorsMessages": [
+                {
+                    "message": expect.any(String),
+                    "field": "title"
+                }, {
+                    "message": expect.any(String),
+                    "field": "shortDescription"
+                }, {
+                    "message": expect.any(String),
+                    "field": "content"
+                }, {
+                    "message": expect.any(String),
+                    "field": "blogId"
+                }]
+        });
+    });
+    it("Удаляем post без авторизации", async () => {
+        await test.delete("/posts/" + newPost1).expect(401);
+    });
+    it("Удаляем post с авторизацией", async () => {
+        await test.delete("/posts/" + newPost1.id).set(pass).expect(204);
+    });
+    it("Удаляем не существующий post", async () => {
+        await test.delete("/posts/" + newPost1.id).set(pass).expect(404);
+        await test.get("/posts/" + newPost1.id).expect(404);
+    });
+});
+describe("users tests", () => {
+    beforeAll(async () => {
+        await test.delete("/testing/all-data").expect(204);
+    });
+    const pass = {Authorization: "Basic YWRtaW46cXdlcnR5"};
+    const test = request(app);
+    let newUser1: any = null;
+    let newUser2: any = null;
+    it("Создаем 2 users", async () => {
+        const user1 = await test.post("/users").set(pass).send({
+            "login": "string1",
+            "password": "string1",
+            "email": "123@gd.re"
+        }).expect(201);
+        const user2 = await test.post("/users").set(pass).send({
+            "login": "string2",
+            "password": "string2",
+            "email": "123@gd.ru"
+        }).expect(201);
+        newUser1 = user1.body;
+        newUser2 = user2.body;
+        expect(newUser1).toEqual({
+            id: newUser1.id,
+            login: newUser1.login,
+            email: newUser1.email,
+            createdAt: newUser1.createdAt
+        });
+        expect(newUser2).toEqual({
+            id: newUser2.id,
+            login: newUser2.login,
+            email: newUser2.email,
+            createdAt: newUser2.createdAt
+        });
+    });
+    it("Создаем user без авторизации", async () => {
+        await test.post("/posts").send({
+            "login": "string1",
+            "password": "string1",
+            "email": "123@gd.re"
+        }).expect(401);
+    });
+    it("Создаем user с авторизацией и неверными данными", async () => {
+        const post = await test.post("/users").set(pass).send({
+            "login": "st",
+            "password": "str",
+            "email": "123@gd"
+        }).expect(400);
+        expect(post.body).toEqual({
+            "errorsMessages": [
+                {
+                    "message": expect.any(String),
+                    "field": "login"
+                }, {
+                    "message": expect.any(String),
+                    "field": "password"
+                }, {
+                    "message": expect.any(String),
+                    "field": "email"
+                }
+            ]
+        });
+    });
+    it("Получаем всех users", async () => {
+        await test.get("/users").expect(200, {
+            "pagesCount": 1,
+            "page": 1,
+            "pageSize": 10,
+            "totalCount": 2,
+            "items": [newUser2, newUser1]
+        });
+    });
+    it("Удаляем user по id с авторизацией", async () => {
+        await test.delete("/users/" + newUser1.id).set(pass).expect(204);
+    });
+    it("Удаляем user по id без авторизации", async () => {
+        await test.delete("/users/" + newUser1.id).expect(401);
+    });
+    it("Удаляем user по неверному id с авторизацией", async () => {
+        await test.delete("/users/" + newUser1.id).set(pass).expect(404);
+    });
+    it("Проверка на удаление user", async () => {
+        await test.get("/users/" + newUser1.id).expect(404);
+    });
+});
+describe("comments tests", () => {
+    beforeAll(async () => {
+        await test.delete("/testing/all-data").expect(204);
+    });
+    const pass = {Authorization: "Basic YWRtaW46cXdlcnR5"};
+    const test = request(app);
+    let newComment1: any = null;
+    let newComment2: any = null;
+    it("Удаляем не существующий blog", async () => {
 
+    });
+    it("Удаляем не существующий blog", async () => {
+
+    });
+    it("Удаляем не существующий blog", async () => {
+
+    });
 });
