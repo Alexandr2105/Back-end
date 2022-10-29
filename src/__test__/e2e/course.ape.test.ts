@@ -322,7 +322,18 @@ describe("blogs tests", () => {
     it("Создаем post по blogId", async () => {
 
     });
-//TODO Сделать тесты на получение постов по id;
+    it("Получаем post по blog id", async () => {
+        await test.get("/blogs/" + newBlog2.id + "/posts").expect(200, {
+            pagesCount: 1,
+            page: 1,
+            pageSize: 10,
+            totalCount: 2,
+            items: [newPost2, newPost1]
+        });
+    });
+    it("Получаем post по не верному blog id", async () => {
+        await test.get("/blogs/" + newBlog1.id + "/posts").expect(404);
+    });
 });
 describe("posts tests", () => {
     beforeAll(async () => {
@@ -493,6 +504,18 @@ describe("posts tests", () => {
         await test.delete("/posts/" + newPost1.id).set(pass).expect(404);
         await test.get("/posts/" + newPost1.id).expect(404);
     });
+    it("Создаем 2 posts с токеном по postId", async () => {
+
+    });
+    it("Создаем post без токена по postId", async () => {
+
+    });
+    it("Создаем 2 posts с токеном по postId", async () => {
+
+    });
+    it("Создаем 2 posts с токеном по postId", async () => {
+
+    });
 });
 describe("users tests", () => {
     beforeAll(async () => {
@@ -577,6 +600,7 @@ describe("users tests", () => {
     it("Проверка на удаление user", async () => {
         await test.get("/users/" + newUser1.id).expect(404);
     });
+    //TODO:как сделаю токен доделать все для коментария!!!
 });
 describe("comments tests", () => {
     beforeAll(async () => {
@@ -595,4 +619,63 @@ describe("comments tests", () => {
     it("Удаляем не существующий blog", async () => {
 
     });
+});
+describe("Auth tests", () => {
+    beforeAll(async () => {
+        await test.delete("/testing/all-data").expect(204);
+    });
+    it("Проверка на удаление", async () => {
+        await test.get("/blogs").expect(200, {
+            pagesCount: 0,
+            page: 1,
+            pageSize: 10,
+            totalCount: 0,
+            items: [],
+        });
+    });
+    const test = request(app);
+    let newUser1: any = null;
+    const pass = {Authorization: "Basic YWRtaW46cXdlcnR5"};
+    it("Создаем user", async () => {
+        const user1 = await test.post("/users").set(pass).send({
+            login: "string1",
+            password: "string1",
+            email: "123@gd.re"
+        }).expect(201);
+        newUser1 = user1.body;
+        expect(newUser1).toEqual({
+            id: newUser1.id,
+            login: newUser1.login,
+            email: newUser1.email,
+            createdAt: newUser1.createdAt
+        });
+    });
+    it("Входим в систему с помощью верного логина и пароля", async () => {
+        await test.post("/auth/login").send({
+            login: newUser1.login,
+            password: newUser1.password
+        }).expect(200, {accessToken: expect.any(String)});
+    });
+    it("Входим в систему с помощью неверного логина и пароля", async () => {
+        await test.post("/auth/login").send({
+            login: "asdf",
+            password: "adfsf"
+        }).expect(401);
+    });
+    it("Входим в систему с неверными данными", async () => {
+        const post = await test.post("/auth/login").send({
+            login: "",
+            password: ""
+        }).expect(400)
+        expect(post.body).toEqual({
+            errorsMessages: [{
+                message: expect.any(String),
+                field: "login"
+            }, {
+                message: expect.any(String),
+                field: "password"
+            }]
+        });
+    });
+    //TODO логинизацию сделал, только приходить ошибка 400, а надо 200. Надо разобраться!!!
 });
