@@ -42,10 +42,6 @@ export type EmailConfirmation = {
     isConfirmed: boolean,
 };
 
-export type BlackList = {
-    badToken: string
-}
-
 const mongoUri = process.env.mongoUri || 'mongodb://0.0.0.0:27017';
 
 const client = new MongoClient(mongoUri);

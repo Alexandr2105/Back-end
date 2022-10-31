@@ -86,11 +86,29 @@ authRouter.post("/registration-email-resending", checkEmail, checkEmailConfirmat
 });
 
 authRouter.post("/refresh-token", async (req: Request, res: Response) => {
-    if (req.cookies === null || await blackListCollection.findOne({badToken: req.cookies})) {
-
+    let refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) {
+        res.sendStatus(401);
+        return;
+    }
+    const findRefreshToken = await blackListCollection.findOne({refreshToken: refreshToken});
+    if (findRefreshToken !== null) {
+        res.sendStatus(401);
+    } else {
+        const userId: any = await jwtService.getUserIdByRefreshToken(refreshToken);
+        await blackListCollection.insertOne({refreshToken});
+        if (userId) {
+            const token = jwtService.creatJWT(userId.toString());
+            const refreshToken = jwtService.creatRefreshJWT(userId.toString());
+            res.cookie("refreshToken", refreshToken, {httpOnly: true});
+            res.send({accessToken: token});
+        } else {
+            res.sendStatus(401);
+        }
     }
 });
 
 authRouter.post("/auth/logout", async (req: Request, res: Response) => {
-
+    await blackListCollection.insertOne({refreshToken: req.cookies.refreshToken});
+    res.sendStatus(204);
 });

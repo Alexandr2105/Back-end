@@ -10,9 +10,11 @@ import {commentsRouter} from "./routes/comments-router";
 
 export const app = express();
 const port = process.env.PORT || 3000;
+const cookieParser = require('cookie-parser')
 
 const parserMiddleware = express.json();
 app.use(parserMiddleware);
+app.use(cookieParser());
 
 app.use("/videos", videosRouter);
 app.use("/testing", testingRouter);
