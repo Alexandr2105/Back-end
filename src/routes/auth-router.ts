@@ -6,7 +6,7 @@ import {checkToken, middleWare} from "../middlewares/middleware";
 import {authService} from "../domain/auth-service";
 import {usersRepository} from "../repositories/users-repository";
 import {emailManager} from "../manager/email-manager";
-import {registrationUsersCollection, usersCollection} from "../db/db";
+import {blackListCollection, registrationUsersCollection, usersCollection} from "../db/db";
 
 export const authRouter = Router();
 
@@ -52,6 +52,8 @@ authRouter.post("/login", checkLogin, checkPassword, middleWare, async (req: Req
     const checkResult: any = await usersService.checkUserOrLogin(req.body.login, req.body.password);
     if (checkResult) {
         const token = jwtService.creatJWT(checkResult);
+        const refreshToken = jwtService.creatRefreshJWT(checkResult);
+        res.cookie("refreshToken", refreshToken, {httpOnly: true});
         res.send({accessToken: token});
     } else {
         res.sendStatus(401);
@@ -81,4 +83,14 @@ authRouter.post("/registration-email-resending", checkEmail, checkEmailConfirmat
     const newCode: any = await authService.getNewConfirmationCode(req.body.email);
     const result = await emailManager.sendEmailAndConfirm(req.body.email, newCode);
     if (result) res.sendStatus(204);
+});
+
+authRouter.post("/refresh-token", async (req: Request, res: Response) => {
+    if (req.cookies === null || await blackListCollection.findOne({badToken: req.cookies})) {
+
+    }
+});
+
+authRouter.post("/auth/logout", async (req: Request, res: Response) => {
+
 });

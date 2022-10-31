@@ -4,7 +4,10 @@ import {settings} from "../settings";
 
 export const jwtService = {
     creatJWT(user: UserType) {
-        return jwt.sign({userId: user.id}, settings.JWT_SECRET, {expiresIn: "1h"});
+        return jwt.sign({userId: user.id}, settings.JWT_SECRET, {expiresIn:settings.TOKEN_LIFE});
+    },
+    creatRefreshJWT(user: UserType) {
+        return jwt.sign({userId: user.id}, settings.REFRESH_TOKEN_SECRET, {expiresIn:settings.REFRESH_TOKEN_LIFE});
     },
     getUserIdByToken(token: string) {
         try {

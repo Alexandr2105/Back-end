@@ -42,6 +42,10 @@ export type EmailConfirmation = {
     isConfirmed: boolean,
 };
 
+export type BlackList = {
+    badToken: string
+}
+
 const mongoUri = process.env.mongoUri || 'mongodb://0.0.0.0:27017';
 
 const client = new MongoClient(mongoUri);
@@ -51,6 +55,7 @@ export const postsCollection = db.collection<PostsType>("posts");
 export const usersCollection = db.collection<UserType>("users");
 export const commentsCollection = db.collection<CommentType>("comments");
 export const registrationUsersCollection = db.collection<EmailConfirmation>("emailConfirmation");
+export const blackListCollection = db.collection("blackList");
 
 export async function runDb() {
     try {
