@@ -1,6 +1,8 @@
 import request from 'supertest'
 import {app} from "../../index";
 
+const pass = {Authorization: "Basic YWRtaW46cXdlcnR5"};
+
 describe("video tests", () => {
     beforeAll(async () => {
         await request(app).delete("/testing/all-data").expect(204);
@@ -11,8 +13,8 @@ describe("video tests", () => {
     it('Проверка на пустой массив', async () => {
         await request(app).delete("/videos/123").expect(404);
     });
-    let newVideo1: any = null;
-    let newVideo2: any = null;
+    let newVideo1: any;
+    let newVideo2: any;
     it("Создает видео1", async () => {
         const createVideo = await request(app)
             .post("/videos")
@@ -126,7 +128,6 @@ describe("video tests", () => {
     });
 });
 describe("blogs tests", () => {
-    const pass = {Authorization: "Basic YWRtaW46cXdlcnR5"};
     const test = request(app);
     let newBlog1: any = null;
     let newBlog2: any = null;
@@ -316,12 +317,6 @@ describe("blogs tests", () => {
             content: ""
         }).expect(404);
     });
-    it("Создаем post по blogId", async () => {
-
-    });
-    it("Создаем post по blogId", async () => {
-
-    });
     it("Получаем post по blog id", async () => {
         await test.get("/blogs/" + newBlog2.id + "/posts").expect(200, {
             pagesCount: 1,
@@ -336,14 +331,15 @@ describe("blogs tests", () => {
     });
 });
 describe("posts tests", () => {
-    beforeAll(async () => {
-        await test.delete("/testing/all-data").expect(204);
-    });
-    const pass = {Authorization: "Basic YWRtaW46cXdlcnR5"};
     const test = request(app);
     let newPost1: any = null;
     let newPost2: any = null;
     let blog: any = null;
+    let newUser: any = null;
+    let login: any = null;
+    beforeAll(async () => {
+        await test.delete("/testing/all-data").expect(204);
+    });
     it("Проверка на удаление", async () => {
         await test.get("/posts").expect(200, {
             pagesCount: 0,
@@ -504,27 +500,73 @@ describe("posts tests", () => {
         await test.delete("/posts/" + newPost1.id).set(pass).expect(404);
         await test.get("/posts/" + newPost1.id).expect(404);
     });
-    it("Создаем 2 posts с токеном по postId", async () => {
-
+    it("Создаем user", async () => {
+        const user = await test.post("/users").set(pass).send({
+            login: "string1",
+            password: "string1",
+            email: "123@gd.re"
+        }).expect(201);
+        newUser = user;
+        expect(user.body).toEqual({
+            id: user.body.id,
+            login: user.body.login,
+            email: user.body.email,
+            createdAt: user.body.createdAt
+        });
     });
-    it("Создаем post без токена по postId", async () => {
-
+    it("Входим в систему с помощью верного логина и пароля", async () => {
+        login = await test.post("/auth/login").send({
+            login: "string1",
+            password: "string1"
+        }).expect(200);
+        console.log(login.body);
+        console.log(login.body.accessToken);
+        expect(login.body).toEqual({accessToken: login.body.accessToken});
     });
-    it("Создаем 2 posts с токеном по postId", async () => {
-
+    it("Создаем коментарий с токеном по postId", async () => {
+        const comment = await test.post("/posts/" + newPost2.id + "/comments").set({Authorization: login.body.accessToken}).send({
+            "content": "stringstringstringst"
+        }).expect(201);
+        expect(comment).toEqual({
+            "id": comment.body.id,
+            "content": comment.body.content,
+            "userId": comment.body.userId,
+            "userLogin": comment.body.userLogin,
+            "createdAt": comment.body.createdAt
+        });
     });
-    it("Создаем 2 posts с токеном по postId", async () => {
-
+    it("Создаем коментарий без токена по postId", async () => {
+        await test.post("/posts/" + newPost2.id + "/comments").send({
+            "content": "stringstringstringst"
+        }).expect(401);
+    });
+    it("Создаем коментарий с токеном, но неверным контентом", async () => {
+        await test.post("/posts/" + newPost2.id + "/comments").set({Authorization: login.body.accessToken}).send({
+            "content": "string"
+        }).expect(400);
+    });
+    it("Создаем коментарий по неверному postId", async () => {
+        const comment = await test.post("/posts/1213/comments").set({Authorization: login.body.accessToken}).send({
+            "content": "stringstringstringst"
+        }).expect(201);
     });
 });
 describe("users tests", () => {
     beforeAll(async () => {
         await test.delete("/testing/all-data").expect(204);
     });
-    const pass = {Authorization: "Basic YWRtaW46cXdlcnR5"};
     const test = request(app);
     let newUser1: any = null;
     let newUser2: any = null;
+    it("Проверка на удаление", async () => {
+        await test.get("/posts").expect(200, {
+            pagesCount: 0,
+            page: 1,
+            pageSize: 10,
+            totalCount: 0,
+            items: [],
+        });
+    });
     it("Создаем 2 users", async () => {
         const user1 = await test.post("/users").set(pass).send({
             "login": "string1",
@@ -606,10 +648,23 @@ describe("comments tests", () => {
     beforeAll(async () => {
         await test.delete("/testing/all-data").expect(204);
     });
-    const pass = {Authorization: "Basic YWRtaW46cXdlcnR5"};
     const test = request(app);
     let newComment1: any = null;
     let newComment2: any = null;
+    it("Создаем user", async () => {
+        await test.post("/users").set(pass).send({
+            "login": "string1",
+            "password": "string1",
+            "email": "123@gd.re"
+        }).expect(201);
+    });
+    it("Входим в систему с помощью верного логина и пароля", async () => {
+        const post = await test.post("/auth/login").send({
+            login: "string2",
+            password: "string2"
+        }).expect(200);
+        expect(post.body).toEqual({accessToken: expect.any(String)});
+    });
     it("Удаляем не существующий blog", async () => {
 
     });
@@ -635,7 +690,6 @@ describe("Auth tests", () => {
     });
     const test = request(app);
     let newUser1: any = null;
-    const pass = {Authorization: "Basic YWRtaW46cXdlcnR5"};
     it("Создаем user", async () => {
         const user1 = await test.post("/users").set(pass).send({
             login: "string1",
@@ -651,10 +705,11 @@ describe("Auth tests", () => {
         });
     });
     it("Входим в систему с помощью верного логина и пароля", async () => {
-        await test.post("/auth/login").send({
-            login: newUser1.login,
-            password: newUser1.password
-        }).expect(200, {accessToken: expect.any(String)});
+        const post = await test.post("/auth/login").send({
+            login: "string1",
+            password: "string1"
+        }).expect(200);
+        expect(post.body).toEqual({accessToken: expect.any(String)});
     });
     it("Входим в систему с помощью неверного логина и пароля", async () => {
         await test.post("/auth/login").send({
@@ -677,5 +732,4 @@ describe("Auth tests", () => {
             }]
         });
     });
-    //TODO логинизацию сделал, только приходить ошибка 400, а надо 200. Надо разобраться!!!
 });
