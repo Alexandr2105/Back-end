@@ -53,7 +53,7 @@ authRouter.post("/login", checkLogin, checkPassword, middleWare, async (req: Req
     if (checkResult) {
         const token = jwtService.creatJWT(checkResult);
         const refreshToken = jwtService.creatRefreshJWT(checkResult);
-        res.cookie("refreshToken", refreshToken, {httpOnly: true});
+        res.cookie("refreshToken", refreshToken, {httpOnly: true, secure: true});
         res.send({accessToken: token});
     } else {
         res.sendStatus(401);
