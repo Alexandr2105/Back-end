@@ -40,7 +40,6 @@ export const checkToken = async (req: Request, res: Response, next: NextFunction
 
 export const checkRefreshToken = async (req: Request, res: Response, next: NextFunction) => {
     let refreshToken = req.cookies.refreshToken;
-    console.log(refreshToken)
     if (!refreshToken) {
         res.sendStatus(401);
         return;
