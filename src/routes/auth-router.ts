@@ -2,11 +2,11 @@ import {Router, Request, Response} from "express";
 import {usersService} from "../domain/users-service";
 import {jwtService} from "../application/jwt-service";
 import {body} from "express-validator";
-import {checkToken, middleWare} from "../middlewares/middleware";
+import {checkRefreshToken, checkToken, middleWare} from "../middlewares/middleware";
 import {authService} from "../domain/auth-service";
 import {usersRepository} from "../repositories/users-repository";
 import {emailManager} from "../manager/email-manager";
-import {blackListCollection, registrationUsersCollection, usersCollection} from "../db/db";
+import {registrationUsersCollection, usersCollection} from "../db/db";
 
 export const authRouter = Router();
 
@@ -85,30 +85,14 @@ authRouter.post("/registration-email-resending", checkEmail, checkEmailConfirmat
     if (result) res.sendStatus(204);
 });
 
-authRouter.post("/refresh-token", async (req: Request, res: Response) => {
-    let refreshToken = req.cookies.refreshToken;
-    if (!refreshToken) {
-        res.sendStatus(401);
-        return;
-    }
-    const findRefreshToken = await blackListCollection.findOne({refreshToken: refreshToken});
-    if (findRefreshToken !== null) {
-        res.sendStatus(401);
-    } else {
-        const userId: any = await jwtService.getUserIdByRefreshToken(refreshToken);
-        await blackListCollection.insertOne({refreshToken});
-        if (userId) {
-            const token = jwtService.creatJWT(userId.toString());
-            const refreshToken = jwtService.creatRefreshJWT(userId.toString());
-            res.cookie("refreshToken", refreshToken, {httpOnly: true});
-            res.send({accessToken: token});
-        } else {
-            res.sendStatus(401);
-        }
-    }
+authRouter.post("/refresh-token", checkRefreshToken, async (req: Request, res: Response) => {
+    const userId: any = await jwtService.getUserIdByRefreshToken(req.cookies.refreshToken);
+    const token = jwtService.creatJWT(userId);
+    const refreshToken = jwtService.creatRefreshJWT(userId);
+    res.cookie("refreshToken", refreshToken, {httpOnly: true});
+    res.send({accessToken: token});
 });
 
-authRouter.post("/auth/logout", async (req: Request, res: Response) => {
-    await blackListCollection.insertOne({refreshToken: req.cookies.refreshToken});
+authRouter.post("/logout", checkRefreshToken, async (req: Request, res: Response) => {
     res.sendStatus(204);
 });
