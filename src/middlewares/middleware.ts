@@ -30,10 +30,10 @@ export const checkToken = async (req: Request, res: Response, next: NextFunction
             if (req.user !== null) {
                 next();
             } else {
-                res.sendStatus(402);
+                res.sendStatus(401);
             }
         } else {
-            res.sendStatus(403);
+            res.sendStatus(401);
         }
     }
 };
