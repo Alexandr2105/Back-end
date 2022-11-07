@@ -7,6 +7,7 @@ import {runDb} from "./db/db";
 import {usersRouter} from "./routes/users-router";
 import {authRouter} from "./routes/auth-router";
 import {commentsRouter} from "./routes/comments-router";
+import {securityDevicesRouter} from "./routes/securityDevices-router";
 
 export const app = express();
 const port = process.env.PORT || 3000;
@@ -23,6 +24,7 @@ app.use("/posts", postsRouter);
 app.use("/users", usersRouter);
 app.use("/auth", authRouter);
 app.use("/comments", commentsRouter);
+app.use("/security/devices", securityDevicesRouter);
 
 app.get("/", (req: Request, res: Response) => {
     let helloMessage = 'Hello World!!!';
