@@ -4,7 +4,6 @@ import {checkToken} from "../middlewares/middleware";
 export const securityDevicesRouter = Router();
 
 securityDevicesRouter.get("/", checkToken, (req: Request, res: Response) => {
-    console.log(req.ip);
     res.sendStatus(200);
 });
 
