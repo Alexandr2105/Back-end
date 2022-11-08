@@ -9,7 +9,7 @@ import {authRouter} from "./routes/auth-router";
 import {commentsRouter} from "./routes/comments-router";
 import {securityDevicesRouter} from "./routes/securityDevices-router";
 
-const app = express();
+export const app = express();
 const port = process.env.PORT || 3000;
 const cookieParser = require('cookie-parser')
 
