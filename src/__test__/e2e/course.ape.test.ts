@@ -642,7 +642,7 @@
 //     it("Проверка на удаление user", async () => {
 //         await test.get("/users/" + newUser1.id).expect(404);
 //     });
-//     //TODO:как сделаю токен доделать все для коментария!!!
+//
 // });
 // describe("comments tests", () => {
 //     beforeAll(async () => {
