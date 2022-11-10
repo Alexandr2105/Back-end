@@ -50,9 +50,10 @@ const checkCode = body("code").custom(async (code) => {
 
 authRouter.post("/login", checkLogin, checkPassword, middleWare, async (req: Request, res: Response) => {
     const checkResult: any = await usersService.checkUserOrLogin(req.body.login, req.body.password);
+    const deviceId = usersService.createDeviceId();
     if (checkResult) {
         const token = jwtService.creatJWT(checkResult);
-        const refreshToken = jwtService.creatRefreshJWT(checkResult);
+        const refreshToken = jwtService.creatRefreshJWT(checkResult, deviceId);
         res.cookie("refreshToken", refreshToken, {httpOnly: true, secure: true});
         res.send({accessToken: token});
     } else {
@@ -88,8 +89,9 @@ authRouter.post("/registration-email-resending", checkEmail, checkEmailConfirmat
 authRouter.post("/refresh-token", checkRefreshToken, async (req: Request, res: Response) => {
     const userId: any = await jwtService.getUserIdByRefreshToken(req.cookies.refreshToken);
     const user: any = await usersRepository.getUserId(userId.toString());
+    const deviceId: any = await jwtService.getDeviceIdRefreshToken(req.cookies.refreshToken);
     const token = jwtService.creatJWT(user);
-    const refreshToken = jwtService.creatRefreshJWT(user);
+    const refreshToken = jwtService.creatRefreshJWT(user, deviceId);
     res.cookie("refreshToken", refreshToken, {httpOnly: true, secure: true});
     res.send({accessToken: token});
 });
