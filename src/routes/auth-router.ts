@@ -7,6 +7,7 @@ import {authService} from "../domain/auth-service";
 import {usersRepository} from "../repositories/users-repository";
 import {emailManager} from "../manager/email-manager";
 import {registrationUsersCollection, usersCollection} from "../db/db";
+import {devicesService} from "../domain/devices-service";
 
 export const authRouter = Router();
 
@@ -50,11 +51,13 @@ const checkCode = body("code").custom(async (code) => {
 
 authRouter.post("/login", checkLogin, checkPassword, middleWare, async (req: Request, res: Response) => {
     const checkResult: any = await usersService.checkUserOrLogin(req.body.login, req.body.password);
-    const deviceId = usersService.createDeviceId();
+    const deviceId = devicesService.createDeviceId();
     if (checkResult) {
         const token = jwtService.creatJWT(checkResult);
         const refreshToken = jwtService.creatRefreshJWT(checkResult, deviceId);
-        res.cookie("refreshToken", refreshToken, {httpOnly: true, secure: true});
+        const infoRefreshToken: any = jwtService.getUserByRefreshToken(refreshToken);
+        await devicesService.saveInfoAboutDevicesUser(infoRefreshToken.iat, infoRefreshToken.exp, deviceId, infoRefreshToken.userId, req.ip, req.headers["user-agent"]);
+        res.cookie("refreshToken", refreshToken, {httpOnly: true});
         res.send({accessToken: token});
     } else {
         res.sendStatus(401);
@@ -87,12 +90,12 @@ authRouter.post("/registration-email-resending", checkEmail, checkEmailConfirmat
 });
 
 authRouter.post("/refresh-token", checkRefreshToken, async (req: Request, res: Response) => {
-    const userId: any = await jwtService.getUserIdByRefreshToken(req.cookies.refreshToken);
-    const user: any = await usersRepository.getUserId(userId.toString());
+    const userId: any = await jwtService.getUserByRefreshToken(req.cookies.refreshToken);
+    const user: any = await usersRepository.getUserId(userId.userId.toString());
     const deviceId: any = await jwtService.getDeviceIdRefreshToken(req.cookies.refreshToken);
     const token = jwtService.creatJWT(user);
     const refreshToken = jwtService.creatRefreshJWT(user, deviceId);
-    res.cookie("refreshToken", refreshToken, {httpOnly: true, secure: true});
+    res.cookie("refreshToken", refreshToken, {httpOnly: true});
     res.send({accessToken: token});
 });
 

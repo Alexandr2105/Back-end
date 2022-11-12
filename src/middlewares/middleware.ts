@@ -49,9 +49,9 @@ export const checkRefreshToken = async (req: Request, res: Response, next: NextF
         res.sendStatus(401);
         return;
     }
-    const userId: any = await jwtService.getUserIdByRefreshToken(refreshToken);
+    const user: any = await jwtService.getUserByRefreshToken(refreshToken);
     await blackListCollection.insertOne({refreshToken})
-    if (!userId) {
+    if (!user.userId) {
         res.sendStatus(401);
         return;
     }

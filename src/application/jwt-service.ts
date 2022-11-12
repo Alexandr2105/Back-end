@@ -20,10 +20,10 @@ export const jwtService = {
             return null;
         }
     },
-    getUserIdByRefreshToken(token: string) {
+    getUserByRefreshToken(token: string) {
         try {
-            const result: any = jwt.verify(token, settings.REFRESH_TOKEN_SECRET);
-            return new Object(result.userId);
+            const result = jwt.verify(token, settings.REFRESH_TOKEN_SECRET);
+            return new Object(result);
         } catch (error) {
             return null;
         }

@@ -4,6 +4,7 @@ import {
     blogsCollection,
     commentsCollection,
     postsCollection,
+    refreshTokenDataCollection,
     registrationUsersCollection,
     usersCollection
 } from "../db/db";
@@ -17,5 +18,6 @@ export const testingRepository = {
         commentsCollection.deleteMany({});
         registrationUsersCollection.deleteMany({});
         blackListCollection.deleteMany({});
+        refreshTokenDataCollection.deleteMany({});
     },
 };

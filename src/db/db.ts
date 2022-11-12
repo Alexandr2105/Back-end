@@ -42,6 +42,15 @@ export type EmailConfirmation = {
     isConfirmed: boolean,
 };
 
+export type RefreshTokenData = {
+    iat: string,
+    exp: string,
+    deviceId: string,
+    ip: string,
+    deviceName: string | undefined,
+    userId: string
+};
+
 const mongoUri = process.env.mongoUri || 'mongodb://0.0.0.0:27017';
 
 const client = new MongoClient(mongoUri);
@@ -52,6 +61,7 @@ export const usersCollection = db.collection<UserType>("users");
 export const commentsCollection = db.collection<CommentType>("comments");
 export const registrationUsersCollection = db.collection<EmailConfirmation>("emailConfirmation");
 export const blackListCollection = db.collection("blackList");
+export const refreshTokenDataCollection = db.collection<RefreshTokenData>("refreshTokenData");
 
 export async function runDb() {
     try {

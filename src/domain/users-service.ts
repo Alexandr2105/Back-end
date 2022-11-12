@@ -26,9 +26,6 @@ export const usersService = {
             return false;
         }
     },
-    createDeviceId() {
-        return +new Date() + "";
-    },
     async generateHash(pass: string, salt: string) {
         return bcrypt.hash(pass, salt);
     },
