@@ -1,4 +1,4 @@
-import {Router, Request, Response} from "express";
+import {Router, Request, Response, NextFunction} from "express";
 import {usersService} from "../domain/users-service";
 import {jwtService} from "../application/jwt-service";
 import {body} from "express-validator";
@@ -6,7 +6,7 @@ import {checkRefreshToken, checkToken, middleWare} from "../middlewares/middlewa
 import {authService} from "../domain/auth-service";
 import {usersRepository} from "../repositories/users-repository";
 import {emailManager} from "../manager/email-manager";
-import {registrationUsersCollection, usersCollection} from "../db/db";
+import {countAttemptCollection, registrationUsersCollection, usersCollection} from "../db/db";
 import {devicesService} from "../domain/devices-service";
 
 export const authRouter = Router();
@@ -48,8 +48,31 @@ const checkCode = body("code").custom(async (code) => {
         throw new Error("Не верный код");
     }
 });
+const checkCountAttempts = async (req: Request, res: Response, next: NextFunction) => {
+    debugger;
+    const dataIpDevice = await countAttemptCollection.findOne({ip: req.ip});
+    if (!dataIpDevice) {
+        await countAttemptCollection.insertOne({ip: req.ip, iat: +new Date(), countAttempt: 1});
+        next();
+        return;
+    }
+    if ((+new Date() - dataIpDevice!.iat) < 100) {
+        await countAttemptCollection.updateMany({ip: dataIpDevice?.ip}, {$set: {countAttempt: 1, iat: +new Date()}});
+        next();
+        return;
+    } else {
+        if (dataIpDevice?.countAttempt <= 5) {
+            let count = dataIpDevice!.countAttempt + 1;
+            await countAttemptCollection.updateOne({ip: dataIpDevice?.ip}, {$set: {countAttempt: count}})
+            next();
+            return;
+        } else {
+            res.sendStatus(429);
+        }
+    }
+}
 
-authRouter.post("/login", checkLogin, checkPassword, middleWare, async (req: Request, res: Response) => {
+authRouter.post("/login", checkLogin, checkPassword, checkCountAttempts, middleWare, async (req: Request, res: Response) => {
     const checkResult: any = await usersService.checkUserOrLogin(req.body.login, req.body.password);
     const deviceId = devicesService.createDeviceId();
     if (checkResult) {
@@ -73,23 +96,23 @@ authRouter.get("/me", checkToken, async (req: Request, res: Response) => {
     res.send(information);
 });
 
-authRouter.post("/registration-confirmation", checkCode, middleWare, async (req: Request, res: Response) => {
+authRouter.post("/registration-confirmation", checkCode, checkCountAttempts, middleWare, async (req: Request, res: Response) => {
     res.sendStatus(204);
 });
 
-authRouter.post("/registration", loginIsOriginal, emailIsOriginal, checkLoginForAuthLength, checkPasswordForAuthLength, checkEmail, middleWare, async (req: Request, res: Response) => {
+authRouter.post("/registration", loginIsOriginal, emailIsOriginal, checkLoginForAuthLength, checkPasswordForAuthLength, checkEmail, checkCountAttempts, middleWare, async (req: Request, res: Response) => {
     const newUser = await usersService.creatNewUsers(req.body.login, req.body.email, req.body.password);
     if (newUser) await authService.confirmation(newUser.id, req.body.login, req.body.email);
     res.sendStatus(204);
 });
 
-authRouter.post("/registration-email-resending", checkEmail, checkEmailConfirmation, emailDontExist, middleWare, async (req: Request, res: Response) => {
+authRouter.post("/registration-email-resending", checkEmail, checkEmailConfirmation, emailDontExist, checkCountAttempts, middleWare, async (req: Request, res: Response) => {
     const newCode: any = await authService.getNewConfirmationCode(req.body.email);
     const result = await emailManager.sendEmailAndConfirm(req.body.email, newCode);
     if (result) res.sendStatus(204);
 });
 
-authRouter.post("/refresh-token", checkRefreshToken, async (req: Request, res: Response) => {
+authRouter.post("/refresh-token", checkRefreshToken, checkCountAttempts, async (req: Request, res: Response) => {
     const userId: any = await jwtService.getUserByRefreshToken(req.cookies.refreshToken);
     const user: any = await usersRepository.getUserId(userId.userId.toString());
     const deviceId: any = await jwtService.getDeviceIdRefreshToken(req.cookies.refreshToken);
@@ -100,5 +123,7 @@ authRouter.post("/refresh-token", checkRefreshToken, async (req: Request, res: R
 });
 
 authRouter.post("/logout", checkRefreshToken, async (req: Request, res: Response) => {
-    res.sendStatus(204);
+    const user: any = await jwtService.getUserByRefreshToken(req.cookies.refreshToken);
+    const result = await devicesService.delDevice(user.deviceId);
+    if (result) res.sendStatus(204);
 });

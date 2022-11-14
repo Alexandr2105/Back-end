@@ -1,4 +1,5 @@
 import {refreshTokenRepository} from "../repositories/refresh-token-repository";
+import {securityDevicesRepository} from "../repositories/security-devices-repository";
 
 export const devicesService = {
     createDeviceId() {
@@ -14,5 +15,11 @@ export const devicesService = {
             userId: userId
         };
         await refreshTokenRepository.saveInfoAboutRefreshToken(infoAboutRefreshToken);
+    },
+    async delAllDevicesExcludeCurrent(deviceId: string) {
+        await securityDevicesRepository.delAllDevicesExcludeCurrent(deviceId);
+    },
+    async delDevice(deviceId: string): Promise<boolean> {
+        return await securityDevicesRepository.delDevice(deviceId);
     }
 }

@@ -1,8 +1,8 @@
 import {videos} from "./video-repository";
 import {
-    blackListCollection,
     blogsCollection,
     commentsCollection,
+    countAttemptCollection,
     postsCollection,
     refreshTokenDataCollection,
     registrationUsersCollection,
@@ -17,7 +17,7 @@ export const testingRepository = {
         usersCollection.deleteMany({});
         commentsCollection.deleteMany({});
         registrationUsersCollection.deleteMany({});
-        blackListCollection.deleteMany({});
         refreshTokenDataCollection.deleteMany({});
+        countAttemptCollection.deleteMany({});
     },
 };

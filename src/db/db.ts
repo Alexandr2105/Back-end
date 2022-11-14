@@ -51,6 +51,12 @@ export type RefreshTokenData = {
     userId: string
 };
 
+export type CountAttemptType = {
+    ip: string,
+    iat: number,
+    countAttempt: number
+};
+
 const mongoUri = process.env.mongoUri || 'mongodb://0.0.0.0:27017';
 
 const client = new MongoClient(mongoUri);
@@ -60,8 +66,8 @@ export const postsCollection = db.collection<PostsType>("posts");
 export const usersCollection = db.collection<UserType>("users");
 export const commentsCollection = db.collection<CommentType>("comments");
 export const registrationUsersCollection = db.collection<EmailConfirmation>("emailConfirmation");
-export const blackListCollection = db.collection("blackList");
 export const refreshTokenDataCollection = db.collection<RefreshTokenData>("refreshTokenData");
+export const countAttemptCollection = db.collection<CountAttemptType>("countAttempts");
 
 export async function runDb() {
     try {

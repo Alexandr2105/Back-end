@@ -20,7 +20,7 @@ export const jwtService = {
             return null;
         }
     },
-    getUserByRefreshToken(token: string) {
+    getUserByRefreshToken(token: string): Object | null {
         try {
             const result = jwt.verify(token, settings.REFRESH_TOKEN_SECRET);
             return new Object(result);

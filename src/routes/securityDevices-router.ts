@@ -1,20 +1,39 @@
-import {Router, Request, Response} from "express";
-import {checkRefreshToken} from "../middlewares/middleware";
+import {Router, Request, Response, NextFunction} from "express";
+import {checkRefreshToken, middleWare} from "../middlewares/middleware";
 import {refreshTokenRepository} from "../repositories/refresh-token-repository";
 import {jwtService} from "../application/jwt-service";
+import {devicesService} from "../domain/devices-service";
+import {refreshTokenDataCollection} from "../db/db";
 
 export const securityDevicesRouter = Router();
 
-securityDevicesRouter.get("/", checkRefreshToken, async (req: Request, res: Response) => {
+const checkUser = async (req: Request, res: Response, next: NextFunction) => {
+    const deviceId = await refreshTokenDataCollection.findOne({deviceId: req.params.dievices});
+    if (deviceId === null) {
+        res.sendStatus(404);
+        return;
+    }
+    if (deviceId.userId === req.user?.id) {
+        next();
+    } else {
+        res.sendStatus(403);
+    }
+};
+
+securityDevicesRouter.get("/", checkRefreshToken, middleWare, async (req: Request, res: Response) => {
     const user: any = jwtService.getUserByRefreshToken(req.cookies.refreshToken);
     const allDevicesUser = await refreshTokenRepository.getAllDevicesUser(user.userId);
     res.send(allDevicesUser);
 });
 
-securityDevicesRouter.delete("/", checkRefreshToken, (req: Request, res: Response) => {
+securityDevicesRouter.delete("/", checkRefreshToken, middleWare, async (req: Request, res: Response) => {
+    const user: any = jwtService.getUserByRefreshToken(req.cookies.refreshToken);
+    await devicesService.delAllDevicesExcludeCurrent(user.deviceId);
     res.sendStatus(204);
 });
 
-securityDevicesRouter.delete("/:devices", checkRefreshToken, (req: Request, res: Response) => {
-    res.sendStatus(204);
+securityDevicesRouter.delete("/:devices", checkRefreshToken, checkUser, middleWare, async (req: Request, res: Response) => {
+    const user: any = jwtService.getUserByRefreshToken(req.cookies.refreshToken);
+    const result = await devicesService.delDevice(user.deviceId);
+    if (result) res.sendStatus(204);
 });

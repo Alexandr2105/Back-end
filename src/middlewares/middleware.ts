@@ -3,7 +3,7 @@ import {validationResult} from "express-validator";
 import {jwtService} from "../application/jwt-service";
 import {usersService} from "../domain/users-service";
 import {usersPassword} from "../auth-users/usersPasswords";
-import {blackListCollection} from "../db/db";
+import {refreshTokenDataCollection} from "../db/db";
 
 export const middleWare = (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
@@ -39,19 +39,18 @@ export const checkToken = async (req: Request, res: Response, next: NextFunction
 };
 
 export const checkRefreshToken = async (req: Request, res: Response, next: NextFunction) => {
-    let refreshToken = req.cookies.refreshToken;
+    const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
         res.sendStatus(401);
         return;
     }
-    const findRefreshToken = await blackListCollection.findOne({refreshToken: refreshToken});
-    if (findRefreshToken !== null) {
+    const user: any = await jwtService.getUserByRefreshToken(refreshToken);
+    if (!user.userId) {
         res.sendStatus(401);
         return;
     }
-    const user: any = await jwtService.getUserByRefreshToken(refreshToken);
-    await blackListCollection.insertOne({refreshToken})
-    if (!user.userId) {
+    const device = await refreshTokenDataCollection.findOne({$and: [{deviceId: user.deviceId}, {userId: user.userId}]});
+    if (device?.iat !== user.iat) {
         res.sendStatus(401);
         return;
     }
