@@ -23,5 +23,8 @@ export const devicesService = {
     },
     async delDevice(deviceId: string): Promise<boolean> {
         return await securityDevicesRepository.delDevice(deviceId);
+    },
+    async updateInfoAboutDeviceUser(iat: string, exp: string, deviceId: string, ip: string, deviceName: string | undefined, userId: string) {
+        await securityDevicesRepository.updateInfoAboutDeviceUser(iat, exp, deviceId, ip, deviceName, userId);
     }
 }

@@ -7,7 +7,7 @@ import {runDb} from "./db/db";
 import {usersRouter} from "./routes/users-router";
 import {authRouter} from "./routes/auth-router";
 import {commentsRouter} from "./routes/comments-router";
-import {securityDevicesRouter} from "./routes/securityDevices-router";
+import {securityDevicesRouter} from "./routes/security-devices-router";
 
 export const app = express();
 const port = process.env.PORT || 3000;

@@ -24,5 +24,15 @@ export const securityDevicesRepository = {
     },
     async delOldRefreshTokenData(date: string) {
         await refreshTokenDataCollection.deleteMany({exp: {$lt: date}});
+    },
+    async updateInfoAboutDeviceUser(iat: string, exp: string, deviceId: string, ip: string, deviceName: string | undefined, userId: string) {
+        await refreshTokenDataCollection.updateOne({$and: [{userId: userId}, {deviceId: deviceId}]}, {
+            $set: {
+                iat: iat.toString(),
+                exp: exp.toString(),
+                ip: ip,
+                deviceName: deviceName
+            }
+        })
     }
 };

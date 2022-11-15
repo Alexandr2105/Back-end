@@ -123,6 +123,8 @@ authRouter.post("/refresh-token", checkRefreshToken, checkCountAttempts, async (
     const deviceId: any = await jwtService.getDeviceIdRefreshToken(req.cookies.refreshToken);
     const token = jwtService.creatJWT(user);
     const refreshToken = jwtService.creatRefreshJWT(user, deviceId);
+    const infoRefreshToken: any = jwtService.getUserByRefreshToken(refreshToken);
+    await devicesService.updateInfoAboutDeviceUser(infoRefreshToken.iat, infoRefreshToken.exp, deviceId.toString(), req.ip, req.headers["user-agent"], userId.userId);
     res.cookie("refreshToken", refreshToken, {httpOnly: true, secure: true});
     res.send({accessToken: token});
 });
