@@ -45,7 +45,7 @@ export const checkRefreshToken = async (req: Request, res: Response, next: NextF
         return;
     }
     const user: any = await jwtService.getUserByRefreshToken(refreshToken);
-    if (!user.userId) {
+    if (!user) {
         res.sendStatus(401);
         return;
     }
