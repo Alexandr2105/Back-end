@@ -49,19 +49,23 @@ const checkCode = body("code").custom(async (code) => {
     }
 });
 const checkCountAttempts = async (req: Request, res: Response, next: NextFunction) => {
-    debugger;
     const dataIpDevice = await countAttemptCollection.findOne({ip: req.ip});
     if (!dataIpDevice) {
-        await countAttemptCollection.insertOne({ip: req.ip, iat: +new Date(), countAttempt: 1});
+        await countAttemptCollection.insertOne({ip: req.ip, iat: +new Date() + "", countAttempt: 1});
         next();
         return;
     }
-    if ((+new Date() - dataIpDevice!.iat) < 100) {
-        await countAttemptCollection.updateMany({ip: dataIpDevice?.ip}, {$set: {countAttempt: 1, iat: +new Date()}});
+    if ((+new Date() - +dataIpDevice!.iat) > 10000) {
+        await countAttemptCollection.updateMany({ip: dataIpDevice?.ip}, {
+            $set: {
+                countAttempt: 1,
+                iat: +new Date() + ""
+            }
+        });
         next();
         return;
     } else {
-        if (dataIpDevice?.countAttempt <= 5) {
+        if (dataIpDevice?.countAttempt < 5) {
             let count = dataIpDevice!.countAttempt + 1;
             await countAttemptCollection.updateOne({ip: dataIpDevice?.ip}, {$set: {countAttempt: count}})
             next();
@@ -80,7 +84,8 @@ authRouter.post("/login", checkLogin, checkPassword, checkCountAttempts, middleW
         const refreshToken = jwtService.creatRefreshJWT(checkResult, deviceId);
         const infoRefreshToken: any = jwtService.getUserByRefreshToken(refreshToken);
         await devicesService.saveInfoAboutDevicesUser(infoRefreshToken.iat, infoRefreshToken.exp, deviceId, infoRefreshToken.userId, req.ip, req.headers["user-agent"]);
-        res.cookie("refreshToken", refreshToken, {httpOnly: true});
+        await devicesService.delOldRefreshTokenData(+new Date() + "");
+        res.cookie("refreshToken", refreshToken, {httpOnly: true, secure: true});
         res.send({accessToken: token});
     } else {
         res.sendStatus(401);
@@ -118,7 +123,7 @@ authRouter.post("/refresh-token", checkRefreshToken, checkCountAttempts, async (
     const deviceId: any = await jwtService.getDeviceIdRefreshToken(req.cookies.refreshToken);
     const token = jwtService.creatJWT(user);
     const refreshToken = jwtService.creatRefreshJWT(user, deviceId);
-    res.cookie("refreshToken", refreshToken, {httpOnly: true});
+    res.cookie("refreshToken", refreshToken, {httpOnly: true, secure: true});
     res.send({accessToken: token});
 });
 

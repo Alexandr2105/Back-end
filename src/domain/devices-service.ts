@@ -1,4 +1,3 @@
-import {refreshTokenRepository} from "../repositories/refresh-token-repository";
 import {securityDevicesRepository} from "../repositories/security-devices-repository";
 
 export const devicesService = {
@@ -14,7 +13,10 @@ export const devicesService = {
             deviceName: deviceName,
             userId: userId
         };
-        await refreshTokenRepository.saveInfoAboutRefreshToken(infoAboutRefreshToken);
+        await securityDevicesRepository.saveInfoAboutRefreshToken(infoAboutRefreshToken);
+    },
+    async delOldRefreshTokenData(date: string) {
+        await securityDevicesRepository.delOldRefreshTokenData(date);
     },
     async delAllDevicesExcludeCurrent(deviceId: string) {
         await securityDevicesRepository.delAllDevicesExcludeCurrent(deviceId);
