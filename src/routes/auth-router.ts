@@ -84,8 +84,8 @@ authRouter.post("/login", checkLogin, checkPassword, checkCountAttempts, middleW
         const refreshToken = jwtService.creatRefreshJWT(checkResult, deviceId);
         const infoRefreshToken: any = jwtService.getUserByRefreshToken(refreshToken);
         await devicesService.saveInfoAboutDevicesUser(infoRefreshToken.iat, infoRefreshToken.exp, deviceId, infoRefreshToken.userId, req.ip, req.headers["user-agent"]);
-        await devicesService.delOldRefreshTokenData(+new Date() + "");
-        res.cookie("refreshToken", refreshToken, {httpOnly: true, secure: true});
+        await devicesService.delOldRefreshTokenData(new Date());
+        res.cookie("refreshToken", refreshToken, {httpOnly: true, secure: false});
         res.send({accessToken: token});
     } else {
         res.sendStatus(401);
@@ -125,7 +125,7 @@ authRouter.post("/refresh-token", checkRefreshToken, checkCountAttempts, async (
     const refreshToken = jwtService.creatRefreshJWT(user, deviceId);
     const infoRefreshToken: any = jwtService.getUserByRefreshToken(refreshToken);
     await devicesService.updateInfoAboutDeviceUser(infoRefreshToken.iat, infoRefreshToken.exp, deviceId.toString(), req.ip, req.headers["user-agent"], userId.userId);
-    res.cookie("refreshToken", refreshToken, {httpOnly: true, secure: true});
+    res.cookie("refreshToken", refreshToken, {httpOnly: true, secure: false});
     res.send({accessToken: token});
 });
 

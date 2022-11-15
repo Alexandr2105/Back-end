@@ -22,14 +22,14 @@ export const securityDevicesRepository = {
             }
         });
     },
-    async delOldRefreshTokenData(date: string) {
+    async delOldRefreshTokenData(date: Date) {
         await refreshTokenDataCollection.deleteMany({exp: {$lt: date}});
     },
-    async updateInfoAboutDeviceUser(iat: string, exp: string, deviceId: string, ip: string, deviceName: string | undefined, userId: string) {
+    async updateInfoAboutDeviceUser(iat: Date, exp: Date, deviceId: string, ip: string, deviceName: string | undefined, userId: string) {
         await refreshTokenDataCollection.updateOne({$and: [{userId: userId}, {deviceId: deviceId}]}, {
             $set: {
-                iat: iat.toString(),
-                exp: exp.toString(),
+                iat: iat,
+                exp: exp,
                 ip: ip,
                 deviceName: deviceName
             }

@@ -43,8 +43,8 @@ export type EmailConfirmation = {
 };
 
 export type RefreshTokenData = {
-    iat: string,
-    exp: string,
+    iat: Date,
+    exp: Date,
     deviceId: string,
     ip: string,
     deviceName: string | undefined,
