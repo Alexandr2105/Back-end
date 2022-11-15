@@ -43,8 +43,8 @@ export type EmailConfirmation = {
 };
 
 export type RefreshTokenData = {
-    iat: Date,
-    exp: Date,
+    iat: number,
+    exp: number,
     deviceId: string,
     ip: string,
     deviceName: string | undefined,
@@ -53,7 +53,7 @@ export type RefreshTokenData = {
 
 export type CountAttemptType = {
     ip: string,
-    iat: string,
+    iat: number,
     countAttempt: number
 };
 

@@ -17,15 +17,17 @@ export const securityDevicesRepository = {
             return {
                 ip: a.ip,
                 title: a.deviceName,
-                lastActiveDate: a.iat,
+                lastActiveDate: new Date(a.iat).toISOString(),
                 deviceId: a.deviceId
             }
         });
     },
-    async delOldRefreshTokenData(date: Date) {
-        await refreshTokenDataCollection.deleteMany({exp: {$lt: date}});
+    async delOldRefreshTokenData(date: number) {
+        const timeInSeconds = Math.round(date / 1000);
+        const a = await refreshTokenDataCollection.deleteMany({exp: {$lt: timeInSeconds}});
+        console.log(a.deletedCount);
     },
-    async updateInfoAboutDeviceUser(iat: Date, exp: Date, deviceId: string, ip: string, deviceName: string | undefined, userId: string) {
+    async updateInfoAboutDeviceUser(iat: number, exp: number, deviceId: string, ip: string, deviceName: string | undefined, userId: string) {
         await refreshTokenDataCollection.updateOne({$and: [{userId: userId}, {deviceId: deviceId}]}, {
             $set: {
                 iat: iat,

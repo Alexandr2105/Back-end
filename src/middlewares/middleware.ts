@@ -50,7 +50,7 @@ export const checkRefreshToken = async (req: Request, res: Response, next: NextF
         return;
     }
     const device = await refreshTokenDataCollection.findOne({$and: [{deviceId: user.deviceId}, {userId: user.userId}]});
-    if (device?.iat !== user.iat.toString()) {
+    if (device?.iat !== user!.iat) {
         res.sendStatus(401);
         return;
     }

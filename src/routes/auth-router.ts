@@ -51,15 +51,15 @@ const checkCode = body("code").custom(async (code) => {
 const checkCountAttempts = async (req: Request, res: Response, next: NextFunction) => {
     const dataIpDevice = await countAttemptCollection.findOne({ip: req.ip});
     if (!dataIpDevice) {
-        await countAttemptCollection.insertOne({ip: req.ip, iat: +new Date() + "", countAttempt: 1});
+        await countAttemptCollection.insertOne({ip: req.ip, iat: +new Date(), countAttempt: 1});
         next();
         return;
     }
-    if ((+new Date() - +dataIpDevice!.iat) > 10000) {
+    if ((+new Date() - dataIpDevice!.iat) > 10000) {
         await countAttemptCollection.updateMany({ip: dataIpDevice?.ip}, {
             $set: {
                 countAttempt: 1,
-                iat: +new Date() + ""
+                iat: +new Date()
             }
         });
         next();
@@ -84,8 +84,8 @@ authRouter.post("/login", checkLogin, checkPassword, checkCountAttempts, middleW
         const refreshToken = jwtService.creatRefreshJWT(checkResult, deviceId);
         const infoRefreshToken: any = jwtService.getUserByRefreshToken(refreshToken);
         await devicesService.saveInfoAboutDevicesUser(infoRefreshToken.iat, infoRefreshToken.exp, deviceId, infoRefreshToken.userId, req.ip, req.headers["user-agent"]);
-        await devicesService.delOldRefreshTokenData(new Date());
-        res.cookie("refreshToken", refreshToken, {httpOnly: true, secure: false});
+        await devicesService.delOldRefreshTokenData(+new Date());
+        res.cookie("refreshToken", refreshToken, {httpOnly: true, secure: true});
         res.send({accessToken: token});
     } else {
         res.sendStatus(401);
@@ -125,7 +125,7 @@ authRouter.post("/refresh-token", checkRefreshToken, checkCountAttempts, async (
     const refreshToken = jwtService.creatRefreshJWT(user, deviceId);
     const infoRefreshToken: any = jwtService.getUserByRefreshToken(refreshToken);
     await devicesService.updateInfoAboutDeviceUser(infoRefreshToken.iat, infoRefreshToken.exp, deviceId.toString(), req.ip, req.headers["user-agent"], userId.userId);
-    res.cookie("refreshToken", refreshToken, {httpOnly: true, secure: false});
+    res.cookie("refreshToken", refreshToken, {httpOnly: true, secure: true});
     res.send({accessToken: token});
 });
 
