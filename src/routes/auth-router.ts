@@ -51,23 +51,42 @@ const checkCode = body("code").custom(async (code) => {
 const checkCountAttempts = async (req: Request, res: Response, next: NextFunction) => {
     const dataIpDevice = await countAttemptCollection.findOne({ip: req.ip});
     if (!dataIpDevice) {
-        await countAttemptCollection.insertOne({ip: req.ip, iat: +new Date(), countAttempt: 1});
+        await countAttemptCollection.insertOne({
+            ip: req.ip,
+            iat: +new Date(),
+            method: req.method,
+            originalUrl: req.originalUrl,
+            countAttempt: 1
+        });
         next();
         return;
     }
-    if ((+new Date() - dataIpDevice!.iat) > 10000) {
+    if ((+new Date() - dataIpDevice!.iat) > 100000) {
         await countAttemptCollection.updateMany({ip: dataIpDevice?.ip}, {
             $set: {
                 countAttempt: 1,
-                iat: +new Date()
+                iat: +new Date(),
+                method: req.method,
+                originalUrl: req.originalUrl
             }
         });
         next();
         return;
     } else {
-        if (dataIpDevice?.countAttempt < 5) {
+        if (dataIpDevice?.countAttempt < 5 && dataIpDevice.method === req.method && dataIpDevice.originalUrl === req.originalUrl) {
             let count = dataIpDevice!.countAttempt + 1;
             await countAttemptCollection.updateOne({ip: dataIpDevice?.ip}, {$set: {countAttempt: count}})
+            next();
+            return;
+        } else if (dataIpDevice?.countAttempt < 5 || dataIpDevice.method !== req.method || dataIpDevice.originalUrl !== req.originalUrl) {
+            await countAttemptCollection.updateMany({ip: dataIpDevice?.ip}, {
+                $set: {
+                    countAttempt: 1,
+                    iat: +new Date(),
+                    method: req.method,
+                    originalUrl: req.originalUrl
+                }
+            });
             next();
             return;
         } else {
@@ -105,7 +124,7 @@ authRouter.post("/registration-confirmation", checkCountAttempts, checkCode, mid
     res.sendStatus(204);
 });
 
-authRouter.post("/registration", loginIsOriginal, emailIsOriginal, checkLoginForAuthLength, checkPasswordForAuthLength, checkEmail, checkCountAttempts, middleWare, async (req: Request, res: Response) => {
+authRouter.post("/registration", checkCountAttempts, loginIsOriginal, emailIsOriginal, checkLoginForAuthLength, checkPasswordForAuthLength, checkEmail, middleWare, async (req: Request, res: Response) => {
     const newUser = await usersService.creatNewUsers(req.body.login, req.body.email, req.body.password);
     if (newUser) await authService.confirmation(newUser.id, req.body.login, req.body.email);
     res.sendStatus(204);

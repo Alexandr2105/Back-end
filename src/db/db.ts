@@ -54,6 +54,8 @@ export type RefreshTokenData = {
 export type CountAttemptType = {
     ip: string,
     iat: number,
+    method: string,
+    originalUrl: string,
     countAttempt: number
 };
 
