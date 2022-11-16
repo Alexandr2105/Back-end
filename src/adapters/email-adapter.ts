@@ -19,7 +19,6 @@ export const emailAdapter = {
                           <a href='https://somesite.com/confirm-email?code=${confirm}'>complete registration</a>
                         </p>`
         });
-        console.log(confirm);
         return true;
     }
 }
