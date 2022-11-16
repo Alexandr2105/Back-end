@@ -13,9 +13,9 @@ export const emailAdapter = {
         const info = await transporter.sendMail({
             from: 'Alex <testnodemaileremail@gmail.com>',
             to: email,
-            subject: "Registration",
-            html:`<h1>Thank for your registration</h1>
-                       <p>To finish registration please follow the link below:
+            subject: "Password recovery",
+            html:`<h1>TPassword recovery</h1>
+                       <p>To finish password recovery please follow the link below:
                           <a href='https://somesite.com/confirm-email?code=${confirm}'>recovery password</a>
                         </p>`
         });
