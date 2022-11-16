@@ -48,6 +48,11 @@ const checkCode = body("code").custom(async (code) => {
         throw new Error("Не верный код");
     }
 });
+const checkRecoveryCode = body("recoveryCode").custom(async (code) => {
+    if (!await authService.confirmEmail(code)) {
+        throw new Error("Не верный код");
+    }
+});
 const checkCountAttempts = async (req: Request, res: Response, next: NextFunction) => {
     const dataIpDevice = await countAttemptCollection.findOne({ip: req.ip});
     if (!dataIpDevice) {
@@ -93,7 +98,8 @@ const checkCountAttempts = async (req: Request, res: Response, next: NextFunctio
             res.sendStatus(429);
         }
     }
-}
+};
+const checkNewPassword = body("newPassword").trim().notEmpty().withMessage("Не заполнено поле пароль");
 
 authRouter.post("/login", checkCountAttempts, checkLogin, checkPassword, middleWare, async (req: Request, res: Response) => {
     const checkResult: any = await usersService.checkUserOrLogin(req.body.login, req.body.password);
@@ -152,4 +158,16 @@ authRouter.post("/logout", checkRefreshToken, async (req: Request, res: Response
     const user: any = await jwtService.getUserByRefreshToken(req.cookies.refreshToken);
     const result = await devicesService.delDevice(user.deviceId);
     if (result) res.sendStatus(204);
+});
+
+authRouter.post("/password-recovery", checkCountAttempts, checkEmail, middleWare, async (req: Request, res: Response) => {
+    const recoveryCode: any = await authService.getNewConfirmationCode(req.body.email);
+    await emailManager.sendEmailAndConfirm(req.body.email, recoveryCode);
+    res.sendStatus(204);
+});
+
+authRouter.post("/new-password", checkCountAttempts, checkNewPassword, checkRecoveryCode, middleWare, async (req: Request, res: Response) => {
+    const user = await usersRepository.getUserByCode(req.body.recoveryCode);
+    const newPass = await usersService.createNewPassword(req.body.newPassword, user!.userId);
+    if (newPass) res.sendStatus(204);
 });

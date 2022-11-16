@@ -34,5 +34,10 @@ export const usersService = {
     },
     async deleteUser(id: string): Promise<boolean> {
         return usersRepository.deleteUser(id);
+    },
+    async createNewPassword(newPassword: string, userId: string) {
+        const passwordSalt = await bcrypt.genSalt(10);
+        const passwordHash = await this.generateHash(newPassword, passwordSalt);
+        return await usersRepository.updatePasswordUser(passwordHash, userId);
     }
 }

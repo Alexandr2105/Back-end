@@ -34,5 +34,9 @@ export const usersRepository = {
         const user = await usersCollection.findOne({email: email});
         const result = await registrationUsersCollection.updateOne({userId: user?.id}, {$set: {confirmationCode: newCode}});
         return result.matchedCount === 1;
+    },
+    async updatePasswordUser(password: string, userId: string) {
+        const newPass = await usersCollection.updateOne({id: userId}, {$set: {password: password}});
+        return newPass.matchedCount === 1;
     }
 }
