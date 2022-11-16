@@ -61,7 +61,7 @@ const checkCountAttempts = async (req: Request, res: Response, next: NextFunctio
         next();
         return;
     }
-    if ((+new Date() - dataIpDevice!.iat) > 100000) {
+    if ((+new Date() - dataIpDevice!.iat) > 10000) {
         await countAttemptCollection.updateMany({ip: dataIpDevice?.ip}, {
             $set: {
                 countAttempt: 1,
