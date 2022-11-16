@@ -76,7 +76,7 @@ const checkCountAttempts = async (req: Request, res: Response, next: NextFunctio
     }
 }
 
-authRouter.post("/login", checkLogin, checkPassword, checkCountAttempts, middleWare, async (req: Request, res: Response) => {
+authRouter.post("/login", checkCountAttempts, checkLogin, checkPassword, middleWare, async (req: Request, res: Response) => {
     const checkResult: any = await usersService.checkUserOrLogin(req.body.login, req.body.password);
     const deviceId = devicesService.createDeviceId();
     if (checkResult) {
@@ -101,7 +101,7 @@ authRouter.get("/me", checkToken, async (req: Request, res: Response) => {
     res.send(information);
 });
 
-authRouter.post("/registration-confirmation", checkCode, checkCountAttempts, middleWare, async (req: Request, res: Response) => {
+authRouter.post("/registration-confirmation", checkCountAttempts, checkCode, middleWare, async (req: Request, res: Response) => {
     res.sendStatus(204);
 });
 
@@ -111,13 +111,13 @@ authRouter.post("/registration", loginIsOriginal, emailIsOriginal, checkLoginFor
     res.sendStatus(204);
 });
 
-authRouter.post("/registration-email-resending", checkEmail, checkEmailConfirmation, emailDontExist, checkCountAttempts, middleWare, async (req: Request, res: Response) => {
+authRouter.post("/registration-email-resending", checkCountAttempts, checkEmail, checkEmailConfirmation, emailDontExist, middleWare, async (req: Request, res: Response) => {
     const newCode: any = await authService.getNewConfirmationCode(req.body.email);
     const result = await emailManager.sendEmailAndConfirm(req.body.email, newCode);
     if (result) res.sendStatus(204);
 });
 
-authRouter.post("/refresh-token", checkRefreshToken, checkCountAttempts, async (req: Request, res: Response) => {
+authRouter.post("/refresh-token", checkCountAttempts, checkRefreshToken, async (req: Request, res: Response) => {
     const userId: any = await jwtService.getUserByRefreshToken(req.cookies.refreshToken);
     const user: any = await usersRepository.getUserId(userId.userId.toString());
     const deviceId: any = await jwtService.getDeviceIdRefreshToken(req.cookies.refreshToken);
