@@ -16,7 +16,7 @@ export const emailAdapter = {
             subject: "Registration",
             html:`<h1>Thank for your registration</h1>
                        <p>To finish registration please follow the link below:
-                          <a href='https://somesite.com/confirm-email?code=${confirm}'>complete registration</a>
+                          <a href='https://somesite.com/confirm-email?code=${confirm}'>recovery password</a>
                         </p>`
         });
         return true;
