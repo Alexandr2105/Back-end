@@ -49,7 +49,7 @@ const checkCode = body("code").custom(async (code) => {
     }
 });
 const checkRecoveryCode = body("recoveryCode").custom(async (code) => {
-    if (!await authService.confirmEmail(code)) {
+    if (!await authService.confirmRecoveryCode(code)) {
         throw new Error("Не верный код");
     }
 });
@@ -170,6 +170,8 @@ authRouter.post("/password-recovery", checkCountAttempts, checkEmail, middleWare
 });
 
 authRouter.post("/new-password", checkCountAttempts, checkNewPassword, checkRecoveryCode, middleWare, async (req: Request, res: Response) => {
+    const userByCode = await usersRepository.getUserByCode(req.body.recoveryCode);
+    await usersRepository.updateEmailConfirmation(userByCode!.userId);
     const user = await usersRepository.getUserByCode(req.body.recoveryCode);
     const newPass = await usersService.createNewPassword(req.body.newPassword, user!.userId);
     if (newPass) res.sendStatus(204);
