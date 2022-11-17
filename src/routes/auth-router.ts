@@ -162,7 +162,7 @@ authRouter.post("/logout", checkRefreshToken, async (req: Request, res: Response
 
 authRouter.post("/password-recovery", checkCountAttempts, checkEmail, middleWare, async (req: Request, res: Response) => {
     const recoveryCode: any = await authService.getNewConfirmationCode(req.body.email);
-    await emailManager.sendEmailAndConfirm(req.body.email, recoveryCode);
+    await emailManager.sendEmailPasswordRecovery(req.body.email, recoveryCode);
     res.sendStatus(204);
 });
 
