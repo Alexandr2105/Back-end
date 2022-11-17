@@ -1,1 +1,1 @@
-export const usersPassword = ["Basic YWRtaW46cXdlcnR5",];
+export const usersPassword = ["Basic WRtaW46cXdlcnR5",];
