@@ -1,4 +1,5 @@
 import {EmailConfirmation, registrationUsersCollection, usersCollection, UserType} from "../db/db";
+import {add} from "date-fns";
 
 const options = {projection: {_id: 0, password: 0}};
 
@@ -20,7 +21,7 @@ export const usersRepository = {
     async createEmailConfirmation(emailConf: EmailConfirmation) {
         await registrationUsersCollection.insertOne(emailConf);
     },
-    async updateEmailConfirmation(id: string) {
+    async updateEmailConfirmation(id: string): Promise<boolean> {
         const result = await registrationUsersCollection.updateOne({userId: id}, {$set: {isConfirmed: true}});
         return result.matchedCount === 1;
     },
@@ -30,12 +31,23 @@ export const usersRepository = {
             return idUser;
         }
     },
-    async setConfirm(email: string, newCode: string) {
-        const user = await usersCollection.findOne({email: email});
-        const result = await registrationUsersCollection.updateOne({userId: user?.id}, {$set: {confirmationCode: newCode}});
-        return result.matchedCount === 1;
+    async setConfirm(email: string, newCode: string): Promise<boolean> {
+        const user: any = await usersCollection.findOne({email: email});
+        const checkUserEmailConfirmation = await registrationUsersCollection.findOne({userId: user?.id});
+        if (checkUserEmailConfirmation) {
+            const result = await registrationUsersCollection.updateOne({userId: user?.id}, {$set: {confirmationCode: newCode}});
+            return result.matchedCount === 1;
+        } else {
+            await registrationUsersCollection.insertOne({
+                userId: user?.id,
+                confirmationCode: newCode,
+                expirationDate: add(new Date(), {hours: 1}),
+                isConfirmed: false
+            });
+            return true;
+        }
     },
-    async updatePasswordUser(password: string, userId: string) {
+    async updatePasswordUser(password: string, userId: string): Promise<boolean> {
         const newPass = await usersCollection.updateOne({id: userId}, {$set: {password: password}});
         return newPass.matchedCount === 1;
     }
