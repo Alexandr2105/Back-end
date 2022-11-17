@@ -99,7 +99,10 @@ const checkCountAttempts = async (req: Request, res: Response, next: NextFunctio
         }
     }
 };
-const checkNewPassword = body("newPassword").trim().notEmpty().withMessage("Не заполнено поле пароль");
+const checkNewPassword = body("newPassword").trim().notEmpty().withMessage("Не заполнено поле пароль").isLength({
+    min: 6,
+    max: 20
+});
 
 authRouter.post("/login", checkCountAttempts, checkLogin, checkPassword, middleWare, async (req: Request, res: Response) => {
     const checkResult: any = await usersService.checkUserOrLogin(req.body.login, req.body.password);
