@@ -1,6 +1,7 @@
 export type ItemsBlogs = {
     id: string,
-    youtubeUrl: string,
+    websiteUrl: string,
+    description: string,
     name: string,
     createdAt: string,
 }

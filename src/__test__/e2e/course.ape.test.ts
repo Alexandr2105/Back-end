@@ -157,7 +157,7 @@ describe("blogs tests", () => {
         expect(newBlog1).toEqual({
             id: newBlog1.id,
             name: newBlog1.name,
-            websiteUrl: newBlog1.youtubeUrl,
+            websiteUrl: newBlog1.websiteUrl,
             createdAt: newBlog1.createdAt,
         });
     });
@@ -170,7 +170,7 @@ describe("blogs tests", () => {
         expect(newBlog2).toEqual({
             id: newBlog2.id,
             name: newBlog2.name,
-            websiteUrl: newBlog2.youtubeUrl,
+            websiteUrl: newBlog2.websiteUrl,
             createdAt: newBlog2.createdAt,
         });
     });
@@ -191,7 +191,7 @@ describe("blogs tests", () => {
                     field: "name"
                 }, {
                     message: "Не верно заполнено поле",
-                    field: "youtubeUrl"
+                    field: "websiteUrl"
                 }
             ]
         });
@@ -239,7 +239,7 @@ describe("blogs tests", () => {
                     field: "name"
                 }, {
                     message: expect.any(String),
-                    field: "youtubeUrl"
+                    field: "websiteUrl"
                 }
             ]
         });

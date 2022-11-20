@@ -25,7 +25,8 @@ export const queryRepository = {
                 return {
                     id: a.id,
                     name: a.name,
-                    youtubeUrl: a.websiteUrl,
+                    description: a.description,
+                    websiteUrl: a.websiteUrl,
                     createdAt: a.createdAt,
                 }
             })
