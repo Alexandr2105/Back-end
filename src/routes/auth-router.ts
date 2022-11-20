@@ -48,6 +48,11 @@ const checkCode = body("code").custom(async (code) => {
         throw new Error("Не верный код");
     }
 });
+const checkRecoveryCode = body("recoveryCode").custom(async (code) => {
+    if (!await authService.confirmRecoveryCode(code)) {
+        throw new Error("Не верный код");
+    }
+});
 const checkCountAttempts = async (req: Request, res: Response, next: NextFunction) => {
     const dataIpDevice = await countAttemptCollection.findOne({ip: req.ip});
     if (!dataIpDevice) {
@@ -125,7 +130,7 @@ authRouter.get("/me", checkToken, async (req: Request, res: Response) => {
 });
 
 authRouter.post("/registration-confirmation", checkCountAttempts, checkCode, middleWare, async (req: Request, res: Response) => {
-    const userByCode = await usersRepository.getUserByCode(req.body.recoveryCode);
+    const userByCode = await usersRepository.getUserByCode(req.body.code);
     await usersRepository.updateEmailConfirmation(userByCode!.userId);
     res.sendStatus(204);
 });
@@ -166,7 +171,7 @@ authRouter.post("/password-recovery", checkCountAttempts, checkEmail, middleWare
     res.sendStatus(204);
 });
 
-authRouter.post("/new-password", checkCountAttempts, checkNewPassword, checkCode, middleWare, async (req: Request, res: Response) => {
+authRouter.post("/new-password", checkCountAttempts, checkNewPassword, checkRecoveryCode, middleWare, async (req: Request, res: Response) => {
     const userByCode = await usersRepository.getUserByCode(req.body.recoveryCode);
     await usersRepository.updateEmailConfirmation(userByCode!.userId);
     const user = await usersRepository.getUserByCode(req.body.recoveryCode);
