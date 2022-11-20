@@ -105,7 +105,6 @@ const checkNewPassword = body("newPassword").trim().notEmpty().withMessage("Не
 });
 
 authRouter.post("/login", checkCountAttempts, checkLoginOrEmail, checkPassword, middleWare, async (req: Request, res: Response) => {
-    debugger;
     const checkResult: any = await usersService.checkUserOrLogin(req.body.loginOrEmail, req.body.password);
     const deviceId = devicesService.createDeviceId();
     if (checkResult) {
