@@ -11,7 +11,7 @@ import {devicesService} from "../domain/devices-service";
 
 export const authRouter = Router();
 
-const checkLogin = body("login").trim().notEmpty().withMessage("Не заполнено поле логин");
+const checkLoginOrEmail = body("loginOrEmail").trim().notEmpty().withMessage("Не заполнено поле логин");
 const checkPassword = body("password").trim().notEmpty().withMessage("Не заполнено поле пароль");
 const checkLoginForAuthLength = body("login").isLength({min: 3, max: 10}).withMessage("Не корректная длинна");
 const checkPasswordForAuthLength = body("password").isLength({min: 6, max: 20}).withMessage("Не корректная длинна");
@@ -45,11 +45,6 @@ const emailDontExist = body("email").custom(async (email) => {
 });
 const checkCode = body("code").custom(async (code) => {
     if (!await authService.confirmEmail(code)) {
-        throw new Error("Не верный код");
-    }
-});
-const checkRecoveryCode = body("recoveryCode").custom(async (code) => {
-    if (!await authService.confirmRecoveryCode(code)) {
         throw new Error("Не верный код");
     }
 });
@@ -104,7 +99,7 @@ const checkNewPassword = body("newPassword").trim().notEmpty().withMessage("Не
     max: 20
 });
 
-authRouter.post("/login", checkCountAttempts, checkLogin, checkPassword, middleWare, async (req: Request, res: Response) => {
+authRouter.post("/login", checkCountAttempts, checkLoginOrEmail, checkPassword, middleWare, async (req: Request, res: Response) => {
     const checkResult: any = await usersService.checkUserOrLogin(req.body.login, req.body.password);
     const deviceId = devicesService.createDeviceId();
     if (checkResult) {
@@ -130,6 +125,8 @@ authRouter.get("/me", checkToken, async (req: Request, res: Response) => {
 });
 
 authRouter.post("/registration-confirmation", checkCountAttempts, checkCode, middleWare, async (req: Request, res: Response) => {
+    const userByCode = await usersRepository.getUserByCode(req.body.recoveryCode);
+    await usersRepository.updateEmailConfirmation(userByCode!.userId);
     res.sendStatus(204);
 });
 
@@ -169,7 +166,7 @@ authRouter.post("/password-recovery", checkCountAttempts, checkEmail, middleWare
     res.sendStatus(204);
 });
 
-authRouter.post("/new-password", checkCountAttempts, checkNewPassword, checkRecoveryCode, middleWare, async (req: Request, res: Response) => {
+authRouter.post("/new-password", checkCountAttempts, checkNewPassword, checkCode, middleWare, async (req: Request, res: Response) => {
     const userByCode = await usersRepository.getUserByCode(req.body.recoveryCode);
     await usersRepository.updateEmailConfirmation(userByCode!.userId);
     const user = await usersRepository.getUserByCode(req.body.recoveryCode);

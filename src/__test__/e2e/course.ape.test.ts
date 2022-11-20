@@ -151,39 +151,39 @@ describe("blogs tests", () => {
     it("Создаем новый blog1", async () => {
         const blog = await test.post("/blogs").set(pass).send({
             name: "Alex",
-            youtubeUrl: "www.youtube.com"
+            websiteUrl: "www.youtube.com"
         }).expect(201);
         newBlog1 = blog.body;
         expect(newBlog1).toEqual({
             id: newBlog1.id,
             name: newBlog1.name,
-            youtubeUrl: newBlog1.youtubeUrl,
+            websiteUrl: newBlog1.youtubeUrl,
             createdAt: newBlog1.createdAt,
         });
     });
     it("Создаем новый blog2", async () => {
         const blog = await test.post("/blogs").set(pass).send({
             name: "Alex1",
-            youtubeUrl: "www.youtube1.com"
+            websiteUrl: "www.youtube1.com"
         }).expect(201);
         newBlog2 = blog.body;
         expect(newBlog2).toEqual({
             id: newBlog2.id,
             name: newBlog2.name,
-            youtubeUrl: newBlog2.youtubeUrl,
+            websiteUrl: newBlog2.youtubeUrl,
             createdAt: newBlog2.createdAt,
         });
     });
     it("Создаем новый blog без авторизации", async () => {
         await test.post("/blogs").send({
             name: "Alex1",
-            youtubeUrl: "www.youtube1.com"
+            websiteUrl: "www.youtube1.com"
         }).expect(401);
     });
     it("Создаем новый blog с не верными данными", async () => {
         await test.post("/blogs").set(pass).send({
             name: "",
-            youtubeUrl: "www.youtube1"
+            websiteUrl: "www.youtube1"
         }).expect(400, {
             errorsMessages: [
                 {
@@ -230,7 +230,7 @@ describe("blogs tests", () => {
         // await test.put("/blogs/123").set(pass).expect(404);
         const a = await test.put("/blogs/" + newBlog2).set(pass).send({
             name: "Stringasdfasdfasdfasdfsdf",
-            youtubeUrl: "asdfde"
+            websiteUrl: "asdfde"
         }).expect(400);
         expect(a.body).toEqual({
             errorsMessages: [
@@ -245,11 +245,11 @@ describe("blogs tests", () => {
         });
         await test.put("/blogs/" + newBlog2.id).set(pass).send({
             name: "Jora",
-            youtubeUrl: "www.youtube.com"
+            websiteUrl: "www.youtube.com"
         }).expect(204);
     });
     it("Получаем blog по id", async () => {
-        await test.get("/blogs/" + newBlog2.id).expect(200, {...newBlog2, name: "Jora", youtubeUrl: "www.youtube.com"});
+        await test.get("/blogs/" + newBlog2.id).expect(200, {...newBlog2, name: "Jora", websiteUrl: "www.youtube.com"});
     });
     it("Создаем 2 posts по blogId с авторизацией", async () => {
         const post1 = await test.post("/blogs/" + newBlog2.id + "/posts").set(pass).send({
@@ -352,7 +352,7 @@ describe("posts tests", () => {
     it("Создаем два posts и один blog", async () => {
         blog = await test.post("/blogs").set(pass).send({
             name: "Alex",
-            youtubeUrl: "www.youtube.com"
+            websiteUrl: "www.youtube.com"
         }).expect(201);
         const posts1 = await test.post("/posts").set(pass).send({
             title: "string1",

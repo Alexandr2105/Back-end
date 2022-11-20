@@ -52,7 +52,7 @@ export const blogsRepository = {
         const newBlog = {
             id: dateNow,
             name: name,
-            youtubeUrl: url,
+            websiteUrl: url,
             createdAt: new Date().toISOString()
         };
         blogs.push(newBlog);

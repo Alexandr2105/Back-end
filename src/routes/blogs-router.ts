@@ -22,6 +22,7 @@ const trueId = async (req: Request, res: Response, next: NextFunction) => {
         res.sendStatus(404);
     }
 };
+const description = body("description").trim().notEmpty().isLength({max: 500}).withMessage("Не верно заполнено поле");
 
 blogsRouter.get("/", async (req: Request, res: Response) => {
     const query = queryCheckHelper(req.query);
@@ -47,8 +48,8 @@ blogsRouter.delete("/:id", aut, async (req: Request, res: Response) => {
     }
 });
 
-blogsRouter.post("/", aut, nameLength, urlLength, middleWare, async (req: Request, res: Response) => {
-    const createBlog = await blogsService.createBlog(req.body.name, req.body.youtubeUrl);
+blogsRouter.post("/", aut, nameLength, urlLength, description, middleWare, async (req: Request, res: Response) => {
+    const createBlog = await blogsService.createBlog(req.body.name, req.body.youtubeUrl, req.body.description);
     const newBlog = await blogsService.getBlogsId(createBlog.id);
     res.status(201).send(newBlog);
 });

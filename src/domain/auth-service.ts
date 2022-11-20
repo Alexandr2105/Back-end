@@ -26,14 +26,6 @@ export const authService = {
         if (user.isConfirmed) return false;
         if (user.confirmationCode !== code) return false;
         if (user.expirationDate < new Date()) return false;
-        return await usersRepository.updateEmailConfirmation(user.userId);
-    },
-    async confirmRecoveryCode(code: string): Promise<boolean> {
-        const user = await usersRepository.getUserByCode(code);
-        if (!user) return false;
-        if (user.isConfirmed) return false;
-        if (user.confirmationCode !== code) return false;
-        if (user.expirationDate < new Date()) return false;
         return true;
     },
     async getNewConfirmationCode(email: string) {

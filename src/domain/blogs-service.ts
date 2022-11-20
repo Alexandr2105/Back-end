@@ -8,12 +8,13 @@ export const blogsService = {
     async deleteBlogsId(id: string): Promise<boolean> {
         return blogsRepository.deleteBlogsId(id);
     },
-    async createBlog(name: string, url: string): Promise<BlogsType> {
+    async createBlog(name: string, url: string, description: string): Promise<BlogsType> {
         const dateNow = +new Date() + "";
         const newBlog = {
             id: dateNow,
             name: name,
-            youtubeUrl: url,
+            description:description,
+            websiteUrl: url,
             createdAt: new Date().toISOString()
         };
         return blogsRepository.createBlog(newBlog);
