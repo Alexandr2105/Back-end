@@ -23,7 +23,7 @@ export const blogsRepository = {
         const updateBlog = await blogsCollection.updateOne({id: id}, {
                 $set: {
                     name: name,
-                    youtubeUrl: url,
+                    websiteUrl: url,
                 },
             },
         );

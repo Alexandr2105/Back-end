@@ -1,7 +1,8 @@
 type BlogsType = {
     id: string,
     name: string,
-    youtubeUrl: string,
+    description: string,
+    websiteUrl: string,
     createdAt: string;
 };
 
@@ -9,19 +10,22 @@ export const blogs: BlogsType[] = [
     {
         "id": "1",
         "name": "Bob",
-        "youtubeUrl": "https://www.youtube.com",
+        "description": "qwerasdfere eadsf",
+        "websiteUrl": "https://www.youtube.com",
         "createdAt": new Date().toISOString()
     },
     {
         "id": "2",
         "name": "Alex",
-        "youtubeUrl": "https://learn.javascript.ru",
+        "description": "qwerasdfere eadsf",
+        "websiteUrl": "https://learn.javascript.ru",
         "createdAt": new Date().toISOString()
     },
     {
         "id": "3",
         "name": "Petr",
-        "youtubeUrl": "https://github.com",
+        "description": "qwerasdfere eadsf",
+        "websiteUrl": "https://github.com",
         "createdAt": new Date().toISOString()
     }
 ]
@@ -47,11 +51,12 @@ export const blogsRepository = {
         }
         return false;
     },
-    async createBlog(name: string, url: string): Promise<BlogsType> {
+    async createBlog(name: string, url: string, description: string): Promise<BlogsType> {
         const dateNow = +new Date() + "";
         const newBlog = {
             id: dateNow,
             name: name,
+            description: description,
             websiteUrl: url,
             createdAt: new Date().toISOString()
         };
@@ -62,7 +67,7 @@ export const blogsRepository = {
         for (let blog of blogs) {
             if (blog.id == id) {
                 blog.name = name;
-                blog.youtubeUrl = url;
+                blog.websiteUrl = url;
                 blog.createdAt;
                 return true;
             }
