@@ -15,7 +15,7 @@ export const commentService = {
         const likeStatus = await commentsRepository.getLikesInfo(idComment);
         const dislikeStatus = await commentsRepository.getDislikeInfo(idComment);
         const myStatus = await commentsRepository.getMyStatus(userId);
-        if (comment && likeStatus) {
+        if (comment) {
             return {
                 id: comment.id,
                 content: comment.content,
