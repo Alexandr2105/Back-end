@@ -60,6 +60,12 @@ export type CountAttemptType = {
     countAttempt: number
 };
 
+export type LikeInfoType = {
+    commentId: string,
+    userId: string,
+    status: ["None" | "Like" | "Dislike"]
+};
+
 const mongoUri = process.env.mongoUri || 'mongodb://0.0.0.0:27017';
 
 const client = new MongoClient(mongoUri);
@@ -71,6 +77,7 @@ export const commentsCollection = db.collection<CommentType>("comments");
 export const registrationUsersCollection = db.collection<EmailConfirmation>("emailConfirmation");
 export const refreshTokenDataCollection = db.collection<RefreshTokenData>("refreshTokenData");
 export const countAttemptCollection = db.collection<CountAttemptType>("countAttempts");
+export const likeInfoCollection = db.collection<LikeInfoType>("likeStatus");
 
 export async function runDb() {
     try {
