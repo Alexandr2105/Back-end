@@ -58,7 +58,10 @@ commentsRouter.put("/:commentId", checkToken, checkUser, contentLength, middleWa
 
 commentsRouter.put("/:commentId/like-status", checkToken, checkLikeStatus, middleWare, async (req: Request, res: Response) => {
     const comment = await commentsRepository.getCommentById(req.params.commentId);
-    if (!comment) res.sendStatus(404);
+    if (!comment) {
+        res.sendStatus(404);
+        return;
+    }
     const userId: any = await jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
     const lakeStatus = await commentService.createLikeStatus(req.params.commentId, userId.toString(), req.body.likeStatus);
     if (lakeStatus) res.sendStatus(204);
