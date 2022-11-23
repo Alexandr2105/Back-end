@@ -29,9 +29,6 @@ const checkLikeStatus = body("likeStatus").custom(status => {
 });
 
 commentsRouter.get("/:id", async (req: Request, res: Response) => {
-    debugger;
-    // const user: any = jwtService.getUserByRefreshToken(req.cookies.refreshToken);
-    // const userId: any = jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
     let comment;
     if (req.headers.authorization) {
         const userId: any = jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
