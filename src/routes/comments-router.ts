@@ -29,11 +29,13 @@ const checkLikeStatus = body("likeStatus").custom(status => {
 });
 
 commentsRouter.get("/:id", async (req: Request, res: Response) => {
-    const user: any = jwtService.getUserByRefreshToken(req.cookies.refreshToken);
+    debugger;
+    // const user: any = jwtService.getUserByRefreshToken(req.cookies.refreshToken);
     // const userId: any = jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
     let comment;
-    if (user) {
-        comment = await commentService.getLikesInfo(req.params.id, user.userId.toString());
+    if (req.headers.authorization) {
+        const userId: any = jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
+        comment = await commentService.getLikesInfo(req.params.id, userId.toString());
     } else {
         comment = await commentService.getLikesInfo(req.params.id, "null");
     }
@@ -63,6 +65,7 @@ commentsRouter.put("/:commentId", checkToken, checkUser, contentLength, middleWa
 });
 
 commentsRouter.put("/:commentId/like-status", checkToken, checkLikeStatus, middleWare, async (req: Request, res: Response) => {
+    debugger;
     const comment = await commentsRepository.getCommentById(req.params.commentId);
     if (!comment) {
         res.sendStatus(404);
