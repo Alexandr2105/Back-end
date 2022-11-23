@@ -1,6 +1,7 @@
 import {blogsCollection, commentsCollection, postsCollection, usersCollection} from "../db/db";
 import {BlogsQueryType, CommentsType, PostQueryType, UsersType} from "../helper/allTypes";
 import {pagesCountHelper, skipHelper} from "../helper/queryCount";
+import {commentsRepository} from "../repositories/comments-repository";
 
 export const queryRepository = {
     async getQueryBlogs(query: any): Promise<BlogsQueryType> {
@@ -123,15 +124,24 @@ export const queryRepository = {
             page: query.pageNumber,
             pageSize: query.pageSize,
             totalCount: totalCount,
-            items: sortCommentsByPostId.map(a => {
-                return {
-                    id: a.id,
-                    content: a.content,
-                    userId: a.userId,
-                    userLogin: a.userLogin,
-                    createdAt: a.createdAt
-                }
-            })
+            items: await Promise.all(sortCommentsByPostId.map(async a => {
+                    const likeInfo = await commentsRepository.getLikesInfo(a.id);
+                    const dislikeInfo = await commentsRepository.getDislikeInfo(a.id);
+                    const myStatus = await commentsRepository.getMyStatus(a.userId, a.id);
+                    return {
+                        id: a.id,
+                        content: a.content,
+                        userId: a.userId,
+                        userLogin: a.userLogin,
+                        createdAt: a.createdAt,
+                        likesInfo: {
+                            likesCount: likeInfo,
+                            dislikesCount: dislikeInfo,
+                            myStatus: myStatus
+                        }
+                    }
+                })
+            )
         }
     },
 }

@@ -6,6 +6,7 @@ import {blogsCollection} from "../db/db";
 import {queryRepository} from "../queryReposytories/query";
 import {queryCheckHelper} from "../helper/queryCount";
 import {commentService} from "../domain/comment-service";
+import {jwtService} from "../application/jwt-service";
 
 export const postsRouter = Router();
 
@@ -79,8 +80,9 @@ postsRouter.get("/:postId/comments", async (req: Request, res: Response) => {
 
 postsRouter.post("/:postId/comments", checkToken, contentLengthByPostId, middleWare, async (req: Request, res: Response) => {
     const post: any = await postsService.creatNewCommentByPostId(req.params.postId, req.body.content, req.user!.id, req.user!.login);
+    const userId: any = await jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
     if (post) {
-        const newPost = await commentService.getCommentById(post.id);
+        const newPost = await commentService.getLikesInfo(post.id, userId.toString());
         res.status(201).send(newPost);
     } else {
         res.sendStatus(404);

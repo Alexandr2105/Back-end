@@ -47,12 +47,19 @@ export type UsersType = {
     items: ItemsUsers[]
 };
 
+export type InfoLikesType = {
+    likesCount: number | undefined,
+    dislikesCount: number | undefined,
+    myStatus: string | undefined
+}
+
 export type ItemsComments = {
     id: string,
     content: string,
     userId: string,
     userLogin: string,
-    createdAt: string
+    createdAt: string,
+    likesInfo: InfoLikesType
 };
 
 export type CommentsType = {

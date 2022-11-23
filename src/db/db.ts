@@ -63,7 +63,7 @@ export type CountAttemptType = {
 export type LikeInfoType = {
     commentId: string,
     userId: string,
-    status: ["None" | "Like" | "Dislike"]
+    status: string
 };
 
 const mongoUri = process.env.mongoUri || 'mongodb://0.0.0.0:27017';

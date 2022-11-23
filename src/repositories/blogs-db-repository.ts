@@ -21,12 +21,11 @@ export const blogsRepository = {
     },
     async updateBlog(id: string, name: string, url: string): Promise<boolean> {
         const updateBlog = await blogsCollection.updateOne({id: id}, {
-                $set: {
-                    name: name,
-                    websiteUrl: url,
-                },
-            },
-        );
+            $set: {
+                name: name,
+                websiteUrl: url,
+            }
+        });
         return updateBlog.matchedCount === 1;
     }
 };

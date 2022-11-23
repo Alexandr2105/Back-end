@@ -20,8 +20,8 @@ const checkUser = async (req: Request, res: Response, next: NextFunction) => {
         res.sendStatus(403);
     }
 };
-const checkLikeStatus = body("likeStatus").custom(({req}) => {
-    if (req.body.likeStatus === "None" || req.body.likeStatus === "Like" || req.body.likeStatus === "Dislike") {
+const checkLikeStatus = body("likeStatus").custom(status => {
+    if (status === "None" || status === "Like" || status === "Dislike") {
         return true;
     } else {
         throw new Error("Не верный стус");
@@ -29,9 +29,8 @@ const checkLikeStatus = body("likeStatus").custom(({req}) => {
 });
 
 commentsRouter.get("/:id", async (req: Request, res: Response) => {
-    // const comment = await commentService.getCommentById(req.params.id);
     const user: any = jwtService.getUserByRefreshToken(req.cookies.refreshToken);
-    const comment = await commentService.getLikesInfo(req.params.id, user?.userId,)
+    const comment = await commentService.getLikesInfo(req.params.id, user?.userId);
     if (comment) {
         res.send(comment);
     } else {
@@ -60,5 +59,7 @@ commentsRouter.put("/:commentId", checkToken, checkUser, contentLength, middleWa
 commentsRouter.put("/:commentId/like-status", checkToken, checkLikeStatus, middleWare, async (req: Request, res: Response) => {
     const comment = await commentsRepository.getCommentById(req.params.commentId);
     if (!comment) res.sendStatus(404);
-    const lakeStatus = req.body.likeStatus;
+    const userId: any = await jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
+    const lakeStatus = await commentService.createLikeStatus(req.params.commentId, userId.toString(), req.body.likeStatus);
+    if (lakeStatus) res.sendStatus(204);
 });
