@@ -29,10 +29,16 @@ const checkLikeStatus = body("likeStatus").custom(status => {
 });
 
 commentsRouter.get("/:id", async (req: Request, res: Response) => {
-    const comment = await commentService.getCommentById(req.params.id);
+    const user: any = jwtService.getUserByRefreshToken(req.cookies.refreshToken);
+    // const userId: any = jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
+    let comment;
+    if (user) {
+        comment = await commentService.getLikesInfo(req.params.id, user.userId.toString());
+    } else {
+        comment = await commentService.getLikesInfo(req.params.id, "null");
+    }
     if (comment) {
-        const commentInfo = await commentService.getLikesInfo(req.params.id, comment.userId);
-        res.send(commentInfo);
+        res.send(comment);
     } else {
         res.sendStatus(404);
     }
