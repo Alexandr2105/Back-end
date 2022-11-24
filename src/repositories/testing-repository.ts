@@ -12,12 +12,12 @@ import {
 export const testingRepository = {
     deleteAllCollection() {
         videos.length = 0;
-        blogsCollection.deleteMany({});
-        postsCollection.deleteMany({});
-        usersCollection.deleteMany({});
-        commentsCollection.deleteMany({});
-        registrationUsersCollection.deleteMany({});
-        refreshTokenDataCollection.deleteMany({});
-        countAttemptCollection.deleteMany({});
+        blogsCollection.remove();
+        postsCollection.remove();
+        usersCollection.remove();
+        commentsCollection.remove();
+        registrationUsersCollection.remove();
+        refreshTokenDataCollection.remove();
+        countAttemptCollection.remove();
     },
 };
