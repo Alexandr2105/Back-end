@@ -2,7 +2,7 @@ import {videos} from "./video-repository";
 import {
     blogsCollection,
     commentsCollection,
-    countAttemptCollection,
+    countAttemptCollection, likeInfoCollection,
     postsCollection,
     refreshTokenDataCollection,
     registrationUsersCollection,
@@ -10,14 +10,15 @@ import {
 } from "../db/db";
 
 export const testingRepository = {
-    deleteAllCollection() {
+    async deleteAllCollection() {
         videos.length = 0;
-        blogsCollection.remove();
-        postsCollection.remove();
-        usersCollection.remove();
-        commentsCollection.remove();
-        registrationUsersCollection.remove();
-        refreshTokenDataCollection.remove();
-        countAttemptCollection.remove();
+        await blogsCollection.deleteMany({});
+        await postsCollection.deleteMany({});
+        await usersCollection.deleteMany({});
+        await commentsCollection.deleteMany({});
+        await registrationUsersCollection.deleteMany({});
+        await refreshTokenDataCollection.deleteMany({});
+        await countAttemptCollection.deleteMany({});
+        await likeInfoCollection.deleteMany({});
     },
 };
