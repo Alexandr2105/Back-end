@@ -1,8 +1,9 @@
-import {RefreshTokenData, refreshTokenDataCollection} from "../db/db";
+import {refreshTokenDataCollection} from "../db/db";
+import {RefreshTokenDataTypeForDB} from "../helper/allTypes";
 
 export const securityDevicesRepository = {
-    async saveInfoAboutRefreshToken(infoRefreshToken: RefreshTokenData) {
-        await refreshTokenDataCollection.insertOne(infoRefreshToken);
+    async saveInfoAboutRefreshToken(infoRefreshToken: RefreshTokenDataTypeForDB) {
+        await refreshTokenDataCollection.create(infoRefreshToken);
     },
     async delAllDevicesExcludeCurrent(deviceId: string) {
         await refreshTokenDataCollection.deleteMany({deviceId: {$ne: deviceId}});
@@ -12,7 +13,7 @@ export const securityDevicesRepository = {
         return result.deletedCount === 1;
     },
     async getAllDevicesUser(userId: string) {
-        const deviceInfo = await refreshTokenDataCollection.find({userId: userId}).toArray();
+        const deviceInfo = await refreshTokenDataCollection.find({userId: userId});
         return deviceInfo.map(a => {
             return {
                 ip: a.ip,

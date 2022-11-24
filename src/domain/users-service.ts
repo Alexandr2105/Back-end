@@ -1,9 +1,9 @@
-import {UserType} from "../db/db";
 import {usersRepository} from "../repositories/users-repository";
 import bcrypt from "bcrypt";
+import {ItemsUsers} from "../helper/allTypes";
 
 export const usersService = {
-    async creatNewUsers(login: string, email: string, password: string): Promise<UserType> {
+    async creatNewUsers(login: string, email: string, password: string): Promise<ItemsUsers> {
         const passwordSalt = await bcrypt.genSalt(10);
         const passwordHash = await this.generateHash(password, passwordSalt);
         const newUser = {
@@ -16,7 +16,7 @@ export const usersService = {
         await usersRepository.creatNewUsers(newUser);
         return newUser;
     },
-    async checkUserOrLogin(loginOrEmail: string, pass: string): Promise<UserType | boolean> {
+    async checkUserOrLogin(loginOrEmail: string, pass: string): Promise<ItemsUsers | boolean> {
         const user: any = await usersRepository.findLoginOrEmail(loginOrEmail);
         if (!user) return false;
         const hashPassword = await this.generateHash(pass, user.password);

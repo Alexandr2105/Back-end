@@ -1,12 +1,17 @@
-import {blogsCollection, BlogsType} from "../db/db";
-
-const option = {projection: {_id: 0}};
+import {blogsCollection} from "../db/db";
+import {ItemsBlogs} from "../helper/allTypes";
 
 export const blogsRepository = {
-    async getBlogsId(id: string): Promise<BlogsType | boolean> {
-        const blog = await blogsCollection.findOne({id: id}, option);
+    async getBlogsId(id: string): Promise<ItemsBlogs | boolean> {
+        const blog = await blogsCollection.findOne({id: id});
         if (blog) {
-            return blog;
+            return {
+                id: blog.id,
+                websiteUrl: blog.websiteUrl,
+                description: blog.description,
+                name: blog.name,
+                createdAt: blog.createdAt,
+            }
         } else {
             return false;
         }
@@ -15,8 +20,8 @@ export const blogsRepository = {
         let result = await blogsCollection.deleteOne({id: id});
         return result.deletedCount === 1;
     },
-    async createBlog(newBlog: BlogsType): Promise<BlogsType> {
-        await blogsCollection.insertOne(newBlog);
+    async createBlog(newBlog: ItemsBlogs): Promise<ItemsBlogs> {
+        await blogsCollection.create(newBlog);
         return newBlog;
     },
     async updateBlog(id: string, name: string, url: string): Promise<boolean> {

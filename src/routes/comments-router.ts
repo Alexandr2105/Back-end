@@ -62,7 +62,6 @@ commentsRouter.put("/:commentId", checkToken, checkUser, contentLength, middleWa
 });
 
 commentsRouter.put("/:commentId/like-status", checkToken, checkLikeStatus, middleWare, async (req: Request, res: Response) => {
-    debugger;
     const comment = await commentsRepository.getCommentById(req.params.commentId);
     if (!comment) {
         res.sendStatus(404);

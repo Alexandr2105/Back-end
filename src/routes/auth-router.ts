@@ -56,7 +56,7 @@ const checkRecoveryCode = body("recoveryCode").custom(async (code) => {
 const checkCountAttempts = async (req: Request, res: Response, next: NextFunction) => {
     const dataIpDevice = await countAttemptCollection.findOne({ip: req.ip});
     if (!dataIpDevice) {
-        await countAttemptCollection.insertOne({
+        await countAttemptCollection.create({
             ip: req.ip,
             iat: +new Date(),
             method: req.method,

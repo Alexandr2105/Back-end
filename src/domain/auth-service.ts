@@ -1,12 +1,12 @@
 import {v4 as uuid4} from "uuid";
 import {add} from "date-fns";
-import {EmailConfirmation} from "../db/db";
 import {usersRepository} from "../repositories/users-repository";
 import {emailManager} from "../manager/email-manager";
+import {EmailConfirmationTypeForDB} from "../helper/allTypes";
 
 export const authService = {
     async confirmation(id: string, login: string, email: string) {
-        const emailConfirmation: EmailConfirmation = {
+        const emailConfirmation: EmailConfirmationTypeForDB = {
             userId: id,
             confirmationCode: uuid4(),
             expirationDate: add(new Date(), {hours: 1, minutes: 3}),

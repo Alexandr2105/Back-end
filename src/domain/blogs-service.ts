@@ -1,19 +1,19 @@
 import {blogsRepository} from "../repositories/blogs-db-repository";
-import {BlogsType} from "../db/db";
+import {ItemsBlogs} from "../helper/allTypes";
 
 export const blogsService = {
-    async getBlogsId(id: string): Promise<BlogsType | boolean> {
+    async getBlogsId(id: string): Promise<ItemsBlogs | boolean> {
         return blogsRepository.getBlogsId(id);
     },
     async deleteBlogsId(id: string): Promise<boolean> {
         return blogsRepository.deleteBlogsId(id);
     },
-    async createBlog(name: string, url: string, description: string): Promise<BlogsType> {
+    async createBlog(name: string, url: string, description: string): Promise<ItemsBlogs> {
         const dateNow = +new Date() + "";
         const newBlog = {
             id: dateNow,
             name: name,
-            description:description,
+            description: description,
             websiteUrl: url,
             createdAt: new Date().toISOString()
         };

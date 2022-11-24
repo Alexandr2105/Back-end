@@ -32,6 +32,14 @@ export type PostQueryType = {
     items: ItemsPosts[]
 };
 
+export type UserTypeForDB = {
+    id: string,
+    login: string,
+    password: string,
+    email: string,
+    createdAt: string
+};
+
 export type ItemsUsers = {
     id: string,
     login: string,
@@ -47,11 +55,20 @@ export type UsersType = {
     items: ItemsUsers[]
 };
 
+export type CommentsTypeForDB = {
+    id: string,
+    idPost: string,
+    content: string,
+    userId: string,
+    userLogin: string,
+    createdAt: string,
+};
+
 export type InfoLikesType = {
     likesCount: number | undefined,
     dislikesCount: number | undefined,
     myStatus: string | undefined
-}
+};
 
 export type ItemsComments = {
     id: string,
@@ -68,4 +85,34 @@ export type CommentsType = {
     pageSize: number,
     totalCount: number,
     items: ItemsComments[]
+};
+
+export type EmailConfirmationTypeForDB = {
+    userId: string,
+    confirmationCode: string,
+    expirationDate: Date,
+    isConfirmed: boolean,
+};
+
+export type RefreshTokenDataTypeForDB = {
+    iat: number,
+    exp: number,
+    deviceId: string,
+    ip: string,
+    deviceName: string | undefined,
+    userId: string
+};
+
+export type CountAttemptTypeForDB = {
+    ip: string,
+    iat: number,
+    method: string,
+    originalUrl: string,
+    countAttempt: number
+};
+
+export type LikeInfoTypeForDB = {
+    commentId: string,
+    userId: string,
+    status: string
 };

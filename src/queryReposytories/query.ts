@@ -16,7 +16,7 @@ export const queryRepository = {
                 $regex: query.searchNameTerm,
                 $options: 'i'
             }
-        }).sort(query.sortBy, query.sortDirection).skip(skipHelper(query.pageNumber, query.pageSize)).limit(query.pageSize).toArray();
+        }).sort({[query.sortBy]: query.sortDirection}).skip(skipHelper(query.pageNumber, query.pageSize)).limit(query.pageSize);
         return {
             pagesCount: pagesCountHelper(totalCount, query.pageSize),
             page: query.pageNumber,
@@ -35,7 +35,7 @@ export const queryRepository = {
     },
 
     async getQueryPosts(query: any): Promise<PostQueryType> {
-        const sortPostsArray = await postsCollection.find({}).sort(query.sortBy, query.sortDirection).skip(skipHelper(query.pageNumber, query.pageSize)).limit(+query.pageSize).toArray();
+        const sortPostsArray = await postsCollection.find({}).sort({[query.sortBy]: query.sortDirection}).skip(skipHelper(query.pageNumber, query.pageSize)).limit(+query.pageSize);
         const totalCount = await postsCollection.countDocuments({});
         return {
             pagesCount: pagesCountHelper(totalCount, query.pageSize),
@@ -58,8 +58,8 @@ export const queryRepository = {
 
     async getQueryPostsBlogsId(query: any, blogId: string): Promise<PostQueryType> {
         const totalCount = await postsCollection.countDocuments({blogId: blogId});
-        const sortPostsId = await postsCollection.find({blogId: blogId}).sort(query.sortBy, query.sortDirection)
-            .skip(skipHelper(query.pageNumber, query.pageSize)).limit(query.pageSize).toArray();
+        const sortPostsId = await postsCollection.find({blogId: blogId}).sort({[query.sortBy]: query.sortDirection})
+            .skip(skipHelper(query.pageNumber, query.pageSize)).limit(query.pageSize);
         return {
             pagesCount: pagesCountHelper(totalCount, query.pageSize),
             page: query.pageNumber,
@@ -95,7 +95,7 @@ export const queryRepository = {
                     $options: "i"
                 }
             }]
-        }).skip(skipHelper(query.pageNumber, query.pageSize)).limit(query.pageSize).sort(query.sortBy, query.sortDirection).toArray();
+        }).sort({[query.sortBy]: query.sortDirection}).skip(skipHelper(query.pageNumber, query.pageSize)).limit(query.pageSize);
         return {
             pagesCount: pagesCountHelper(totalCount, query.pageSize),
             page: query.pageNumber,
@@ -117,8 +117,8 @@ export const queryRepository = {
         if (totalCount === 0) {
             return false;
         }
-        const sortCommentsByPostId = await commentsCollection.find({idPost: postId}).sort(query.sortBy, query.sortDirection)
-            .skip(skipHelper(query.pageNumber, query.pageSize)).limit(query.pageSize).toArray();
+        const sortCommentsByPostId = await commentsCollection.find({idPost: postId}).sort({[query.sortBy]: query.sortDirection})
+            .skip(skipHelper(query.pageNumber, query.pageSize)).limit(query.pageSize);
         return {
             pagesCount: pagesCountHelper(totalCount, query.pageSize),
             page: query.pageNumber,

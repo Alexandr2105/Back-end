@@ -1,12 +1,19 @@
-import {postsCollection, PostsType} from "../db/db";
-
-const option = {projection: {_id: 0}};
+import {postsCollection} from "../db/db";
+import {ItemsPosts} from "../helper/allTypes";
 
 export const postsRepository = {
-    async getPostId(id: string): Promise<PostsType | boolean> {
-        const blog = await postsCollection.findOne({id: id}, option);
+    async getPostId(id: string): Promise<ItemsPosts | boolean> {
+        const blog = await postsCollection.findOne({id: id});
         if (blog) {
-            return blog;
+            return {
+                id: blog.id,
+                title: blog.title,
+                shortDescription: blog.shortDescription,
+                content: blog.content,
+                blogId: blog.blogId,
+                blogName: blog.blogName,
+                createdAt: blog.createdAt
+            }
         } else {
             return false;
         }
@@ -26,8 +33,8 @@ export const postsRepository = {
         });
         return updatePost.matchedCount === 1;
     },
-    async createPost(newPost: PostsType): Promise<PostsType> {
-        await postsCollection.insertOne(newPost);
+    async createPost(newPost: ItemsPosts): Promise<ItemsPosts> {
+        await postsCollection.create(newPost);
         return newPost;
     }
 };

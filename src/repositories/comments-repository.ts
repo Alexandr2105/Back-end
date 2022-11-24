@@ -1,10 +1,9 @@
-import {commentsCollection, CommentType, likeInfoCollection, LikeInfoType} from "../db/db";
-
-const option = {projection: {_id: 0, idPost: 0}};
+import {commentsCollection, likeInfoCollection} from "../db/db";
+import {CommentsTypeForDB, ItemsComments, LikeInfoTypeForDB} from "../helper/allTypes";
 
 export const commentsRepository = {
-    async getCommentById(id: string): Promise<CommentType | null> {
-        return await commentsCollection.findOne({id: id}, option);
+    async getCommentById(id: string): Promise<ItemsComments | null> {
+        return commentsCollection.findOne({id: id});
     },
     async deleteCommentById(id: string): Promise<boolean> {
         const result = await commentsCollection.deleteOne({id: id});
@@ -14,12 +13,12 @@ export const commentsRepository = {
         const result = await commentsCollection.updateOne({id: id}, {$set: {content: content}});
         return result.matchedCount === 1;
     },
-    async createComment(comment: CommentType): Promise<CommentType> {
-        await commentsCollection.insertOne(comment);
+    async createComment(comment: CommentsTypeForDB): Promise<CommentsTypeForDB> {
+        await commentsCollection.create(comment);
         return comment;
     },
     async getLikesInfo(idComment: string): Promise<number | undefined> {
-        const allLikes = await likeInfoCollection.find({commentId: idComment, status: {$regex: "Like"}}).toArray();
+        const allLikes = await likeInfoCollection.find({commentId: idComment, status: {$regex: "Like"}});
         if (allLikes) {
             return allLikes.length;
         }
@@ -28,7 +27,7 @@ export const commentsRepository = {
         const allDislikes = await likeInfoCollection.find({
             commentId: idComment,
             status: {$regex: "Dislike"}
-        }).toArray();
+        });
         if (allDislikes) {
             return allDislikes.length;
         }
@@ -41,12 +40,12 @@ export const commentsRepository = {
             return "None";
         }
     },
-    async setLikeStatus(likeInfo: LikeInfoType): Promise<boolean> {
-        const info = await likeInfoCollection.insertOne(likeInfo);
-        return info.acknowledged;
+    async setLikeStatus(likeInfo: LikeInfoTypeForDB): Promise<boolean> {
+        const info = await likeInfoCollection.create(likeInfo);
+        return !!info;
     },
     async getInfoStatusByComment(idComment: string, userId: string) {
-        return await likeInfoCollection.findOne({commentId: idComment, userId: userId});
+        return likeInfoCollection.findOne({commentId: idComment, userId: userId});
     },
     async updateStatusComment(idComment: string, userId: string, status: string): Promise<boolean> {
         const newStatusComment = await likeInfoCollection.updateOne({
