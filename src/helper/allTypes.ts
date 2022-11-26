@@ -112,7 +112,8 @@ export type CountAttemptTypeForDB = {
 };
 
 export type LikeInfoTypeForDB = {
-    commentId: string,
+    id: string,
     userId: string,
     status: string
+    createDate: string
 };

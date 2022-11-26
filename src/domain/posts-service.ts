@@ -4,8 +4,29 @@ import {blogsService} from "./blogs-service";
 import {CommentsTypeForDB, ItemsPosts} from "../helper/allTypes";
 
 export const postsService = {
-    async getPostId(id: string): Promise<ItemsPosts | boolean> {
-        return await postsRepository.getPostId(id);
+    async getPostId(id: string, userId: string) {
+        const post = await postsRepository.getPostId(id);
+        const likeStatus: any = await commentsRepository.getLikesInfo(id);
+        const dislikeStatus: any = await commentsRepository.getDislikeInfo(id);
+        const myStatus: any = await commentsRepository.getMyStatus(userId, id);
+        if (post) {
+            return {
+                id: post.id,
+                title: post.title,
+                shortDescription: post.shortDescription,
+                content: post.content,
+                blogId: post.blogId,
+                blogName: post.blogName,
+                createdAt: post.createdAt,
+                extendedLikesInfo: {
+                    likesCount: likeStatus,
+                    dislikesCount: dislikeStatus,
+                    myStatus: myStatus,
+                }
+            }
+        } else {
+            return false;
+        }
     },
     async deletePostId(id: string): Promise<boolean> {
         return await postsRepository.deletePostId(id);
@@ -41,5 +62,14 @@ export const postsService = {
         } else {
             return false;
         }
+    },
+    async createLikeStatus(postId: string, userId: string, likeStatus: string): Promise<boolean> {
+        const newLikeStatusForPost = {
+            id: postId,
+            userId: userId,
+            status: likeStatus,
+            createDate: new Date().toISOString()
+        }
+        return await postsRepository.createLikeStatus(newLikeStatusForPost);
     }
 };

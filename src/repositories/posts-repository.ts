@@ -1,22 +1,9 @@
-import {postsCollection} from "../db/db";
-import {ItemsPosts} from "../helper/allTypes";
+import {likeInfoCollection, postsCollection} from "../db/db";
+import {ItemsPosts, LikeInfoTypeForDB} from "../helper/allTypes";
 
 export const postsRepository = {
-    async getPostId(id: string): Promise<ItemsPosts | boolean> {
-        const blog = await postsCollection.findOne({id: id});
-        if (blog) {
-            return {
-                id: blog.id,
-                title: blog.title,
-                shortDescription: blog.shortDescription,
-                content: blog.content,
-                blogId: blog.blogId,
-                blogName: blog.blogName,
-                createdAt: blog.createdAt
-            }
-        } else {
-            return false;
-        }
+    async getPostId(id: string): Promise<ItemsPosts | null> {
+        return postsCollection.findOne({id: id});
     },
     async deletePostId(id: string): Promise<boolean> {
         const result = await postsCollection.deleteOne({id: id});
@@ -36,5 +23,9 @@ export const postsRepository = {
     async createPost(newPost: ItemsPosts): Promise<ItemsPosts> {
         await postsCollection.create(newPost);
         return newPost;
+    },
+    async createLikeStatus(likeStatus: LikeInfoTypeForDB): Promise<boolean> {
+        const status = await likeInfoCollection.create(likeStatus);
+        return !!status;
     }
 };

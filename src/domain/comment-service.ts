@@ -39,9 +39,10 @@ export const commentService = {
             return await commentsRepository.updateStatusComment(commentId, userId, likeStatus);
         } else {
             const statusComment = {
-                commentId: commentId,
+                id: commentId,
                 userId: userId,
-                status: likeStatus
+                status: likeStatus,
+                createDate: new Date().toISOString()
             }
             return await commentsRepository.setLikeStatus(statusComment);
         }

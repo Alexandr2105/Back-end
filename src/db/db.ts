@@ -127,9 +127,10 @@ export const CountAttemptType = new mongoose.Schema<CountAttemptTypeForDB>({
     countAttempt: {type: Number, required: true}
 });
 export const LikeInfoType = new mongoose.Schema<LikeInfoTypeForDB>({
-    commentId: {type: String, required: true},
+    id: {type: String, required: true},
     userId: {type: String, required: true},
-    status: {type: String, required: true}
+    status: {type: String, required: true},
+    createDate: {type: String, required: true}
 });
 
 const mongoUri = process.env.mongoUri || 'mongodb://0.0.0.0:27017/tube';

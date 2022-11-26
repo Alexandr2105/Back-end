@@ -7,6 +7,7 @@ import {queryRepository} from "../queryReposytories/query";
 import {queryCheckHelper} from "../helper/queryCount";
 import {commentService} from "../domain/comment-service";
 import {jwtService} from "../application/jwt-service";
+import {postsRepository} from "../repositories/posts-repository";
 
 export const postsRouter = Router();
 
@@ -24,6 +25,13 @@ const contentLengthByPostId = body("content").isLength({
     min: 20,
     max: 300
 }).withMessage("Неверная длинна поля");
+const checkLikeStatus = body("likeStatus").custom(status => {
+    if (status === "None" || status === "Like" || status === "Dislike") {
+        return true;
+    } else {
+        throw new Error("Не верный стус");
+    }
+});
 
 postsRouter.get("/", async (req: Request, res: Response) => {
     const query = queryCheckHelper(req.query);
@@ -32,9 +40,21 @@ postsRouter.get("/", async (req: Request, res: Response) => {
 });
 
 postsRouter.get("/:id", async (req: Request, res: Response) => {
-    const post = await postsService.getPostId(req.params.id);
+    // const post = await postsService.getPostId(req.params.id,);
+    // if (post) {
+    //     res.send(post)
+    // } else {
+    //     res.sendStatus(404);
+    // }
+    let post;
+    if (req.headers.authorization) {
+        const userId: any = jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
+        post = await postsService.getPostId(req.params.id, userId.toString());
+    } else {
+        post = await postsService.getPostId(req.params.id, "null");
+    }
     if (post) {
-        res.send(post)
+        res.send(post);
     } else {
         res.sendStatus(404);
     }
@@ -86,5 +106,18 @@ postsRouter.post("/:postId/comments", checkToken, contentLengthByPostId, middleW
         res.status(201).send(newPost);
     } else {
         res.sendStatus(404);
+    }
+});
+postsRouter.post("/:postId/like-status", checkToken, checkLikeStatus, middleWare, async (req: Request, res: Response) => {
+    debugger;
+    const postId = await postsRepository.getPostId(req.params.postId);
+    if (!postId) {
+        res.sendStatus(404);
+        return;
+    }
+    const userId = await jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
+    const likeStatus = await postsService.createLikeStatus(req.params.postId, userId!.toString(), req.body.likeStatus);
+    if (likeStatus) {
+        res.sendStatus(204);
     }
 });
