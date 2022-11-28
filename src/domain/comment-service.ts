@@ -33,7 +33,7 @@ export const commentService = {
             return false;
         }
     },
-    async createLikeStatus(commentId: string, userId: string, likeStatus: string) {
+    async createLikeStatus(commentId: string, userId: string, likeStatus: string, login: string) {
         const checkComment = await commentsRepository.getInfoStatusByComment(commentId, userId);
         if (checkComment) {
             return await commentsRepository.updateStatusComment(commentId, userId, likeStatus);
@@ -41,6 +41,7 @@ export const commentService = {
             const statusComment = {
                 id: commentId,
                 userId: userId,
+                login: login,
                 status: likeStatus,
                 createDate: new Date().toISOString()
             }

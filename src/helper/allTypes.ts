@@ -114,6 +114,7 @@ export type CountAttemptTypeForDB = {
 export type LikeInfoTypeForDB = {
     id: string,
     userId: string,
-    status: string
+    login: string,
+    status: string,
     createDate: string
 };

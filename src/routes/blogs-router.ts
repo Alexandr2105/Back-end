@@ -76,7 +76,7 @@ blogsRouter.get("/:blogId/posts", async (req: Request, res: Response) => {
 blogsRouter.post("/:blogId/posts", aut, titleLength, shortDescriptionLength, contentLength, trueId, middleWare, async (req: Request, res: Response) => {
     const newPostForBlogId = await postsService.createPost(req.body.title, req.body.shortDescription, req.body.content, req.params.blogId);
     if (newPostForBlogId) {
-        const newPost = await postsService.getPostId(newPostForBlogId.id);
+        const newPost = await postsService.getPostId(newPostForBlogId.id, "null");
         res.status(201).send(newPost);
     } else {
         res.sendStatus(404);

@@ -1,4 +1,4 @@
-import {blogsCollection, commentsCollection, postsCollection, usersCollection} from "../db/db";
+import {blogsCollection, commentsCollection, likeInfoCollection, postsCollection, usersCollection} from "../db/db";
 import {BlogsQueryType, CommentsType, PostQueryType, UsersType} from "../helper/allTypes";
 import {pagesCountHelper, skipHelper} from "../helper/queryCount";
 import {commentsRepository} from "../repositories/comments-repository";
@@ -34,7 +34,7 @@ export const queryRepository = {
         }
     },
 
-    async getQueryPosts(query: any): Promise<PostQueryType> {
+    async getQueryPosts(query: any, postId: string): Promise<PostQueryType> {
         const sortPostsArray = await postsCollection.find({}).sort({[query.sortBy]: query.sortDirection}).skip(skipHelper(query.pageNumber, query.pageSize)).limit(+query.pageSize);
         const totalCount = await postsCollection.countDocuments({});
         return {
@@ -42,17 +42,35 @@ export const queryRepository = {
             page: query.pageNumber,
             pageSize: query.pageSize,
             totalCount: totalCount,
-            items: sortPostsArray.map(a => {
-                return {
-                    id: a.id,
-                    title: a.title,
-                    shortDescription: a.shortDescription,
-                    content: a.content,
-                    blogId: a.blogId,
-                    blogName: a.blogName,
-                    createdAt: a.createdAt
-                }
-            })
+            items: await Promise.all(sortPostsArray.map(async a => {
+                    const likeStatus = await commentsRepository.getLikesInfo(a.id);
+                    const dislikeStatus = await commentsRepository.getDislikeInfo(a.id);
+                    const myStatus = await commentsRepository.getMyStatus(postId, a.id);
+                    debugger;
+                    const sortLikesArray = await likeInfoCollection.find({id: a.id}, {status: "Like"}).sort({["createDate"]: "desc"}).limit(3);
+                    return {
+                        id: a.id,
+                        title: a.title,
+                        shortDescription: a.shortDescription,
+                        content: a.content,
+                        blogId: a.blogId,
+                        blogName: a.blogName,
+                        createdAt: a.createdAt,
+                        extendedLikesInfo: {
+                            likesCount: likeStatus,
+                            dislikesCount: dislikeStatus,
+                            myStatus: myStatus,
+                            newestLikes: sortLikesArray.map(b => {
+                                return {
+                                    addedAt: b.createDate,
+                                    userId: b.userId,
+                                    login: b.login
+                                }
+                            })
+                        }
+                    }
+                })
+            )
         }
     },
 

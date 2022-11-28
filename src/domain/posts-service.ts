@@ -22,6 +22,13 @@ export const postsService = {
                     likesCount: likeStatus,
                     dislikesCount: dislikeStatus,
                     myStatus: myStatus,
+                    newestLikes: [
+                        {
+                            addedAt: "",
+                            userId: "",
+                            login: ""
+                        }
+                    ]
                 }
             }
         } else {
@@ -48,7 +55,7 @@ export const postsService = {
         return postsRepository.createPost(newPost);
     },
     async creatNewCommentByPostId(postId: string, content: string, userId: string, userLogin: string): Promise<CommentsTypeForDB | boolean> {
-        const idPost = await postsService.getPostId(postId);
+        const idPost = await postsRepository.getPostId(postId);
         if (idPost) {
             const newComment = {
                 id: +new Date() + "",
@@ -63,10 +70,11 @@ export const postsService = {
             return false;
         }
     },
-    async createLikeStatus(postId: string, userId: string, likeStatus: string): Promise<boolean> {
+    async createLikeStatus(postId: string, userId: string, likeStatus: string, login: string): Promise<boolean> {
         const newLikeStatusForPost = {
             id: postId,
             userId: userId,
+            login: login,
             status: likeStatus,
             createDate: new Date().toISOString()
         }

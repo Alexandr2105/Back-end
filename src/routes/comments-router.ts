@@ -4,6 +4,7 @@ import {body} from "express-validator";
 import {checkToken, middleWare} from "../middlewares/middleware";
 import {commentsRepository} from "../repositories/comments-repository";
 import {jwtService} from "../application/jwt-service";
+import {usersRepository} from "../repositories/users-repository";
 
 export const commentsRouter = Router();
 
@@ -68,6 +69,7 @@ commentsRouter.put("/:commentId/like-status", checkToken, checkLikeStatus, middl
         return;
     }
     const userId: any = await jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
-    const lakeStatus = await commentService.createLikeStatus(req.params.commentId, userId.toString(), req.body.likeStatus);
+    const user: any = await usersRepository.getUserId(userId!.toString());
+    const lakeStatus = await commentService.createLikeStatus(req.params.commentId, userId.toString(), req.body.likeStatus, user.login);
     if (lakeStatus) res.sendStatus(204);
 });

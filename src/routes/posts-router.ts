@@ -8,6 +8,7 @@ import {queryCheckHelper} from "../helper/queryCount";
 import {commentService} from "../domain/comment-service";
 import {jwtService} from "../application/jwt-service";
 import {postsRepository} from "../repositories/posts-repository";
+import {usersRepository} from "../repositories/users-repository";
 
 export const postsRouter = Router();
 
@@ -34,9 +35,15 @@ const checkLikeStatus = body("likeStatus").custom(status => {
 });
 
 postsRouter.get("/", async (req: Request, res: Response) => {
+    let post;
     const query = queryCheckHelper(req.query);
-    const posts = await queryRepository.getQueryPosts(query);
-    res.send(posts);
+    if (req.headers.authorization) {
+        const userId: any = jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
+        post = await queryRepository.getQueryPosts(query, userId.toString());
+    } else {
+        post = await queryRepository.getQueryPosts(query, "null");
+    }
+    res.send(post);
 });
 
 postsRouter.get("/:id", async (req: Request, res: Response) => {
@@ -73,7 +80,7 @@ postsRouter.post("/", aut, titleLength, shortDescriptionLength, contentLength, b
     async (req: Request, res: Response) => {
         const createPost = await postsService.createPost(req.body.title, req.body.shortDescription,
             req.body.content, req.body.blogId);
-        const newPost = await postsService.getPostId(createPost.id);
+        const newPost = await postsService.getPostId(createPost.id, "null");
         res.status(201).send(newPost);
     });
 
@@ -109,14 +116,14 @@ postsRouter.post("/:postId/comments", checkToken, contentLengthByPostId, middleW
     }
 });
 postsRouter.post("/:postId/like-status", checkToken, checkLikeStatus, middleWare, async (req: Request, res: Response) => {
-    debugger;
     const postId = await postsRepository.getPostId(req.params.postId);
     if (!postId) {
         res.sendStatus(404);
         return;
     }
     const userId = await jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
-    const likeStatus = await postsService.createLikeStatus(req.params.postId, userId!.toString(), req.body.likeStatus);
+    const user: any = await usersRepository.getUserId(userId!.toString());
+    const likeStatus = await postsService.createLikeStatus(req.params.postId, userId!.toString(), req.body.likeStatus, user.login);
     if (likeStatus) {
         res.sendStatus(204);
     }
