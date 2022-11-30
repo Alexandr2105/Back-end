@@ -6,9 +6,9 @@ import {CommentsTypeForDB, ItemsPosts} from "../helper/allTypes";
 export const postsService = {
     async getPostId(id: string, userId: string) {
         const post = await postsRepository.getPostId(id);
-        const likeStatus: any = await commentsRepository.getLikesInfo(id);
-        const dislikeStatus: any = await commentsRepository.getDislikeInfo(id);
-        const myStatus: any = await commentsRepository.getMyStatus(userId, id);
+        const likeStatus: any = await postsRepository.getLikesInfo(id);
+        const dislikeStatus: any = await postsRepository.getDislikeInfo(id);
+        const myStatus: any = await postsRepository.getMyStatus(userId, id);
         if (post) {
             return {
                 id: post.id,

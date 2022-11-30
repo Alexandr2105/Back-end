@@ -27,5 +27,30 @@ export const postsRepository = {
     async createLikeStatus(likeStatus: LikeInfoTypeForDB): Promise<boolean> {
         const status = await likeInfoCollection.create(likeStatus);
         return !!status;
-    }
+    },
+    async getLikesInfo(idPost: string): Promise<number> {
+        const allLikes = await likeInfoCollection.find({id: idPost, status: {$regex: "Like"}});
+        if (allLikes) {
+            return allLikes.length;
+        } else {
+            return 0;
+        }
+    },
+    async getDislikeInfo(idPost: string): Promise<number | undefined> {
+        const allDislikes = await likeInfoCollection.find({
+            id: idPost,
+            status: {$regex: "Dislike"}
+        });
+        if (allDislikes) {
+            return allDislikes.length;
+        }
+    },
+    async getMyStatus(userId: string, postId: string): Promise<string | undefined> {
+        const commentInfo = await likeInfoCollection.findOne({userId: userId, id: postId});
+        if (commentInfo) {
+            return commentInfo.status.toString();
+        } else {
+            return "None";
+        }
+    },
 };

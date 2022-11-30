@@ -17,15 +17,17 @@ export const commentsRepository = {
         await commentsCollection.create(comment);
         return comment;
     },
-    async getLikesInfo(idComment: string): Promise<number | undefined> {
-        const allLikes = await likeInfoCollection.find({commentId: idComment, status: {$regex: "Like"}});
+    async getLikesInfo(idComment: string): Promise<number> {
+        const allLikes = await likeInfoCollection.find({id: idComment, status: {$regex: "Like"}});
         if (allLikes) {
             return allLikes.length;
+        } else {
+            return 0;
         }
     },
     async getDislikeInfo(idComment: string): Promise<number | undefined> {
         const allDislikes = await likeInfoCollection.find({
-            commentId: idComment,
+            id: idComment,
             status: {$regex: "Dislike"}
         });
         if (allDislikes) {
@@ -33,7 +35,7 @@ export const commentsRepository = {
         }
     },
     async getMyStatus(userId: string, commentId: string): Promise<string | undefined> {
-        const commentInfo = await likeInfoCollection.findOne({userId: userId, commentId: commentId});
+        const commentInfo = await likeInfoCollection.findOne({userId: userId, id: commentId});
         if (commentInfo) {
             return commentInfo.status.toString();
         } else {

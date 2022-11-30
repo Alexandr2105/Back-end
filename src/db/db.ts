@@ -129,6 +129,7 @@ export const CountAttemptType = new mongoose.Schema<CountAttemptTypeForDB>({
 export const LikeInfoType = new mongoose.Schema<LikeInfoTypeForDB>({
     id: {type: String, required: true},
     userId: {type: String, required: true},
+    login: {type: String, required: true},
     status: {type: String, required: true},
     createDate: {type: String, required: true}
 });

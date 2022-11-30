@@ -2,6 +2,7 @@ import {blogsCollection, commentsCollection, likeInfoCollection, postsCollection
 import {BlogsQueryType, CommentsType, PostQueryType, UsersType} from "../helper/allTypes";
 import {pagesCountHelper, skipHelper} from "../helper/queryCount";
 import {commentsRepository} from "../repositories/comments-repository";
+import {postsRepository} from "../repositories/posts-repository";
 
 export const queryRepository = {
     async getQueryBlogs(query: any): Promise<BlogsQueryType> {
@@ -34,7 +35,7 @@ export const queryRepository = {
         }
     },
 
-    async getQueryPosts(query: any, postId: string): Promise<PostQueryType> {
+    async getQueryPosts(query: any, userId: string): Promise<PostQueryType> {
         const sortPostsArray = await postsCollection.find({}).sort({[query.sortBy]: query.sortDirection}).skip(skipHelper(query.pageNumber, query.pageSize)).limit(+query.pageSize);
         const totalCount = await postsCollection.countDocuments({});
         return {
@@ -43,11 +44,13 @@ export const queryRepository = {
             pageSize: query.pageSize,
             totalCount: totalCount,
             items: await Promise.all(sortPostsArray.map(async a => {
-                    const likeStatus = await commentsRepository.getLikesInfo(a.id);
-                    const dislikeStatus = await commentsRepository.getDislikeInfo(a.id);
-                    const myStatus = await commentsRepository.getMyStatus(postId, a.id);
-                    debugger;
-                    const sortLikesArray = await likeInfoCollection.find({id: a.id}, {status: "Like"}).sort({["createDate"]: "desc"}).limit(3);
+                    const likeStatus = await postsRepository.getLikesInfo(a.id);
+                    const dislikeStatus = await postsRepository.getDislikeInfo(a.id);
+                    const myStatus = await postsRepository.getMyStatus(userId, a.id);
+                    const sortLikesArray = await likeInfoCollection.find({
+                        id: a.id,
+                        status: "Like"
+                    }).sort({["createDate"]: "desc"}).limit(3);
                     return {
                         id: a.id,
                         title: a.title,
@@ -64,7 +67,8 @@ export const queryRepository = {
                                 return {
                                     addedAt: b.createDate,
                                     userId: b.userId,
-                                    login: b.login
+                                    login: b.login,
+                                    status: b.status
                                 }
                             })
                         }
