@@ -73,13 +73,18 @@ export const postsService = {
         }
     },
     async createLikeStatus(postId: string, userId: string, likeStatus: string, login: string): Promise<boolean> {
-        const newLikeStatusForPost = {
-            id: postId,
-            userId: userId,
-            login: login,
-            status: likeStatus,
-            createDate: new Date().toISOString()
+        const checkPost = await postsRepository.getInfoStatusByPost(postId, userId);
+        if (checkPost) {
+            return await postsRepository.updateStatusPost(postId, userId, likeStatus);
+        } else {
+            const newLikeStatusForPost = {
+                id: postId,
+                userId: userId,
+                login: login,
+                status: likeStatus,
+                createDate: new Date().toISOString()
+            }
+            return await postsRepository.createLikeStatus(newLikeStatusForPost);
         }
-        return await postsRepository.createLikeStatus(newLikeStatusForPost);
     }
 };

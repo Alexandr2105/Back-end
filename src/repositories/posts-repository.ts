@@ -55,5 +55,15 @@ export const postsRepository = {
     },
     async getAllInfoLike(postId: string): Promise<LikeInfoTypeForDB[]> {
         return likeInfoCollection.find({id: postId, status: "Like"}).sort({["createDate"]: "desc"}).limit(3);
+    },
+    async getInfoStatusByPost(idPost: string, userId: string) {
+        return likeInfoCollection.findOne({id: idPost, userId: userId});
+    },
+    async updateStatusPost(idPost: string, userId: string, status: string): Promise<boolean> {
+        const newStatusComment = await likeInfoCollection.updateOne({
+            id: idPost,
+            userId: userId
+        }, {$set: {status: status}});
+        return newStatusComment.matchedCount === 1;
     }
 };
