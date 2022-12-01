@@ -53,4 +53,7 @@ export const postsRepository = {
             return "None";
         }
     },
+    async getAllInfoLike(postId: string): Promise<LikeInfoTypeForDB[]> {
+        return likeInfoCollection.find({id: postId, status: "Like"}).sort({["createDate"]: "desc"}).limit(3);
+    }
 };

@@ -6,9 +6,10 @@ import {CommentsTypeForDB, ItemsPosts} from "../helper/allTypes";
 export const postsService = {
     async getPostId(id: string, userId: string) {
         const post = await postsRepository.getPostId(id);
-        const likeStatus: any = await postsRepository.getLikesInfo(id);
-        const dislikeStatus: any = await postsRepository.getDislikeInfo(id);
+        const likesCount = await postsRepository.getLikesInfo(id);
+        const dislikeCount: any = await postsRepository.getDislikeInfo(id);
         const myStatus: any = await postsRepository.getMyStatus(userId, id);
+        const infoLikes = await postsRepository.getAllInfoLike(id);
         if (post) {
             return {
                 id: post.id,
@@ -19,16 +20,17 @@ export const postsService = {
                 blogName: post.blogName,
                 createdAt: post.createdAt,
                 extendedLikesInfo: {
-                    likesCount: likeStatus,
-                    dislikesCount: dislikeStatus,
+                    likesCount: likesCount,
+                    dislikesCount: dislikeCount,
                     myStatus: myStatus,
-                    newestLikes: [
-                        {
-                            addedAt: "",
-                            userId: "",
-                            login: ""
+                    newestLikes: infoLikes.map(a => {
+                            return {
+                                addedAt: a.createDate,
+                                userId: a.userId,
+                                login: a.login
+                            }
                         }
-                    ]
+                    )
                 }
             }
         } else {
