@@ -102,7 +102,7 @@ export const queryRepository = {
                         blogId: a.blogId,
                         blogName: a.blogName,
                         createdAt: a.createdAt,
-                        likesInfo: {
+                        extendedLikesInfo: {
                             likesCount: likeInfo,
                             dislikesCount: dislikeInfo,
                             myStatus: myStatus,
