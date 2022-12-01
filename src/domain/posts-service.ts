@@ -48,7 +48,7 @@ class PostsService {
 
     async createPost(title: string, shortDescription: string, content: string, blogId: string): Promise<ItemsPosts> {
         const post: any = await blogsService.getBlogsId(blogId);
-        const newPost = new ItemsPosts(new Date() + "", title, shortDescription, content, blogId, post!.name, new Date().toISOString());
+        const newPost = new ItemsPosts(+new Date() + "", title, shortDescription, content, blogId, post!.name, new Date().toISOString());
         return postsRepository.createPost(newPost);
     };
 
