@@ -47,12 +47,6 @@ postsRouter.get("/", async (req: Request, res: Response) => {
 });
 
 postsRouter.get("/:id", async (req: Request, res: Response) => {
-    // const post = await postsService.getPostId(req.params.id,);
-    // if (post) {
-    //     res.send(post)
-    // } else {
-    //     res.sendStatus(404);
-    // }
     let post;
     if (req.headers.authorization) {
         const userId: any = jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);

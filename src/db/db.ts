@@ -1,4 +1,3 @@
-// import {MongoClient} from "mongodb";
 import 'dotenv/config';
 import mongoose from "mongoose";
 import {
@@ -10,70 +9,6 @@ import {
     UserTypeForDB
 } from "../helper/allTypes";
 
-// export type BlogsType = {
-//     id: string,
-//     name: string,
-//     description: string,
-//     websiteUrl: string,
-//     createdAt: string,
-// };
-//
-// export type PostsType = {
-//     id: string,
-//     title: string,
-//     shortDescription: string,
-//     content: string,
-//     blogId: string,
-//     blogName: string,
-//     createdAt: string
-// };
-//
-// export type UserType = {
-//     id: string,
-//     login: string,
-//     password: string,
-//     email: string,
-//     createdAt: string
-// };
-//
-// export type CommentType = {
-//     id: string,
-//     idPost: string,
-//     content: string,
-//     userId: string,
-//     userLogin: string,
-//     createdAt: string
-// };
-//
-// export type EmailConfirmation = {
-//     userId: string
-//     confirmationCode: any,
-//     expirationDate: Date,
-//     isConfirmed: boolean,
-// };
-//
-// export type RefreshTokenData = {
-//     iat: number,
-//     exp: number,
-//     deviceId: string,
-//     ip: string,
-//     deviceName: string | undefined,
-//     userId: string
-// };
-//
-// export type CountAttemptType = {
-//     ip: string,
-//     iat: number,
-//     method: string,
-//     originalUrl: string,
-//     countAttempt: number
-// };
-//
-// export type LikeInfoType = {
-//     commentId: string,
-//     userId: string,
-//     status: string
-// };
 export const BlogsType = new mongoose.Schema<ItemsBlogs>({
     id: {type: String, required: true},
     name: {type: String, required: true},
@@ -135,16 +70,6 @@ export const LikeInfoType = new mongoose.Schema<LikeInfoTypeForDB>({
 });
 
 const mongoUri = process.env.mongoUri || 'mongodb://0.0.0.0:27017/tube';
-// const client = new MongoClient(mongoUri);
-// const db = client.db("tube");
-// export const blogsCollection = db.collection<BlogsType>("blogs");
-// export const postsCollection = db.collection<PostsType>("posts");
-// export const usersCollection = db.collection<UserType>("users");
-// export const commentsCollection = db.collection<CommentType>("comments");
-// export const registrationUsersCollection = db.collection<EmailConfirmation>("emailConfirmation");
-// export const refreshTokenDataCollection = db.collection<RefreshTokenData>("refreshTokenData");
-// export const countAttemptCollection = db.collection<CountAttemptType>("countAttempts");
-// export const likeInfoCollection = db.collection<LikeInfoType>("likeStatus");
 
 export const blogsCollection = mongoose.model("blogs", BlogsType);
 export const postsCollection = mongoose.model("posts", PostsType);
@@ -157,13 +82,10 @@ export const likeInfoCollection = mongoose.model("likeStatus", LikeInfoType);
 
 export async function runDb() {
     try {
-        // await client.connect();
         await mongoose.connect(mongoUri);
-        // await client.db("tube").command({ping: 1});
         console.log("Подключились к монго серверу");
     } catch {
         console.log("Нет подключения к БД");
-        // await client.close();
         await mongoose.disconnect();
     }
 }
