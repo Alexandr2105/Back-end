@@ -65,10 +65,9 @@ export const queryRepository = {
                             myStatus: myStatus,
                             newestLikes: sortLikesArray.map(b => {
                                 return {
-                                    addedAt: b.createDate,
+                                    addedAt: b.createDate.toString(),
                                     userId: b.userId,
                                     login: b.login,
-                                    status: b.status
                                 }
                             })
                         }
