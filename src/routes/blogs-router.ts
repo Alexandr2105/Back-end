@@ -6,6 +6,7 @@ import {queryRepository} from "../queryReposytories/query";
 import {postsService} from "../domain/posts-service";
 import {blogsCollection} from "../db/db";
 import {queryCheckHelper} from "../helper/queryCount";
+import {jwtService} from "../application/jwt-service";
 
 export const blogsRouter = Router();
 
@@ -64,8 +65,14 @@ blogsRouter.put("/:id", aut, nameLength, urlLength, middleWare, async (req: Requ
 });
 
 blogsRouter.get("/:blogId/posts", async (req: Request, res: Response) => {
+    let postsBlogId;
     const query = queryCheckHelper(req.query);
-    const postsBlogId = await queryRepository.getQueryPostsBlogsId(query, req.params.blogId);
+    if (req.headers.authorization) {
+        const userId: any = jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
+        postsBlogId = await queryRepository.getQueryPostsBlogsId(query, req.params.blogId, userId);
+    } else {
+        postsBlogId = await queryRepository.getQueryPostsBlogsId(query, req.params.blogId,"null");
+    }
     if (postsBlogId.items.length !== 0) {
         res.send(postsBlogId);
     } else {

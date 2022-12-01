@@ -77,7 +77,7 @@ export const queryRepository = {
         }
     },
 
-    async getQueryPostsBlogsId(query: any, blogId: string): Promise<PostQueryType> {
+    async getQueryPostsBlogsId(query: any, blogId: string, userId: string): Promise<PostQueryType> {
         const totalCount = await postsCollection.countDocuments({blogId: blogId});
         const sortPostsId = await postsCollection.find({blogId: blogId}).sort({[query.sortBy]: query.sortDirection})
             .skip(skipHelper(query.pageNumber, query.pageSize)).limit(query.pageSize);
@@ -86,17 +86,37 @@ export const queryRepository = {
             page: query.pageNumber,
             pageSize: query.pageSize,
             totalCount: totalCount,
-            items: sortPostsId.map(a => {
-                return {
-                    id: a.id,
-                    title: a.title,
-                    shortDescription: a.shortDescription,
-                    content: a.content,
-                    blogId: a.blogId,
-                    blogName: a.blogName,
-                    createdAt: a.createdAt,
-                };
-            })
+            items: await Promise.all(sortPostsId.map(async a => {
+                    const likeInfo = await commentsRepository.getLikesInfo(a.id);
+                    const dislikeInfo = await commentsRepository.getDislikeInfo(a.id);
+                    const myStatus = await commentsRepository.getMyStatus(userId, a.id);
+                    const sortLikesArray = await likeInfoCollection.find({
+                        id: a.id,
+                        status: "Like"
+                    }).sort({["createDate"]: "desc"}).limit(3);
+                    return {
+                        id: a.id,
+                        title: a.title,
+                        shortDescription: a.shortDescription,
+                        content: a.content,
+                        blogId: a.blogId,
+                        blogName: a.blogName,
+                        createdAt: a.createdAt,
+                        likesInfo: {
+                            likesCount: likeInfo,
+                            dislikesCount: dislikeInfo,
+                            myStatus: myStatus,
+                            newestLikes: sortLikesArray.map(a => {
+                                return {
+                                    addedAt: a.createDate.toString(),
+                                    userId: a.userId,
+                                    login: a.login,
+                                }
+                            })
+                        }
+                    };
+                })
+            )
         }
     },
 
