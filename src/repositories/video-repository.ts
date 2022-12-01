@@ -1,40 +1,20 @@
 export type availableResolutionsType = ['P144' | 'P240' | 'P360' | 'P480' | 'P720' | 'P1080' | 'P1440' | 'P2160'];
 
-type VideoType = {
-    id: number;
-    title: string;
-    author: string;
-    canBeDownloaded: boolean;
-    minAgeRestriction: null | number;
-    createdAt: Date;
-    publicationDate: Date;
-    availableResolutions: availableResolutionsType;
-};
+export class VideoType {
+    constructor(public id: number,
+                public title: string,
+                public author: string,
+                public canBeDownloaded: boolean,
+                public minAgeRestriction: null | number,
+                public createdAt: Date,
+                public publicationDate: Date,
+                public availableResolutions: availableResolutionsType) {
+    }
+}
 
 export const videos: VideoType[] = [
-    {
-        id: 0,
-        title: "video-00",
-        author: "Alex",
-        canBeDownloaded: false,
-        minAgeRestriction: null,
-        createdAt: new Date(),
-        publicationDate: new Date(),
-        availableResolutions: [
-            "P144"
-        ]
-    }, {
-        id: 1,
-        title: "video-01",
-        author: "Alex",
-        canBeDownloaded: true,
-        minAgeRestriction: null,
-        createdAt: new Date(),
-        publicationDate: new Date(),
-        availableResolutions: [
-            "P720"
-        ]
-    },
+    new VideoType(0, "video-00", "Alex", false, null, new Date(), new Date(), ["P144"]),
+    new VideoType(1, "video-01", "Alex", true, null, new Date(), new Date(), ["P720"])
 ];
 
 export const videosRepository = {

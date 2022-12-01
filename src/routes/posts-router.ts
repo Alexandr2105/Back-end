@@ -5,7 +5,7 @@ import {aut, checkToken, middleWare} from "../middlewares/middleware";
 import {blogsCollection} from "../db/db";
 import {queryRepository} from "../queryReposytories/query";
 import {queryCheckHelper} from "../helper/queryCount";
-import {commentService} from "../domain/comment-service";
+import {commentsService} from "../domain/comments-service";
 import {jwtService} from "../application/jwt-service";
 import {postsRepository} from "../repositories/posts-repository";
 import {usersRepository} from "../repositories/users-repository";
@@ -103,7 +103,7 @@ postsRouter.post("/:postId/comments", checkToken, contentLengthByPostId, middleW
     const post: any = await postsService.creatNewCommentByPostId(req.params.postId, req.body.content, req.user!.id, req.user!.login);
     const userId: any = await jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
     if (post) {
-        const newPost = await commentService.getLikesInfo(post.id, userId.toString());
+        const newPost = await commentsService.getLikesInfo(post.id, userId.toString());
         res.status(201).send(newPost);
     } else {
         res.sendStatus(404);

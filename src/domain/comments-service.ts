@@ -1,16 +1,19 @@
 import {commentsRepository} from "../repositories/comments-repository";
-import {ItemsComments} from "../helper/allTypes";
+import {ItemsComments, LikeInfoTypeForDB} from "../helper/allTypes";
 
-export const commentService = {
+class CommentsService {
     async getCommentById(id: string) {
         return await commentsRepository.getCommentById(id);
-    },
+    };
+
     async deleteCommentById(id: string) {
         return await commentsRepository.deleteCommentById(id);
-    },
+    };
+
     async updateCommentById(id: string, content: string) {
         return await commentsRepository.updateCommentById(id, content);
-    },
+    };
+
     async getLikesInfo(idComment: string, userId: string): Promise<boolean | ItemsComments> {
         const comment = await this.getCommentById(idComment);
         const likeStatus: any = await commentsRepository.getLikesInfo(idComment);
@@ -32,20 +35,17 @@ export const commentService = {
         } else {
             return false;
         }
-    },
+    };
+
     async createLikeStatus(commentId: string, userId: string, likeStatus: string, login: string) {
         const checkComment = await commentsRepository.getInfoStatusByComment(commentId, userId);
         if (checkComment) {
             return await commentsRepository.updateStatusComment(commentId, userId, likeStatus);
         } else {
-            const statusComment = {
-                id: commentId,
-                userId: userId,
-                login: login,
-                status: likeStatus,
-                createDate: new Date().toISOString()
-            }
+            const statusComment = new LikeInfoTypeForDB(commentId, userId, login, likeStatus, new Date().toISOString());
             return await commentsRepository.setLikeStatus(statusComment);
         }
-    }
+    };
 }
+
+export const commentsService = new CommentsService();
