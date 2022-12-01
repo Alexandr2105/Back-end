@@ -115,7 +115,7 @@ postsRouter.post("/:postId/comments", checkToken, contentLengthByPostId, middleW
         res.sendStatus(404);
     }
 });
-postsRouter.post("/:postId/like-status", checkToken, checkLikeStatus, middleWare, async (req: Request, res: Response) => {
+postsRouter.put("/:postId/like-status", checkToken, checkLikeStatus, middleWare, async (req: Request, res: Response) => {
     const postId = await postsRepository.getPostId(req.params.postId);
     if (!postId) {
         res.sendStatus(404);

@@ -47,11 +47,11 @@ export const commentsRepository = {
         return !!info;
     },
     async getInfoStatusByComment(idComment: string, userId: string) {
-        return likeInfoCollection.findOne({commentId: idComment, userId: userId});
+        return likeInfoCollection.findOne({id: idComment, userId: userId});
     },
     async updateStatusComment(idComment: string, userId: string, status: string): Promise<boolean> {
         const newStatusComment = await likeInfoCollection.updateOne({
-            commentId: idComment,
+            id: idComment,
             userId: userId
         }, {$set: {status: status}});
         return newStatusComment.matchedCount === 1;
