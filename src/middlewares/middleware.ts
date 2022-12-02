@@ -76,10 +76,12 @@ export class MiddlewareController {
     };
 }
 
-export const middleWare = new MiddlewareController().middleWare;
+const middlewareController = new MiddlewareController();
 
-export const checkToken = new MiddlewareController().checkToken;
+export const middleWare = middlewareController.middleWare.bind(middlewareController);
 
-export const checkRefreshToken = new MiddlewareController().checkRefreshToken;
+export const checkToken = middlewareController.checkToken.bind(middlewareController);
 
-export const aut = new MiddlewareController().aut;
+export const checkRefreshToken = middlewareController.checkRefreshToken.bind(middlewareController);
+
+export const aut = middlewareController.aut.bind(middlewareController);
