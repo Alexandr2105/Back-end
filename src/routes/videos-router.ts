@@ -1,7 +1,7 @@
 import {Request, Response, Router} from "express";
 import {middleWare} from "../middlewares/middleware";
 import {body} from "express-validator";
-import {videosService} from "../domain/video-service";
+import {VideosService} from "../domain/videos-service";
 
 export const videosRouter = Router();
 
@@ -25,13 +25,19 @@ const findAvailableResolutions = (array: string[]) => {
 };
 
 class VideosController {
+    private videosService: VideosService;
+
+    constructor() {
+        this.videosService = new VideosService;
+    }
+
     getVideos(req: Request, res: Response) {
-        const videos = videosService.getAllVideo();
+        const videos = this.videosService.getAllVideo();
         res.send(videos);
     };
 
     getVideo(req: Request, res: Response) {
-        let videoId = videosService.findVideosId(+req.params.id);
+        let videoId = this.videosService.findVideosId(+req.params.id);
         if (videoId) {
             res.send(videoId);
         } else {
@@ -40,7 +46,7 @@ class VideosController {
     };
 
     deleteVideo(req: Request, res: Response) {
-        let video = videosService.videoDelete(+req.params.id);
+        let video = this.videosService.videoDelete(+req.params.id);
         if (video) {
             res.sendStatus(204);
         } else {
@@ -58,7 +64,7 @@ class VideosController {
             );
             res.status(400).send({"errorsMessages": errors});
         } else {
-            const newVideo = videosService.createVideo(req.body.title, req.body.author, req.body.availableResolutions);
+            const newVideo = this.videosService.createVideo(req.body.title, req.body.author, req.body.availableResolutions);
             res.status(201).send(newVideo);
         }
     };
@@ -73,7 +79,7 @@ class VideosController {
             );
             res.status(400).send({"errorsMessages": errors});
         } else {
-            const updateVideo = videosService.updateVideo(+req.params.id, req.body.title,
+            const updateVideo = this.videosService.updateVideo(+req.params.id, req.body.title,
                 req.body.author, req.body.availableResolutions, req.body.canBeDownloaded,
                 req.body.minAgeRestriction, req.body.publicationDate);
             res.sendStatus(updateVideo);
@@ -83,8 +89,8 @@ class VideosController {
 
 const videoController = new VideosController();
 
-videosRouter.get("/", videoController.getVideos);
-videosRouter.get("/:id", videoController.getVideo);
-videosRouter.delete("/:id", videoController.deleteVideo);
-videosRouter.post("/", titleLength, authorLength, middleWare, videoController.createVideo);
-videosRouter.put("/:id", titleLength, authorLength, minAgeRestriction, canBeDownloaded, publicationDate, middleWare, videoController.updateVideo);
+videosRouter.get("/", videoController.getVideos.bind(videoController));
+videosRouter.get("/:id", videoController.getVideo.bind(videoController));
+videosRouter.delete("/:id", videoController.deleteVideo.bind(videoController));
+videosRouter.post("/", titleLength, authorLength, middleWare, videoController.createVideo.bind(videoController));
+videosRouter.put("/:id", titleLength, authorLength, minAgeRestriction, canBeDownloaded, publicationDate, middleWare, videoController.updateVideo.bind(videoController));

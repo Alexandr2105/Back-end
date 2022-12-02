@@ -61,5 +61,3 @@ export class VideosRepository {
         }
     };
 }
-
-export const videosRepository = new VideosRepository();
