@@ -12,7 +12,7 @@ export class VideoType {
     }
 }
 
-class VideosRepository {
+export class VideosRepository {
     videos = [
         new VideoType(0, "video-00", "Alex", false, null, new Date(), new Date(), ["P144"]),
         new VideoType(1, "video-01", "Alex", true, null, new Date(), new Date(), ["P720"])
@@ -62,4 +62,4 @@ class VideosRepository {
     };
 }
 
-export const videosRepository = new VideosRepository();``
+export const videosRepository = new VideosRepository();
