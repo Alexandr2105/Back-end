@@ -97,7 +97,7 @@ const blogsController = new BlogsController();
 blogsRouter.get("/", blogsController.getBlogs);
 blogsRouter.get("/:id", blogsController.getBlog);
 blogsRouter.delete("/:id", aut, blogsController.deleteBlog);
-blogsRouter.post("/", aut, nameLength, urlLength, description, middleWare, blogsController.getBlog);
+blogsRouter.post("/", aut, nameLength, urlLength, description, middleWare, blogsController.createBlog);
 blogsRouter.put("/:id", aut, nameLength, urlLength, middleWare, blogsController.updateBlog);
 blogsRouter.get("/:blogId/posts", blogsController.getPostsForBlog);
 blogsRouter.post("/:blogId/posts", aut, titleLength, shortDescriptionLength, contentLength, trueId, middleWare, blogsController.createPostsForBlog);
