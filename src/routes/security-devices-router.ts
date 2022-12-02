@@ -20,20 +20,28 @@ const checkUser = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
-securityDevicesRouter.get("/", checkRefreshToken, middleWare, async (req: Request, res: Response) => {
-    const user: any = jwtService.getUserByRefreshToken(req.cookies.refreshToken);
-    const allDevicesUser = await securityDevicesRepository.getAllDevicesUser(user.userId);
-    res.send(allDevicesUser);
-});
+class SecurityDevicesController {
+    async getDevices(req: Request, res: Response) {
+        const user: any = jwtService.getUserByRefreshToken(req.cookies.refreshToken);
+        const allDevicesUser = await securityDevicesRepository.getAllDevicesUser(user.userId);
+        res.send(allDevicesUser);
+    };
 
-securityDevicesRouter.delete("/", checkRefreshToken, middleWare, async (req: Request, res: Response) => {
-    const user: any = jwtService.getUserByRefreshToken(req.cookies.refreshToken);
-    await devicesService.delAllDevicesExcludeCurrent(user.deviceId);
-    res.sendStatus(204);
-});
+    async deleteDevices(req: Request, res: Response) {
+        const user: any = jwtService.getUserByRefreshToken(req.cookies.refreshToken);
+        await devicesService.delAllDevicesExcludeCurrent(user.deviceId);
+        res.sendStatus(204);
+    };
 
-securityDevicesRouter.delete("/:devices", checkRefreshToken, checkUser, middleWare, async (req: Request, res: Response) => {
-    const deviceId = req.params.devices;
-    const result = await devicesService.delDevice(deviceId);
-    if (result) res.sendStatus(204);
-});
+    async deleteDevice(req: Request, res: Response) {
+        const deviceId = req.params.devices;
+        const result = await devicesService.delDevice(deviceId);
+        if (result) res.sendStatus(204);
+    };
+}
+
+const securityDevicesController = new SecurityDevicesController();
+
+securityDevicesRouter.get("/", checkRefreshToken, middleWare, securityDevicesController.getDevices);
+securityDevicesRouter.delete("/", checkRefreshToken, middleWare, securityDevicesController.deleteDevices);
+securityDevicesRouter.delete("/:devices", checkRefreshToken, checkUser, middleWare, securityDevicesController.deleteDevice);

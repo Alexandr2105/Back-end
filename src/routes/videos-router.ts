@@ -22,59 +22,69 @@ const findAvailableResolutions = (array: string[]) => {
         }
     }
     return true;
+};
+
+class VideosController {
+    getVideos(req: Request, res: Response) {
+        const videos = videosService.getAllVideo();
+        res.send(videos);
+    };
+
+    getVideo(req: Request, res: Response) {
+        let videoId = videosService.findVideosId(+req.params.id);
+        if (videoId) {
+            res.send(videoId);
+        } else {
+            res.sendStatus(404);
+        }
+    };
+
+    deleteVideo(req: Request, res: Response) {
+        let video = videosService.videoDelete(+req.params.id);
+        if (video) {
+            res.sendStatus(204);
+        } else {
+            res.sendStatus(404);
+        }
+    };
+
+    createVideo(req: Request, res: Response) {
+        const errors = [];
+        if (!findAvailableResolutions(req.body.availableResolutions)) {
+            errors.push({
+                    message: "Не верно заполнено поле",
+                    field: "availableResolutions"
+                },
+            );
+            res.status(400).send({"errorsMessages": errors});
+        } else {
+            const newVideo = videosService.createVideo(req.body.title, req.body.author, req.body.availableResolutions);
+            res.status(201).send(newVideo);
+        }
+    };
+
+    updateVideo(req: Request, res: Response) {
+        const errors = [];
+        if (!findAvailableResolutions(req.body.availableResolutions)) {
+            errors.push({
+                    message: "Не верно заполнено поле",
+                    field: "availableResolutions"
+                },
+            );
+            res.status(400).send({"errorsMessages": errors});
+        } else {
+            const updateVideo = videosService.updateVideo(+req.params.id, req.body.title,
+                req.body.author, req.body.availableResolutions, req.body.canBeDownloaded,
+                req.body.minAgeRestriction, req.body.publicationDate);
+            res.sendStatus(updateVideo);
+        }
+    };
 }
 
-videosRouter.get("/", (req: Request, res: Response) => {
-    const videos = videosService.getAllVideo();
-    res.send(videos);
-});
+const videoController = new VideosController();
 
-videosRouter.get("/:id", (req: Request, res: Response) => {
-    let videoId = videosService.findVideosId(+req.params.id);
-    if (videoId) {
-        res.send(videoId);
-    } else {
-        res.sendStatus(404);
-    }
-});
-
-videosRouter.delete("/:id", (req: Request, res: Response) => {
-    let video = videosService.videoDelete(+req.params.id);
-    if (video) {
-        res.sendStatus(204);
-    } else {
-        res.sendStatus(404);
-    }
-});
-
-videosRouter.post("/", titleLength, authorLength, middleWare, (req: Request, res: Response) => {
-    const errors = [];
-    if (!findAvailableResolutions(req.body.availableResolutions)) {
-        errors.push({
-                message: "Не верно заполнено поле",
-                field: "availableResolutions"
-            },
-        );
-        res.status(400).send({"errorsMessages": errors});
-    } else {
-        const newVideo = videosService.createVideo(req.body.title, req.body.author, req.body.availableResolutions);
-        res.status(201).send(newVideo);
-    }
-});
-
-videosRouter.put("/:id", titleLength, authorLength, minAgeRestriction, canBeDownloaded, publicationDate, middleWare, (req: Request, res: Response) => {
-    const errors = [];
-    if (!findAvailableResolutions(req.body.availableResolutions)) {
-        errors.push({
-                message: "Не верно заполнено поле",
-                field: "availableResolutions"
-            },
-        );
-        res.status(400).send({"errorsMessages": errors});
-    } else {
-        const updateVideo = videosService.updateVideo(+req.params.id, req.body.title,
-            req.body.author, req.body.availableResolutions, req.body.canBeDownloaded,
-            req.body.minAgeRestriction, req.body.publicationDate);
-        res.sendStatus(updateVideo);
-    }
-});
+videosRouter.get("/", videoController.getVideos);
+videosRouter.get("/:id", videoController.getVideo);
+videosRouter.delete("/:id", videoController.deleteVideo);
+videosRouter.post("/", titleLength, authorLength, middleWare, videoController.createVideo);
+videosRouter.put("/:id", titleLength, authorLength, minAgeRestriction, canBeDownloaded, publicationDate, middleWare, videoController.updateVideo);

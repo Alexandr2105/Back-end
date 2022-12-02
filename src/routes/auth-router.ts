@@ -104,77 +104,91 @@ const checkNewPassword = body("newPassword").trim().notEmpty().withMessage("Не
     max: 20
 });
 
-authRouter.post("/login", checkCountAttempts, checkLoginOrEmail, checkPassword, middleWare, async (req: Request, res: Response) => {
-    const checkResult: any = await usersService.checkUserOrLogin(req.body.loginOrEmail, req.body.password);
-    const deviceId = devicesService.createDeviceId();
-    if (checkResult) {
-        const token = jwtService.creatJWT(checkResult);
-        const refreshToken = jwtService.creatRefreshJWT(checkResult, deviceId);
+class AuthController {
+    async loginUser(req: Request, res: Response) {
+        const checkResult: any = await usersService.checkUserOrLogin(req.body.loginOrEmail, req.body.password);
+        const deviceId = devicesService.createDeviceId();
+        if (checkResult) {
+            const token = jwtService.creatJWT(checkResult);
+            const refreshToken = jwtService.creatRefreshJWT(checkResult, deviceId);
+            const infoRefreshToken: any = jwtService.getUserByRefreshToken(refreshToken);
+            await devicesService.saveInfoAboutDevicesUser(infoRefreshToken.iat, infoRefreshToken.exp, deviceId, infoRefreshToken.userId, req.ip, req.headers["user-agent"]);
+            await devicesService.delOldRefreshTokenData(+new Date());
+            res.cookie("refreshToken", refreshToken, {httpOnly: true, secure: true});
+            res.send({accessToken: token});
+        } else {
+            res.sendStatus(401);
+        }
+    };
+
+    async getInfoAboutMe(req: Request, res: Response) {
+        const information = {
+            email: req.user?.email,
+            login: req.user?.login,
+            userId: req.user?.id
+        }
+        res.send(information);
+    };
+
+    async registrationConfirmation(req: Request, res: Response) {
+        const userByCode = await usersRepository.getUserByCode(req.body.code);
+        await usersRepository.updateEmailConfirmation(userByCode!.userId);
+        res.sendStatus(204);
+    };
+
+    async registration(req: Request, res: Response) {
+        const newUser = await usersService.creatNewUsers(req.body.login, req.body.email, req.body.password);
+        if (newUser) await authService.confirmation(newUser.id, req.body.login, req.body.email);
+        res.sendStatus(204);
+    };
+
+    async registrationEmailResending(req: Request, res: Response) {
+        const newCode: any = await authService.getNewConfirmationCode(req.body.email);
+        const result = await emailManager.sendEmailAndConfirm(req.body.email, newCode);
+        if (result) res.sendStatus(204);
+    };
+
+    async createRefreshToken(req: Request, res: Response) {
+        const userId: any = await jwtService.getUserByRefreshToken(req.cookies.refreshToken);
+        const user: any = await usersRepository.getUserId(userId.userId.toString());
+        const deviceId: any = await jwtService.getDeviceIdRefreshToken(req.cookies.refreshToken);
+        const token = jwtService.creatJWT(user);
+        const refreshToken = jwtService.creatRefreshJWT(user, deviceId);
         const infoRefreshToken: any = jwtService.getUserByRefreshToken(refreshToken);
-        await devicesService.saveInfoAboutDevicesUser(infoRefreshToken.iat, infoRefreshToken.exp, deviceId, infoRefreshToken.userId, req.ip, req.headers["user-agent"]);
-        await devicesService.delOldRefreshTokenData(+new Date());
+        await devicesService.updateInfoAboutDeviceUser(infoRefreshToken.iat, infoRefreshToken.exp, deviceId.toString(), req.ip, req.headers["user-agent"], userId.userId);
         res.cookie("refreshToken", refreshToken, {httpOnly: true, secure: true});
         res.send({accessToken: token});
-    } else {
-        res.sendStatus(401);
-    }
-});
+    };
 
-authRouter.get("/me", checkToken, async (req: Request, res: Response) => {
-    const information = {
-        email: req.user?.email,
-        login: req.user?.login,
-        userId: req.user?.id
-    }
-    res.send(information);
-});
+    async logout(req: Request, res: Response) {
+        const user: any = await jwtService.getUserByRefreshToken(req.cookies.refreshToken);
+        const result = await devicesService.delDevice(user.deviceId);
+        if (result) res.sendStatus(204);
+    };
 
-authRouter.post("/registration-confirmation", checkCountAttempts, checkCode, middleWare, async (req: Request, res: Response) => {
-    const userByCode = await usersRepository.getUserByCode(req.body.code);
-    await usersRepository.updateEmailConfirmation(userByCode!.userId);
-    res.sendStatus(204);
-});
+    async passwordRecovery(req: Request, res: Response) {
+        const recoveryCode: any = await authService.getNewConfirmationCode(req.body.email);
+        await emailManager.sendEmailPasswordRecovery(req.body.email, recoveryCode);
+        res.sendStatus(204);
+    };
 
-authRouter.post("/registration", checkCountAttempts, loginIsOriginal, emailIsOriginal, checkLoginForAuthLength, checkPasswordForAuthLength, checkEmail, middleWare, async (req: Request, res: Response) => {
-    const newUser = await usersService.creatNewUsers(req.body.login, req.body.email, req.body.password);
-    if (newUser) await authService.confirmation(newUser.id, req.body.login, req.body.email);
-    res.sendStatus(204);
-});
+    async createNewPassword(req: Request, res: Response) {
+        const userByCode = await usersRepository.getUserByCode(req.body.recoveryCode);
+        await usersRepository.updateEmailConfirmation(userByCode!.userId);
+        const user = await usersRepository.getUserByCode(req.body.recoveryCode);
+        const newPass = await usersService.createNewPassword(req.body.newPassword, user!.userId);
+        if (newPass) res.sendStatus(204);
+    };
+}
 
-authRouter.post("/registration-email-resending", checkCountAttempts, checkEmail, checkEmailConfirmation, emailDontExist, middleWare, async (req: Request, res: Response) => {
-    const newCode: any = await authService.getNewConfirmationCode(req.body.email);
-    const result = await emailManager.sendEmailAndConfirm(req.body.email, newCode);
-    if (result) res.sendStatus(204);
-});
+const authController = new AuthController();
 
-authRouter.post("/refresh-token", checkCountAttempts, checkRefreshToken, async (req: Request, res: Response) => {
-    const userId: any = await jwtService.getUserByRefreshToken(req.cookies.refreshToken);
-    const user: any = await usersRepository.getUserId(userId.userId.toString());
-    const deviceId: any = await jwtService.getDeviceIdRefreshToken(req.cookies.refreshToken);
-    const token = jwtService.creatJWT(user);
-    const refreshToken = jwtService.creatRefreshJWT(user, deviceId);
-    const infoRefreshToken: any = jwtService.getUserByRefreshToken(refreshToken);
-    await devicesService.updateInfoAboutDeviceUser(infoRefreshToken.iat, infoRefreshToken.exp, deviceId.toString(), req.ip, req.headers["user-agent"], userId.userId);
-    res.cookie("refreshToken", refreshToken, {httpOnly: true, secure: true});
-    res.send({accessToken: token});
-});
-
-authRouter.post("/logout", checkRefreshToken, async (req: Request, res: Response) => {
-    const user: any = await jwtService.getUserByRefreshToken(req.cookies.refreshToken);
-    const result = await devicesService.delDevice(user.deviceId);
-    if (result) res.sendStatus(204);
-});
-
-authRouter.post("/password-recovery", checkCountAttempts, checkEmail, middleWare, async (req: Request, res: Response) => {
-    const recoveryCode: any = await authService.getNewConfirmationCode(req.body.email);
-    await emailManager.sendEmailPasswordRecovery(req.body.email, recoveryCode);
-    res.sendStatus(204);
-});
-
-authRouter.post("/new-password", checkCountAttempts, checkNewPassword, checkRecoveryCode, middleWare, async (req: Request, res: Response) => {
-    const userByCode = await usersRepository.getUserByCode(req.body.recoveryCode);
-    await usersRepository.updateEmailConfirmation(userByCode!.userId);
-    const user = await usersRepository.getUserByCode(req.body.recoveryCode);
-    const newPass = await usersService.createNewPassword(req.body.newPassword, user!.userId);
-    if (newPass) res.sendStatus(204);
-});
+authRouter.post("/login", checkCountAttempts, checkLoginOrEmail, checkPassword, middleWare, authController.loginUser);
+authRouter.get("/me", checkToken, authController.getInfoAboutMe);
+authRouter.post("/registration-confirmation", checkCountAttempts, checkCode, middleWare, authController.registrationConfirmation);
+authRouter.post("/registration", checkCountAttempts, loginIsOriginal, emailIsOriginal, checkLoginForAuthLength, checkPasswordForAuthLength, checkEmail, middleWare, authController.registration);
+authRouter.post("/registration-email-resending", checkCountAttempts, checkEmail, checkEmailConfirmation, emailDontExist, middleWare, authController.registrationEmailResending);
+authRouter.post("/refresh-token", checkCountAttempts, checkRefreshToken, authController.createRefreshToken);
+authRouter.post("/logout", checkRefreshToken, authController.logout);
+authRouter.post("/password-recovery", checkCountAttempts, checkEmail, middleWare, authController.passwordRecovery);
+authRouter.post("/new-password", checkCountAttempts, checkNewPassword, checkRecoveryCode, middleWare, authController.createNewPassword);

@@ -29,47 +29,56 @@ const checkLikeStatus = body("likeStatus").custom(status => {
     }
 });
 
-commentsRouter.get("/:id", async (req: Request, res: Response) => {
-    let comment;
-    if (req.headers.authorization) {
-        const userId: any = jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
-        comment = await commentsService.getLikesInfo(req.params.id, userId.toString());
-    } else {
-        comment = await commentsService.getLikesInfo(req.params.id, "null");
-    }
-    if (comment) {
-        res.send(comment);
-    } else {
-        res.sendStatus(404);
-    }
-});
+class CommentsController {
+    async getComment(req: Request, res: Response) {
+        let comment;
+        if (req.headers.authorization) {
+            const userId: any = jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
+            comment = await commentsService.getLikesInfo(req.params.id, userId.toString());
+        } else {
+            comment = await commentsService.getLikesInfo(req.params.id, "null");
+        }
+        if (comment) {
+            res.send(comment);
+        } else {
+            res.sendStatus(404);
+        }
+    };
 
-commentsRouter.delete("/:commentId", checkToken, checkUser, async (req: Request, res: Response) => {
-    const delComment = await commentsService.deleteCommentById(req.params.commentId);
-    if (!delComment) {
-        res.sendStatus(404);
-    } else {
-        res.sendStatus(204);
-    }
-});
+    async deleteComment(req: Request, res: Response) {
+        const delComment = await commentsService.deleteCommentById(req.params.commentId);
+        if (!delComment) {
+            res.sendStatus(404);
+        } else {
+            res.sendStatus(204);
+        }
+    };
 
-commentsRouter.put("/:commentId", checkToken, checkUser, contentLength, middleWare, async (req: Request, res: Response) => {
-    const putComment = await commentsService.updateCommentById(req.params.commentId, req.body.content);
-    if (!putComment) {
-        res.sendStatus(404);
-    } else {
-        res.sendStatus(204);
-    }
-});
+    async updateComment(req: Request, res: Response) {
+        const putComment = await commentsService.updateCommentById(req.params.commentId, req.body.content);
+        if (!putComment) {
+            res.sendStatus(404);
+        } else {
+            res.sendStatus(204);
+        }
+    };
 
-commentsRouter.put("/:commentId/like-status", checkToken, checkLikeStatus, middleWare, async (req: Request, res: Response) => {
-    const comment = await commentsRepository.getCommentById(req.params.commentId);
-    if (!comment) {
-        res.sendStatus(404);
-        return;
-    }
-    const userId: any = await jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
-    const user: any = await usersRepository.getUserId(userId!.toString());
-    const lakeStatus = await commentsService.createLikeStatus(req.params.commentId, userId.toString(), req.body.likeStatus, user.login);
-    if (lakeStatus) res.sendStatus(204);
-});
+    async updateLikeStatusForComment(req: Request, res: Response) {
+        const comment = await commentsRepository.getCommentById(req.params.commentId);
+        if (!comment) {
+            res.sendStatus(404);
+            return;
+        }
+        const userId: any = await jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
+        const user: any = await usersRepository.getUserId(userId!.toString());
+        const lakeStatus = await commentsService.createLikeStatus(req.params.commentId, userId.toString(), req.body.likeStatus, user.login);
+        if (lakeStatus) res.sendStatus(204);
+    };
+}
+
+const commentController = new CommentsController();
+
+commentsRouter.get("/:id", commentController.getComment);
+commentsRouter.delete("/:commentId", checkToken, checkUser, commentController.deleteComment);
+commentsRouter.put("/:commentId", checkToken, checkUser, contentLength, middleWare, commentController.updateComment);
+commentsRouter.put("/:commentId/like-status", checkToken, checkLikeStatus, middleWare, commentController.updateLikeStatusForComment);

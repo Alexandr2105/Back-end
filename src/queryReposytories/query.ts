@@ -4,7 +4,7 @@ import {pagesCountHelper, skipHelper} from "../helper/queryCount";
 import {commentsRepository} from "../repositories/comments-repository";
 import {postsRepository} from "../repositories/posts-repository";
 
-export const queryRepository = {
+class QueryRepository {
     async getQueryBlogs(query: any): Promise<BlogsQueryType> {
         const totalCount = await blogsCollection.countDocuments({
             name: {
@@ -33,7 +33,7 @@ export const queryRepository = {
                 }
             })
         }
-    },
+    };
 
     async getQueryPosts(query: any, userId: string): Promise<PostQueryType> {
         const sortPostsArray = await postsCollection.find({}).sort({[query.sortBy]: query.sortDirection}).skip(skipHelper(query.pageNumber, query.pageSize)).limit(+query.pageSize);
@@ -75,7 +75,7 @@ export const queryRepository = {
                 })
             )
         }
-    },
+    };
 
     async getQueryPostsBlogsId(query: any, blogId: string, userId: string): Promise<PostQueryType> {
         const totalCount = await postsCollection.countDocuments({blogId: blogId});
@@ -118,7 +118,7 @@ export const queryRepository = {
                 })
             )
         }
-    },
+    };
 
     async getQueryUsers(query: any): Promise<UsersType> {
         const totalCount = await usersCollection.countDocuments({
@@ -151,7 +151,7 @@ export const queryRepository = {
                 }
             })
         }
-    },
+    };
 
     async getQueryCommentsByPostId(query: any, postId: string): Promise<CommentsType | boolean> {
         const totalCount = await commentsCollection.countDocuments({idPost: postId});
@@ -184,5 +184,7 @@ export const queryRepository = {
                 })
             )
         }
-    },
+    };
 }
+
+export const queryRepository = new QueryRepository();

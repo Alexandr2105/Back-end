@@ -25,67 +25,79 @@ const trueId = async (req: Request, res: Response, next: NextFunction) => {
 };
 const description = body("description").trim().notEmpty().isLength({max: 500}).withMessage("Не верно заполнено поле");
 
-blogsRouter.get("/", async (req: Request, res: Response) => {
-    const query = queryCheckHelper(req.query);
-    const blogs = await queryRepository.getQueryBlogs(query);
-    res.send(blogs);
-});
+class BlogsController {
+    async getBlogs(req: Request, res: Response) {
+        const query = queryCheckHelper(req.query);
+        const blogs = await queryRepository.getQueryBlogs(query);
+        res.send(blogs);
+    };
 
-blogsRouter.get("/:id", async (req: Request, res: Response) => {
-    const blogsId = await blogsService.getBlogsId(req.params.id);
-    if (blogsId) {
-        res.send(blogsId);
-    } else {
-        res.sendStatus(404);
-    }
-});
+    async getBlog(req: Request, res: Response) {
+        const blogsId = await blogsService.getBlogsId(req.params.id);
+        if (blogsId) {
+            res.send(blogsId);
+        } else {
+            res.sendStatus(404);
+        }
+    };
 
-blogsRouter.delete("/:id", aut, async (req: Request, res: Response) => {
-    const blogsDelId = await blogsService.deleteBlogsId(req.params.id);
-    if (blogsDelId) {
-        res.sendStatus(204);
-    } else {
-        res.sendStatus(404);
-    }
-});
+    async deleteBlog(req: Request, res: Response) {
+        const blogsDelId = await blogsService.deleteBlogsId(req.params.id);
+        if (blogsDelId) {
+            res.sendStatus(204);
+        } else {
+            res.sendStatus(404);
+        }
+    };
 
-blogsRouter.post("/", aut, nameLength, urlLength, description, middleWare, async (req: Request, res: Response) => {
-    const createBlog = await blogsService.createBlog(req.body.name, req.body.websiteUrl, req.body.description);
-    const newBlog = await blogsService.getBlogsId(createBlog.id);
-    res.status(201).send(newBlog);
-});
+    async createBlog(req: Request, res: Response) {
+        const createBlog = await blogsService.createBlog(req.body.name, req.body.websiteUrl, req.body.description);
+        const newBlog = await blogsService.getBlogsId(createBlog.id);
+        res.status(201).send(newBlog);
+    };
 
-blogsRouter.put("/:id", aut, nameLength, urlLength, middleWare, async (req: Request, res: Response) => {
-    const updateBlog = await blogsService.updateBlog(req.params.id, req.body.name, req.body.websiteUrl);
-    if (updateBlog) {
-        res.sendStatus(204);
-    } else {
-        res.sendStatus(404);
-    }
-});
+    async updateBlog(req: Request, res: Response) {
+        const updateBlog = await blogsService.updateBlog(req.params.id, req.body.name, req.body.websiteUrl);
+        if (updateBlog) {
+            res.sendStatus(204);
+        } else {
+            res.sendStatus(404);
+        }
+    };
 
-blogsRouter.get("/:blogId/posts", async (req: Request, res: Response) => {
-    let postsBlogId;
-    const query = queryCheckHelper(req.query);
-    if (req.headers.authorization) {
-        const userId: any = jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
-        postsBlogId = await queryRepository.getQueryPostsBlogsId(query, req.params.blogId, userId);
-    } else {
-        postsBlogId = await queryRepository.getQueryPostsBlogsId(query, req.params.blogId,"null");
-    }
-    if (postsBlogId.items.length !== 0) {
-        res.send(postsBlogId);
-    } else {
-        res.sendStatus(404);
-    }
-});
+    async getPostsForBlog(req: Request, res: Response) {
+        let postsBlogId;
+        const query = queryCheckHelper(req.query);
+        if (req.headers.authorization) {
+            const userId: any = jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
+            postsBlogId = await queryRepository.getQueryPostsBlogsId(query, req.params.blogId, userId);
+        } else {
+            postsBlogId = await queryRepository.getQueryPostsBlogsId(query, req.params.blogId, "null");
+        }
+        if (postsBlogId.items.length !== 0) {
+            res.send(postsBlogId);
+        } else {
+            res.sendStatus(404);
+        }
+    };
 
-blogsRouter.post("/:blogId/posts", aut, titleLength, shortDescriptionLength, contentLength, trueId, middleWare, async (req: Request, res: Response) => {
-    const newPostForBlogId = await postsService.createPost(req.body.title, req.body.shortDescription, req.body.content, req.params.blogId);
-    if (newPostForBlogId) {
-        const newPost = await postsService.getPostId(newPostForBlogId.id, "null");
-        res.status(201).send(newPost);
-    } else {
-        res.sendStatus(404);
-    }
-});
+    async createPostsForBlog(req: Request, res: Response) {
+        const newPostForBlogId = await postsService.createPost(req.body.title, req.body.shortDescription, req.body.content, req.params.blogId);
+        if (newPostForBlogId) {
+            const newPost = await postsService.getPostId(newPostForBlogId.id, "null");
+            res.status(201).send(newPost);
+        } else {
+            res.sendStatus(404);
+        }
+    };
+}
+
+const blogsController = new BlogsController();
+
+blogsRouter.get("/", blogsController.getBlogs);
+blogsRouter.get("/:id", blogsController.getBlog);
+blogsRouter.delete("/:id", aut, blogsController.deleteBlog);
+blogsRouter.post("/", aut, nameLength, urlLength, description, middleWare, blogsController.getBlog);
+blogsRouter.put("/:id", aut, nameLength, urlLength, middleWare, blogsController.updateBlog);
+blogsRouter.get("/:blogId/posts", blogsController.getPostsForBlog);
+blogsRouter.post("/:blogId/posts", aut, titleLength, shortDescriptionLength, contentLength, trueId, middleWare, blogsController.createPostsForBlog);
