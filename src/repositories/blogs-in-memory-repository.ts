@@ -9,7 +9,7 @@ class BlogsType {
     }
 }
 
-class BlogsInMemoryRepository {
+export class BlogsInMemoryRepository {
     blogs = [
         new BlogsType("1", "Bob", "qwerasdfere eadsf", "https://www.youtube.com", new Date().toISOString()),
         new BlogsType("2", "Alex", "qwerasdfere eadsf", "https://learn.javascript.ru", new Date().toISOString()),
@@ -53,5 +53,3 @@ class BlogsInMemoryRepository {
         return false;
     };
 }
-
-export const blogsInMemoryRepository = new BlogsInMemoryRepository();

@@ -28,8 +28,8 @@ class VideosController {
     private videosService: VideosService;
 
     constructor() {
-        this.videosService = new VideosService;
-    }
+        this.videosService = new VideosService();
+    };
 
     getVideos(req: Request, res: Response) {
         const videos = this.videosService.getAllVideo();

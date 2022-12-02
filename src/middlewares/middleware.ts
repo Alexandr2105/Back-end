@@ -1,11 +1,19 @@
 import {NextFunction, Request, Response} from "express";
 import {validationResult} from "express-validator";
-import {jwtService} from "../application/jwt-service";
-import {usersService} from "../domain/users-service";
+import {JwtService} from "../application/jwt-service";
+import {UsersService} from "../domain/users-service";
 import {usersPassword} from "../auth-users/usersPasswords";
 import {refreshTokenDataCollection} from "../db/db";
 
-class MiddlewareController {
+export class MiddlewareController {
+    private usersService: UsersService;
+    private jwtService: JwtService;
+
+    constructor() {
+        this.usersService = new UsersService();
+        this.jwtService = new JwtService();
+    };
+
     middleWare(req: Request, res: Response, next: NextFunction) {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -25,9 +33,9 @@ class MiddlewareController {
             res.sendStatus(401);
         } else {
             const token = req.headers.authorization!.split(" ")[1];
-            const userId = await jwtService.getUserIdByToken(token);
+            const userId = await this.jwtService.getUserIdByToken(token);
             if (userId) {
-                req.user = await usersService.getUserById(userId.toString());
+                req.user = await this.usersService.getUserById(userId.toString());
                 if (req.user !== null) {
                     next();
                 } else {
@@ -45,7 +53,7 @@ class MiddlewareController {
             res.sendStatus(401);
             return;
         }
-        const user: any = await jwtService.getUserByRefreshToken(refreshToken);
+        const user: any = await this.jwtService.getUserByRefreshToken(refreshToken);
         if (!user) {
             res.sendStatus(401);
             return;
@@ -68,12 +76,10 @@ class MiddlewareController {
     };
 }
 
-const middleWareController = new MiddlewareController();
+export const middleWare = new MiddlewareController().middleWare;
 
-export const middleWare = middleWareController.middleWare;
+export const checkToken = new MiddlewareController().checkToken;
 
-export const checkToken = middleWareController.checkToken;
+export const checkRefreshToken = new MiddlewareController().checkRefreshToken;
 
-export const checkRefreshToken = middleWareController.checkRefreshToken;
-
-export const aut = middleWareController.aut;
+export const aut = new MiddlewareController().aut;

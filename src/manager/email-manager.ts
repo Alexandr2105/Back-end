@@ -1,13 +1,17 @@
-import {emailAdapter} from "../adapters/email-adapter";
+import {EmailAdapter} from "../adapters/email-adapter";
 
-class EmailManager {
+export class EmailManager {
+    private emailAdapter: EmailAdapter;
+
+    constructor() {
+        this.emailAdapter = new EmailAdapter();
+    };
+
     async sendEmailAndConfirm(email: string, confirm: string) {
-        return await emailAdapter.sendEmailRegistration(email, confirm);
+        return await this.emailAdapter.sendEmailRegistration(email, confirm);
     };
 
     async sendEmailPasswordRecovery(email: string, confirm: string) {
-        return await emailAdapter.sendEmailPasswordRecovery(email, confirm);
+        return await this.emailAdapter.sendEmailPasswordRecovery(email, confirm);
     };
 }
-
-export const emailManager = new EmailManager();

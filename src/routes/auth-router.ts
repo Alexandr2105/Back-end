@@ -1,13 +1,13 @@
 import {Router, Request, Response, NextFunction} from "express";
-import {usersService} from "../domain/users-service";
-import {jwtService} from "../application/jwt-service";
+import {UsersService} from "../domain/users-service";
+import {JwtService} from "../application/jwt-service";
 import {body} from "express-validator";
 import {checkRefreshToken, checkToken, middleWare} from "../middlewares/middleware";
-import {authService} from "../domain/auth-service";
-import {usersRepository} from "../repositories/users-repository";
-import {emailManager} from "../manager/email-manager";
+import {AuthService} from "../domain/auth-service";
+import {UsersRepository} from "../repositories/users-repository";
+import {EmailManager} from "../manager/email-manager";
 import {countAttemptCollection, registrationUsersCollection, usersCollection} from "../db/db";
-import {devicesService} from "../domain/devices-service";
+import {DevicesService} from "../domain/devices-service";
 
 export const authRouter = Router();
 
@@ -25,31 +25,31 @@ const checkEmailConfirmation = body("email").isEmail().custom(async (email) => {
     return true;
 });
 const loginIsOriginal = body("login").custom(async (login) => {
-    const loginTrue = await usersRepository.findLoginOrEmail(login);
+    const loginTrue = await new UsersRepository().findLoginOrEmail(login);
     if (loginTrue !== null) {
         throw new Error("Такое имя уже существует");
     }
     return true;
 });
 const emailIsOriginal = body("email").custom(async (email) => {
-    const emailTrue = await usersRepository.findLoginOrEmail(email);
+    const emailTrue = await new UsersRepository().findLoginOrEmail(email);
     if (emailTrue !== null) {
         throw new Error("Такое имя уже существует");
     }
 });
 const emailDontExist = body("email").custom(async (email) => {
-    const emailTrue = await usersRepository.findLoginOrEmail(email);
+    const emailTrue = await new UsersRepository().findLoginOrEmail(email);
     if (emailTrue === null) {
         throw new Error("Такого email не существует");
     }
 });
 const checkCode = body("code").custom(async (code) => {
-    if (!await authService.confirmEmail(code)) {
+    if (!await new AuthService().confirmEmail(code)) {
         throw new Error("Не верный код");
     }
 });
 const checkRecoveryCode = body("recoveryCode").custom(async (code) => {
-    if (!await authService.confirmRecoveryCode(code)) {
+    if (!await new AuthService().confirmRecoveryCode(code)) {
         throw new Error("Не верный код");
     }
 });
@@ -105,15 +105,31 @@ const checkNewPassword = body("newPassword").trim().notEmpty().withMessage("Не
 });
 
 class AuthController {
+    private usersService: UsersService;
+    private authService: AuthService;
+    private usersRepository: UsersRepository;
+    private devicesService: DevicesService;
+    private emailManager: EmailManager;
+    private jwtService: JwtService;
+
+    constructor() {
+        this.usersService = new UsersService();
+        this.authService = new AuthService();
+        this.usersRepository = new UsersRepository();
+        this.devicesService = new DevicesService();
+        this.jwtService = new JwtService();
+        this.emailManager = new EmailManager();
+    }
+
     async loginUser(req: Request, res: Response) {
-        const checkResult: any = await usersService.checkUserOrLogin(req.body.loginOrEmail, req.body.password);
-        const deviceId = devicesService.createDeviceId();
+        const checkResult: any = await this.usersService.checkUserOrLogin(req.body.loginOrEmail, req.body.password);
+        const deviceId = this.devicesService.createDeviceId();
         if (checkResult) {
-            const token = jwtService.creatJWT(checkResult);
-            const refreshToken = jwtService.creatRefreshJWT(checkResult, deviceId);
-            const infoRefreshToken: any = jwtService.getUserByRefreshToken(refreshToken);
-            await devicesService.saveInfoAboutDevicesUser(infoRefreshToken.iat, infoRefreshToken.exp, deviceId, infoRefreshToken.userId, req.ip, req.headers["user-agent"]);
-            await devicesService.delOldRefreshTokenData(+new Date());
+            const token = this.jwtService.creatJWT(checkResult);
+            const refreshToken = this.jwtService.creatRefreshJWT(checkResult, deviceId);
+            const infoRefreshToken: any = this.jwtService.getUserByRefreshToken(refreshToken);
+            await this.devicesService.saveInfoAboutDevicesUser(infoRefreshToken.iat, infoRefreshToken.exp, deviceId, infoRefreshToken.userId, req.ip, req.headers["user-agent"]);
+            await this.devicesService.delOldRefreshTokenData(+new Date());
             res.cookie("refreshToken", refreshToken, {httpOnly: true, secure: true});
             res.send({accessToken: token});
         } else {
@@ -131,64 +147,64 @@ class AuthController {
     };
 
     async registrationConfirmation(req: Request, res: Response) {
-        const userByCode = await usersRepository.getUserByCode(req.body.code);
-        await usersRepository.updateEmailConfirmation(userByCode!.userId);
+        const userByCode = await this.usersRepository.getUserByCode(req.body.code);
+        await this.usersRepository.updateEmailConfirmation(userByCode!.userId);
         res.sendStatus(204);
     };
 
     async registration(req: Request, res: Response) {
-        const newUser = await usersService.creatNewUsers(req.body.login, req.body.email, req.body.password);
-        if (newUser) await authService.confirmation(newUser.id, req.body.login, req.body.email);
+        const newUser = await this.usersService.creatNewUsers(req.body.login, req.body.email, req.body.password);
+        if (newUser) await this.authService.confirmation(newUser.id, req.body.login, req.body.email);
         res.sendStatus(204);
     };
 
     async registrationEmailResending(req: Request, res: Response) {
-        const newCode: any = await authService.getNewConfirmationCode(req.body.email);
-        const result = await emailManager.sendEmailAndConfirm(req.body.email, newCode);
+        const newCode: any = await this.authService.getNewConfirmationCode(req.body.email);
+        const result = await this.emailManager.sendEmailAndConfirm(req.body.email, newCode);
         if (result) res.sendStatus(204);
     };
 
     async createRefreshToken(req: Request, res: Response) {
-        const userId: any = await jwtService.getUserByRefreshToken(req.cookies.refreshToken);
-        const user: any = await usersRepository.getUserId(userId.userId.toString());
-        const deviceId: any = await jwtService.getDeviceIdRefreshToken(req.cookies.refreshToken);
-        const token = jwtService.creatJWT(user);
-        const refreshToken = jwtService.creatRefreshJWT(user, deviceId);
-        const infoRefreshToken: any = jwtService.getUserByRefreshToken(refreshToken);
-        await devicesService.updateInfoAboutDeviceUser(infoRefreshToken.iat, infoRefreshToken.exp, deviceId.toString(), req.ip, req.headers["user-agent"], userId.userId);
+        const userId: any = await this.jwtService.getUserByRefreshToken(req.cookies.refreshToken);
+        const user: any = await this.usersRepository.getUserId(userId.userId.toString());
+        const deviceId: any = await this.jwtService.getDeviceIdRefreshToken(req.cookies.refreshToken);
+        const token = this.jwtService.creatJWT(user);
+        const refreshToken = this.jwtService.creatRefreshJWT(user, deviceId);
+        const infoRefreshToken: any = this.jwtService.getUserByRefreshToken(refreshToken);
+        await this.devicesService.updateInfoAboutDeviceUser(infoRefreshToken.iat, infoRefreshToken.exp, deviceId.toString(), req.ip, req.headers["user-agent"], userId.userId);
         res.cookie("refreshToken", refreshToken, {httpOnly: true, secure: true});
         res.send({accessToken: token});
     };
 
     async logout(req: Request, res: Response) {
-        const user: any = await jwtService.getUserByRefreshToken(req.cookies.refreshToken);
-        const result = await devicesService.delDevice(user.deviceId);
+        const user: any = await this.jwtService.getUserByRefreshToken(req.cookies.refreshToken);
+        const result = await this.devicesService.delDevice(user.deviceId);
         if (result) res.sendStatus(204);
     };
 
     async passwordRecovery(req: Request, res: Response) {
-        const recoveryCode: any = await authService.getNewConfirmationCode(req.body.email);
-        await emailManager.sendEmailPasswordRecovery(req.body.email, recoveryCode);
+        const recoveryCode: any = await this.authService.getNewConfirmationCode(req.body.email);
+        await this.emailManager.sendEmailPasswordRecovery(req.body.email, recoveryCode);
         res.sendStatus(204);
     };
 
     async createNewPassword(req: Request, res: Response) {
-        const userByCode = await usersRepository.getUserByCode(req.body.recoveryCode);
-        await usersRepository.updateEmailConfirmation(userByCode!.userId);
-        const user = await usersRepository.getUserByCode(req.body.recoveryCode);
-        const newPass = await usersService.createNewPassword(req.body.newPassword, user!.userId);
+        const userByCode = await this.usersRepository.getUserByCode(req.body.recoveryCode);
+        await this.usersRepository.updateEmailConfirmation(userByCode!.userId);
+        const user = await this.usersRepository.getUserByCode(req.body.recoveryCode);
+        const newPass = await this.usersService.createNewPassword(req.body.newPassword, user!.userId);
         if (newPass) res.sendStatus(204);
     };
 }
 
 const authController = new AuthController();
 
-authRouter.post("/login", checkCountAttempts, checkLoginOrEmail, checkPassword, middleWare, authController.loginUser);
-authRouter.get("/me", checkToken, authController.getInfoAboutMe);
-authRouter.post("/registration-confirmation", checkCountAttempts, checkCode, middleWare, authController.registrationConfirmation);
-authRouter.post("/registration", checkCountAttempts, loginIsOriginal, emailIsOriginal, checkLoginForAuthLength, checkPasswordForAuthLength, checkEmail, middleWare, authController.registration);
-authRouter.post("/registration-email-resending", checkCountAttempts, checkEmail, checkEmailConfirmation, emailDontExist, middleWare, authController.registrationEmailResending);
-authRouter.post("/refresh-token", checkCountAttempts, checkRefreshToken, authController.createRefreshToken);
-authRouter.post("/logout", checkRefreshToken, authController.logout);
-authRouter.post("/password-recovery", checkCountAttempts, checkEmail, middleWare, authController.passwordRecovery);
-authRouter.post("/new-password", checkCountAttempts, checkNewPassword, checkRecoveryCode, middleWare, authController.createNewPassword);
+authRouter.post("/login", checkCountAttempts, checkLoginOrEmail, checkPassword, middleWare, authController.loginUser.bind(authController));
+authRouter.get("/me", checkToken, authController.getInfoAboutMe.bind(authController));
+authRouter.post("/registration-confirmation", checkCountAttempts, checkCode, middleWare, authController.registrationConfirmation.bind(authController));
+authRouter.post("/registration", checkCountAttempts, loginIsOriginal, emailIsOriginal, checkLoginForAuthLength, checkPasswordForAuthLength, checkEmail, middleWare, authController.registration.bind(authController));
+authRouter.post("/registration-email-resending", checkCountAttempts, checkEmail, checkEmailConfirmation, emailDontExist, middleWare, authController.registrationEmailResending.bind(authController));
+authRouter.post("/refresh-token", checkCountAttempts, checkRefreshToken, authController.createRefreshToken.bind(authController));
+authRouter.post("/logout", checkRefreshToken, authController.logout.bind(authController));
+authRouter.post("/password-recovery", checkCountAttempts, checkEmail, middleWare, authController.passwordRecovery.bind(authController));
+authRouter.post("/new-password", checkCountAttempts, checkNewPassword, checkRecoveryCode, middleWare, authController.createNewPassword.bind(authController));

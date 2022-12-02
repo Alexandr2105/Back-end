@@ -1,14 +1,14 @@
 import {Router, Request, Response} from "express";
-import {postsService} from "../domain/posts-service";
+import {PostsService} from "../domain/posts-service";
 import {body} from "express-validator";
 import {aut, checkToken, middleWare} from "../middlewares/middleware";
 import {blogsCollection} from "../db/db";
-import {queryRepository} from "../queryReposytories/query";
+import {QueryRepository} from "../queryReposytories/query";
 import {queryCheckHelper} from "../helper/queryCount";
-import {commentsService} from "../domain/comments-service";
-import {jwtService} from "../application/jwt-service";
-import {postsRepository} from "../repositories/posts-repository";
-import {usersRepository} from "../repositories/users-repository";
+import {CommentsService} from "../domain/comments-service";
+import {JwtService} from "../application/jwt-service";
+import {UsersRepository} from "../repositories/users-repository";
+import {PostsRepository} from "../repositories/posts-repository";
 
 export const postsRouter = Router();
 
@@ -35,14 +35,30 @@ const checkLikeStatus = body("likeStatus").custom(status => {
 });
 
 class PostsController {
+    private postsService: PostsService;
+    private usersRepository: UsersRepository;
+    private postsRepository: PostsRepository;
+    private commentsService: CommentsService;
+    private queryRepository: QueryRepository;
+    private jwtService: JwtService;
+
+    constructor() {
+        this.postsService = new PostsService();
+        this.usersRepository = new UsersRepository();
+        this.postsRepository = new PostsRepository();
+        this.commentsService = new CommentsService();
+        this.queryRepository = new QueryRepository();
+        this.jwtService = new JwtService();
+    };
+
     async getPosts(req: Request, res: Response) {
         let post;
         const query = queryCheckHelper(req.query);
         if (req.headers.authorization) {
-            const userId: any = jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
-            post = await queryRepository.getQueryPosts(query, userId.toString());
+            const userId: any = this.jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
+            post = await this.queryRepository.getQueryPosts(query, userId.toString());
         } else {
-            post = await queryRepository.getQueryPosts(query, "null");
+            post = await this.queryRepository.getQueryPosts(query, "null");
         }
         res.send(post);
     };
@@ -50,10 +66,10 @@ class PostsController {
     async getPost(req: Request, res: Response) {
         let post;
         if (req.headers.authorization) {
-            const userId: any = jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
-            post = await postsService.getPostId(req.params.id, userId.toString());
+            const userId: any = this.jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
+            post = await this.postsService.getPostId(req.params.id, userId.toString());
         } else {
-            post = await postsService.getPostId(req.params.id, "null");
+            post = await this.postsService.getPostId(req.params.id, "null");
         }
         if (post) {
             res.send(post);
@@ -63,7 +79,7 @@ class PostsController {
     };
 
     async deletePost(req: Request, res: Response) {
-        const postId = await postsService.deletePostId(req.params.id);
+        const postId = await this.postsService.deletePostId(req.params.id);
         if (postId) {
             res.sendStatus(204);
         } else {
@@ -72,14 +88,14 @@ class PostsController {
     };
 
     async createPost(req: Request, res: Response) {
-        const createPost = await postsService.createPost(req.body.title, req.body.shortDescription,
+        const createPost = await this.postsService.createPost(req.body.title, req.body.shortDescription,
             req.body.content, req.body.blogId);
-        const newPost = await postsService.getPostId(createPost.id, "null");
+        const newPost = await this.postsService.getPostId(createPost.id, "null");
         res.status(201).send(newPost);
     };
 
     async updatePost(req: Request, res: Response) {
-        const postUpdate = await postsService.updatePostId(req.params.id, req.body.title, req.body.shortDescription,
+        const postUpdate = await this.postsService.updatePostId(req.params.id, req.body.title, req.body.shortDescription,
             req.body.content, req.body.blogId);
         if (postUpdate) {
             res.sendStatus(204);
@@ -90,7 +106,7 @@ class PostsController {
 
     async getCommentsForPost(req: Request, res: Response) {
         const query = queryCheckHelper(req.query);
-        const comments = await queryRepository.getQueryCommentsByPostId(query, req.params.postId);
+        const comments = await this.queryRepository.getQueryCommentsByPostId(query, req.params.postId);
         if (comments) {
             res.send(comments);
         } else {
@@ -99,10 +115,10 @@ class PostsController {
     };
 
     async createCommentsForPost(req: Request, res: Response) {
-        const post: any = await postsService.creatNewCommentByPostId(req.params.postId, req.body.content, req.user!.id, req.user!.login);
-        const userId: any = await jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
+        const post: any = await this.postsService.creatNewCommentByPostId(req.params.postId, req.body.content, req.user!.id, req.user!.login);
+        const userId: any = await this.jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
         if (post) {
-            const newPost = await commentsService.getLikesInfo(post.id, userId.toString());
+            const newPost = await this.commentsService.getLikesInfo(post.id, userId.toString());
             res.status(201).send(newPost);
         } else {
             res.sendStatus(404);
@@ -110,14 +126,14 @@ class PostsController {
     };
 
     async createLikeStatusForPost(req: Request, res: Response) {
-        const postId = await postsRepository.getPostId(req.params.postId);
+        const postId = await this.postsRepository.getPostId(req.params.postId);
         if (!postId) {
             res.sendStatus(404);
             return;
         }
-        const userId = await jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
-        const user: any = await usersRepository.getUserId(userId!.toString());
-        const likeStatus = await postsService.createLikeStatus(req.params.postId, userId!.toString(), req.body.likeStatus, user.login);
+        const userId = await this.jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
+        const user: any = await this.usersRepository.getUserId(userId!.toString());
+        const likeStatus = await this.postsService.createLikeStatus(req.params.postId, userId!.toString(), req.body.likeStatus, user.login);
         if (likeStatus) {
             res.sendStatus(204);
         }
@@ -126,11 +142,11 @@ class PostsController {
 
 const postsController = new PostsController();
 
-postsRouter.get("/", postsController.getPosts);
-postsRouter.get("/:id", postsController.getPost);
-postsRouter.delete("/:id", aut, postsController.deletePost);
-postsRouter.post("/", aut, titleLength, shortDescriptionLength, contentLength, blogIdTrue, middleWare, postsController.createPost);
-postsRouter.put("/:id", aut, titleLength, shortDescriptionLength, contentLength, blogIdTrue, middleWare, postsController.updatePost);
-postsRouter.get("/:postId/comments", postsController.getCommentsForPost);
-postsRouter.post("/:postId/comments", checkToken, contentLengthByPostId, middleWare, postsController.createCommentsForPost);
-postsRouter.put("/:postId/like-status", checkToken, checkLikeStatus, middleWare, postsController.createLikeStatusForPost);
+postsRouter.get("/", postsController.getPosts.bind(postsController));
+postsRouter.get("/:id", postsController.getPost.bind(postsController));
+postsRouter.delete("/:id", aut, postsController.deletePost.bind(postsController));
+postsRouter.post("/", aut, titleLength, shortDescriptionLength, contentLength, blogIdTrue, middleWare, postsController.createPost.bind(postsController));
+postsRouter.put("/:id", aut, titleLength, shortDescriptionLength, contentLength, blogIdTrue, middleWare, postsController.updatePost.bind(postsController));
+postsRouter.get("/:postId/comments", postsController.getCommentsForPost.bind(postsController));
+postsRouter.post("/:postId/comments", checkToken, contentLengthByPostId, middleWare, postsController.createCommentsForPost.bind(postsController));
+postsRouter.put("/:postId/like-status", checkToken, checkLikeStatus, middleWare, postsController.createLikeStatusForPost.bind(postsController));

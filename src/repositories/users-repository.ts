@@ -2,7 +2,7 @@ import {registrationUsersCollection, usersCollection} from "../db/db";
 import {add} from "date-fns";
 import {EmailConfirmationTypeForDB, ItemsUsers} from "../helper/allTypes";
 
-class UsersRepository {
+export class UsersRepository {
     async creatNewUsers(newUser: ItemsUsers): Promise<ItemsUsers> {
         await usersCollection.create(newUser);
         return newUser;
@@ -69,5 +69,3 @@ class UsersRepository {
         return newPass.matchedCount === 1;
     };
 }
-
-export const usersRepository = new UsersRepository();

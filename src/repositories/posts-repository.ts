@@ -1,7 +1,7 @@
 import {likeInfoCollection, postsCollection} from "../db/db";
 import {ItemsPosts, LikeInfoTypeForDB} from "../helper/allTypes";
 
-class PostsRepository {
+export class PostsRepository {
     async getPostId(id: string): Promise<ItemsPosts | null> {
         return postsCollection.findOne({id: id});
     };
@@ -77,5 +77,3 @@ class PostsRepository {
         return newStatusComment.matchedCount === 1;
     };
 }
-
-export const postsRepository = new PostsRepository();

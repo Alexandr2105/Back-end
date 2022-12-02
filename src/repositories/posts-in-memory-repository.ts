@@ -10,7 +10,7 @@ class PostsType {
     }
 }
 
-class PostsInMemoryRepository {
+export class PostsInMemoryRepository {
     posts = [
         new PostsType("1", "qwer", "asdf asf", "qwer", "1", "qwer", new Date().toISOString()),
         new PostsType("2", "asdf", "adf adsf", "asdf", "2", "adf", new Date().toISOString()),
@@ -58,5 +58,3 @@ class PostsInMemoryRepository {
         return newPost;
     };
 }
-
-export const postsInMemoryRepository = new PostsInMemoryRepository();

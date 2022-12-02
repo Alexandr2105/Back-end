@@ -1,24 +1,30 @@
-import {commentsRepository} from "../repositories/comments-repository";
+import {CommentsRepository} from "../repositories/comments-repository";
 import {ItemsComments, LikeInfoTypeForDB} from "../helper/allTypes";
 
-class CommentsService {
+export class CommentsService {
+    private commentsRepository: CommentsRepository;
+
+    constructor() {
+        this.commentsRepository = new CommentsRepository();
+    };
+
     async getCommentById(id: string) {
-        return await commentsRepository.getCommentById(id);
+        return await this.commentsRepository.getCommentById(id);
     };
 
     async deleteCommentById(id: string) {
-        return await commentsRepository.deleteCommentById(id);
+        return await this.commentsRepository.deleteCommentById(id);
     };
 
     async updateCommentById(id: string, content: string) {
-        return await commentsRepository.updateCommentById(id, content);
+        return await this.commentsRepository.updateCommentById(id, content);
     };
 
     async getLikesInfo(idComment: string, userId: string): Promise<boolean | ItemsComments> {
         const comment = await this.getCommentById(idComment);
-        const likeStatus: any = await commentsRepository.getLikesInfo(idComment);
-        const dislikeStatus: any = await commentsRepository.getDislikeInfo(idComment);
-        const myStatus: any = await commentsRepository.getMyStatus(userId, idComment);
+        const likeStatus: any = await this.commentsRepository.getLikesInfo(idComment);
+        const dislikeStatus: any = await this.commentsRepository.getDislikeInfo(idComment);
+        const myStatus: any = await this.commentsRepository.getMyStatus(userId, idComment);
         if (comment) {
             return {
                 id: comment.id,
@@ -38,14 +44,12 @@ class CommentsService {
     };
 
     async createLikeStatus(commentId: string, userId: string, likeStatus: string, login: string) {
-        const checkComment = await commentsRepository.getInfoStatusByComment(commentId, userId);
+        const checkComment = await this.commentsRepository.getInfoStatusByComment(commentId, userId);
         if (checkComment) {
-            return await commentsRepository.updateStatusComment(commentId, userId, likeStatus);
+            return await this.commentsRepository.updateStatusComment(commentId, userId, likeStatus);
         } else {
             const statusComment = new LikeInfoTypeForDB(commentId, userId, login, likeStatus, new Date().toISOString());
-            return await commentsRepository.setLikeStatus(statusComment);
+            return await this.commentsRepository.setLikeStatus(statusComment);
         }
     };
 }
-
-export const commentsService = new CommentsService();

@@ -1,4 +1,3 @@
-import {videosRepository} from "./videos-repository";
 import {
     blogsCollection,
     commentsCollection,
@@ -9,9 +8,8 @@ import {
     usersCollection
 } from "../db/db";
 
-class TestingRepository {
+export class TestingRepository {
     async deleteAllCollection() {
-        videosRepository.videos.length = 0;
         await blogsCollection.deleteMany({});
         await postsCollection.deleteMany({});
         await usersCollection.deleteMany({});
@@ -22,5 +20,3 @@ class TestingRepository {
         await likeInfoCollection.deleteMany({});
     }
 }
-
-export const testingRepository = new TestingRepository();

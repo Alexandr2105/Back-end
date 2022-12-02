@@ -1,15 +1,25 @@
-import {postsRepository} from "../repositories/posts-repository";
-import {commentsRepository} from "../repositories/comments-repository";
-import {blogsService} from "./blogs-service";
+import {PostsRepository} from "../repositories/posts-repository";
+import {CommentsRepository} from "../repositories/comments-repository";
+import {BlogsService} from "./blogs-service";
 import {CommentsTypeForDB, ItemsPosts, LikeInfoTypeForDB} from "../helper/allTypes";
 
-class PostsService {
+export class PostsService {
+    private postsRepository: PostsRepository;
+    private blogsService: BlogsService;
+    private commentsRepository: CommentsRepository;
+
+    constructor() {
+        this.postsRepository = new PostsRepository();
+        this.commentsRepository = new CommentsRepository();
+        this.blogsService = new BlogsService();
+    };
+
     async getPostId(id: string, userId: string) {
-        const post = await postsRepository.getPostId(id);
-        const likesCount = await postsRepository.getLikesInfo(id);
-        const dislikeCount: any = await postsRepository.getDislikeInfo(id);
-        const myStatus: any = await postsRepository.getMyStatus(userId, id);
-        const infoLikes = await postsRepository.getAllInfoLike(id);
+        const post = await this.postsRepository.getPostId(id);
+        const likesCount = await this.postsRepository.getLikesInfo(id);
+        const dislikeCount: any = await this.postsRepository.getDislikeInfo(id);
+        const myStatus: any = await this.postsRepository.getMyStatus(userId, id);
+        const infoLikes = await this.postsRepository.getAllInfoLike(id);
         if (post) {
             return {
                 id: post.id,
@@ -39,38 +49,36 @@ class PostsService {
     };
 
     async deletePostId(id: string): Promise<boolean> {
-        return await postsRepository.deletePostId(id);
+        return await this.postsRepository.deletePostId(id);
     };
 
     async updatePostId(id: string, title: string, shortDescription: string, content: string, blogId: string): Promise<boolean> {
-        return await postsRepository.updatePostId(id, title, shortDescription, content, blogId);
+        return await this.postsRepository.updatePostId(id, title, shortDescription, content, blogId);
     };
 
     async createPost(title: string, shortDescription: string, content: string, blogId: string): Promise<ItemsPosts> {
-        const post: any = await blogsService.getBlogsId(blogId);
+        const post: any = await this.blogsService.getBlogsId(blogId);
         const newPost = new ItemsPosts(+new Date() + "", title, shortDescription, content, blogId, post!.name, new Date().toISOString());
-        return postsRepository.createPost(newPost);
+        return this.postsRepository.createPost(newPost);
     };
 
     async creatNewCommentByPostId(postId: string, content: string, userId: string, userLogin: string): Promise<CommentsTypeForDB | boolean> {
-        const idPost = await postsRepository.getPostId(postId);
+        const idPost = await this.postsRepository.getPostId(postId);
         if (idPost) {
             const newComment = new CommentsTypeForDB(+new Date() + "", postId, content, userId, userLogin, new Date().toISOString());
-            return await commentsRepository.createComment(newComment);
+            return await this.commentsRepository.createComment(newComment);
         } else {
             return false;
         }
     };
 
     async createLikeStatus(postId: string, userId: string, likeStatus: string, login: string): Promise<boolean> {
-        const checkPost = await postsRepository.getInfoStatusByPost(postId, userId);
+        const checkPost = await this.postsRepository.getInfoStatusByPost(postId, userId);
         if (checkPost) {
-            return await postsRepository.updateStatusPost(postId, userId, likeStatus);
+            return await this.postsRepository.updateStatusPost(postId, userId, likeStatus);
         } else {
             const newLikeStatusForPost = new LikeInfoTypeForDB(postId, userId, login, likeStatus, new Date().toISOString());
-            return await postsRepository.createLikeStatus(newLikeStatusForPost);
+            return await this.postsRepository.createLikeStatus(newLikeStatusForPost);
         }
     };
 }
-
-export const postsService = new PostsService();

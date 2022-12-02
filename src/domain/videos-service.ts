@@ -10,7 +10,7 @@ export class VideosService {
 
     constructor() {
         this.videosRepository = new VideosRepository();
-    }
+    };
 
     getAllVideo() {
         return this.videosRepository.getAllVideo();

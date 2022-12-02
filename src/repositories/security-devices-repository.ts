@@ -1,7 +1,7 @@
 import {refreshTokenDataCollection} from "../db/db";
 import {RefreshTokenDataTypeForDB} from "../helper/allTypes";
 
-class SecurityDevicesRepository {
+export class SecurityDevicesRepository {
     async saveInfoAboutRefreshToken(infoRefreshToken: RefreshTokenDataTypeForDB) {
         await refreshTokenDataCollection.create(infoRefreshToken);
     };
@@ -43,5 +43,3 @@ class SecurityDevicesRepository {
         })
     };
 }
-
-export const securityDevicesRepository = new SecurityDevicesRepository();

@@ -1,10 +1,18 @@
 import {blogsCollection, commentsCollection, likeInfoCollection, postsCollection, usersCollection} from "../db/db";
 import {BlogsQueryType, CommentsType, PostQueryType, UsersType} from "../helper/allTypes";
 import {pagesCountHelper, skipHelper} from "../helper/queryCount";
-import {commentsRepository} from "../repositories/comments-repository";
-import {postsRepository} from "../repositories/posts-repository";
+import {CommentsRepository} from "../repositories/comments-repository";
+import {PostsRepository} from "../repositories/posts-repository";
 
-class QueryRepository {
+export class QueryRepository {
+    private commentsRepository: CommentsRepository;
+    private postsRepository: PostsRepository;
+
+    constructor() {
+        this.commentsRepository = new CommentsRepository();
+        this.postsRepository = new PostsRepository();
+    }
+
     async getQueryBlogs(query: any): Promise<BlogsQueryType> {
         const totalCount = await blogsCollection.countDocuments({
             name: {
@@ -44,9 +52,9 @@ class QueryRepository {
             pageSize: query.pageSize,
             totalCount: totalCount,
             items: await Promise.all(sortPostsArray.map(async a => {
-                    const likeStatus = await postsRepository.getLikesInfo(a.id);
-                    const dislikeStatus = await postsRepository.getDislikeInfo(a.id);
-                    const myStatus = await postsRepository.getMyStatus(userId, a.id);
+                    const likeStatus = await this.postsRepository.getLikesInfo(a.id);
+                    const dislikeStatus = await this.postsRepository.getDislikeInfo(a.id);
+                    const myStatus = await this.postsRepository.getMyStatus(userId, a.id);
                     const sortLikesArray = await likeInfoCollection.find({
                         id: a.id,
                         status: "Like"
@@ -87,9 +95,9 @@ class QueryRepository {
             pageSize: query.pageSize,
             totalCount: totalCount,
             items: await Promise.all(sortPostsId.map(async a => {
-                    const likeInfo = await commentsRepository.getLikesInfo(a.id);
-                    const dislikeInfo = await commentsRepository.getDislikeInfo(a.id);
-                    const myStatus = await commentsRepository.getMyStatus(userId, a.id);
+                    const likeInfo = await this.commentsRepository.getLikesInfo(a.id);
+                    const dislikeInfo = await this.commentsRepository.getDislikeInfo(a.id);
+                    const myStatus = await this.commentsRepository.getMyStatus(userId, a.id);
                     const sortLikesArray = await likeInfoCollection.find({
                         id: a.id,
                         status: "Like"
@@ -166,9 +174,9 @@ class QueryRepository {
             pageSize: query.pageSize,
             totalCount: totalCount,
             items: await Promise.all(sortCommentsByPostId.map(async a => {
-                    const likeInfo = await commentsRepository.getLikesInfo(a.id);
-                    const dislikeInfo = await commentsRepository.getDislikeInfo(a.id);
-                    const myStatus = await commentsRepository.getMyStatus(a.userId, a.id);
+                    const likeInfo = await this.commentsRepository.getLikesInfo(a.id);
+                    const dislikeInfo = await this.commentsRepository.getDislikeInfo(a.id);
+                    const myStatus = await this.commentsRepository.getMyStatus(a.userId, a.id);
                     return {
                         id: a.id,
                         content: a.content,
@@ -186,5 +194,3 @@ class QueryRepository {
         }
     };
 }
-
-export const queryRepository = new QueryRepository();

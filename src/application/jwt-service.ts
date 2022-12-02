@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import {settings} from "../settings";
 import {ItemsUsers} from "../helper/allTypes";
 
-class JwtService {
+export class JwtService {
     creatJWT(user: ItemsUsers) {
         return jwt.sign({userId: user.id}, settings.JWT_SECRET, {expiresIn: settings.TOKEN_LIFE});
     };
@@ -41,5 +41,3 @@ class JwtService {
         }
     };
 }
-
-export const jwtService = new JwtService();

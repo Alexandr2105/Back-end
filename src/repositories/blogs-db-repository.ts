@@ -1,7 +1,7 @@
 import {blogsCollection} from "../db/db";
 import {ItemsBlogs} from "../helper/allTypes";
 
-class BlogsDbRepository {
+export class BlogsDbRepository {
     async getBlogsId(id: string): Promise<ItemsBlogs | boolean> {
         const blog = await blogsCollection.findOne({id: id});
         if (blog) {
@@ -37,5 +37,3 @@ class BlogsDbRepository {
         return updateBlog.matchedCount === 1;
     };
 }
-
-export const blogsRepository = new BlogsDbRepository();
