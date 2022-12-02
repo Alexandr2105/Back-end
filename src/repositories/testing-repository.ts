@@ -1,4 +1,4 @@
-import {videos} from "./video-repository";
+import {videos} from "./videos-repository";
 import {
     blogsCollection,
     commentsCollection,

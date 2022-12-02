@@ -12,38 +12,42 @@ export class VideoType {
     }
 }
 
-export const videos: VideoType[] = [
-    new VideoType(0, "video-00", "Alex", false, null, new Date(), new Date(), ["P144"]),
-    new VideoType(1, "video-01", "Alex", true, null, new Date(), new Date(), ["P720"])
-];
+class VideosRepository {
+    videos = [
+        new VideoType(0, "video-00", "Alex", false, null, new Date(), new Date(), ["P144"]),
+        new VideoType(1, "video-01", "Alex", true, null, new Date(), new Date(), ["P720"])
+    ];
 
-export const videosRepository = {
     getAllVideo() {
-        return videos
-    },
+        return this.videos;
+    };
+
     findVideosId(id: number) {
-        let video = videos.find(v => v.id === id);
+        let video = this.videos.find(v => v.id === id);
         if (video) {
             return video;
         }
-    },
+    };
+
     videoDelete(id: number) {
-        for (let i = 0; i < videos.length; i++) {
-            let video = videos[i]
+        for (let i = 0; i < this.videos.length; i++) {
+            let video = this.videos[i]
             if (video.id === id) {
-                videos.splice(i, 1)
+                this.videos.splice(i, 1)
                 return true;
             }
         }
         return false;
-    },
+    };
+
     createVideo(newVideo: VideoType) {
-        videos.push(newVideo);
+        this.videos.push(newVideo);
         return newVideo;
-    },
+    };
+
     updateVideo(id: number, title: string, author: string, availableResolutions: availableResolutionsType,
                 canBeDownloaded: boolean, minAgeRestriction: number, publicationDate: Date) {
-        let video = videos.find(v => v.id === id);
+        let video = this.videos.find(v => v.id === id);
         if (video) {
             video.title = title;
             video.author = author;
@@ -55,6 +59,7 @@ export const videosRepository = {
         } else {
             return 404;
         }
+    };
+}
 
-    },
-};
+export const videosRepository = new VideosRepository();``

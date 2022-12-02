@@ -1,5 +1,5 @@
 import addDays from 'date-fns/addDays';
-import {availableResolutionsType, videosRepository, VideoType} from "../repositories/video-repository";
+import {availableResolutionsType, videosRepository, VideoType} from "../repositories/videos-repository";
 
 class VideoService {
     getAllVideo() {
