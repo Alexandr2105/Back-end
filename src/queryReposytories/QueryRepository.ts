@@ -5,13 +5,10 @@ import {CommentsRepository} from "../repositories/comments-repository";
 import {PostsRepository} from "../repositories/posts-repository";
 
 export class QueryRepository {
-    private commentsRepository: CommentsRepository;
-    private postsRepository: PostsRepository;
 
-    constructor() {
-        this.commentsRepository = new CommentsRepository();
-        this.postsRepository = new PostsRepository();
-    }
+    constructor(protected commentsRepository: CommentsRepository,
+                protected postsRepository: PostsRepository) {
+    };
 
     async getQueryBlogs(query: any): Promise<BlogsQueryType> {
         const totalCount = await blogsCollection.countDocuments({

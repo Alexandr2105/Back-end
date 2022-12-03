@@ -1,0 +1,33 @@
+import {QueryRepository} from "../queryReposytories/QueryRepository";
+import {UsersService} from "../domain/users-service";
+import {Request, Response} from "express";
+import {queryCheckHelper} from "../helper/queryCount";
+
+export class UsersController {
+
+    constructor(protected usersService: UsersService,
+                protected queryRepository: QueryRepository) {
+    };
+
+    async getUsers(req: Request, res: Response) {
+        const query = queryCheckHelper(req.query);
+        const users = await this.queryRepository.getQueryUsers(query);
+        res.send(users);
+    };
+
+    async createUser(req: Request, res: Response) {
+        const newUser = await this.usersService.creatNewUsers(req.body.login, req.body.email, req.body.password);
+        const newUserId = await this.usersService.getUserById(newUser.id);
+        res.status(201).send(newUserId);
+    };
+
+    async deleteUser(req: Request, res: Response) {
+        const deleteUser = await this.usersService.deleteUser(req.params.id);
+        if (deleteUser) {
+            res.sendStatus(204);
+        } else {
+            res.sendStatus(404);
+        }
+    };
+}
+

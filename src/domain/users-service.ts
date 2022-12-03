@@ -3,10 +3,8 @@ import {ItemsUsers, UserTypeForDB} from "../helper/allTypes";
 import {UsersRepository} from "../repositories/users-repository";
 
 export class UsersService {
-    private usersRepository: UsersRepository;
 
-    constructor() {
-        this.usersRepository = new UsersRepository();
+    constructor(protected usersRepository: UsersRepository) {
     };
 
     async creatNewUsers(login: string, email: string, password: string): Promise<ItemsUsers> {

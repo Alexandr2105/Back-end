@@ -2,10 +2,8 @@ import {BlogsDbRepository} from "../repositories/blogs-db-repository";
 import {ItemsBlogs} from "../helper/allTypes";
 
 export class BlogsService {
-    private blogsRepository: BlogsDbRepository;
 
-    constructor() {
-        this.blogsRepository = new BlogsDbRepository();
+    constructor(protected blogsRepository: BlogsDbRepository) {
     };
 
     async getBlogsId(id: string): Promise<ItemsBlogs | boolean> {

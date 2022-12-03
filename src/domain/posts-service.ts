@@ -4,14 +4,10 @@ import {BlogsService} from "./blogs-service";
 import {CommentsTypeForDB, ItemsPosts, LikeInfoTypeForDB} from "../helper/allTypes";
 
 export class PostsService {
-    private postsRepository: PostsRepository;
-    private blogsService: BlogsService;
-    private commentsRepository: CommentsRepository;
 
-    constructor() {
-        this.postsRepository = new PostsRepository();
-        this.commentsRepository = new CommentsRepository();
-        this.blogsService = new BlogsService();
+    constructor(protected postsRepository: PostsRepository,
+                protected blogsService: BlogsService,
+                protected commentsRepository: CommentsRepository,) {
     };
 
     async getPostId(id: string, userId: string) {

@@ -5,12 +5,9 @@ import {EmailManager} from "../manager/email-manager";
 import {EmailConfirmationTypeForDB} from "../helper/allTypes";
 
 export class AuthService {
-    private usersRepository: UsersRepository;
-    private emailManager: EmailManager;
 
-    constructor() {
-        this.usersRepository = new UsersRepository();
-        this.emailManager = new EmailManager();
+    constructor(protected emailManager: EmailManager,
+                protected usersRepository: UsersRepository) {
     };
 
     async confirmation(id: string, login: string, email: string) {

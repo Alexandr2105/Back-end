@@ -2,10 +2,8 @@ import {CommentsRepository} from "../repositories/comments-repository";
 import {ItemsComments, LikeInfoTypeForDB} from "../helper/allTypes";
 
 export class CommentsService {
-    private commentsRepository: CommentsRepository;
 
-    constructor() {
-        this.commentsRepository = new CommentsRepository();
+    constructor(protected commentsRepository: CommentsRepository) {
     };
 
     async getCommentById(id: string) {

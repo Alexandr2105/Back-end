@@ -1,10 +1,8 @@
-import {Router, Request, Response, NextFunction} from "express";
-import {CommentsService} from "../domain/comments-service";
+import {NextFunction, Request, Response, Router} from "express";
 import {body} from "express-validator";
-import {checkToken, middleWare} from "../middlewares/middleware";
-import {JwtService} from "../application/jwt-service";
+import {checkToken, middleware} from "../middlewares/middleware";
 import {CommentsRepository} from "../repositories/comments-repository";
-import {UsersRepository} from "../repositories/users-repository";
+import {commentController} from "../composition-root";
 
 export const commentsRouter = Router();
 
@@ -29,68 +27,7 @@ const checkLikeStatus = body("likeStatus").custom(status => {
     }
 });
 
-class CommentsController {
-    private commentsService: CommentsService;
-    private commentsRepository: CommentsRepository;
-    private usersRepository: UsersRepository;
-    private jwtService:JwtService;
-
-    constructor() {
-        this.commentsService = new CommentsService();
-        this.commentsRepository = new CommentsRepository();
-        this.usersRepository = new UsersRepository();
-        this.jwtService=new JwtService();
-    };
-
-    async getComment(req: Request, res: Response) {
-        let comment;
-        if (req.headers.authorization) {
-            const userId: any = this.jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
-            comment = await this.commentsService.getLikesInfo(req.params.id, userId.toString());
-        } else {
-            comment = await this.commentsService.getLikesInfo(req.params.id, "null");
-        }
-        if (comment) {
-            res.send(comment);
-        } else {
-            res.sendStatus(404);
-        }
-    };
-
-    async deleteComment(req: Request, res: Response) {
-        const delComment = await this.commentsService.deleteCommentById(req.params.commentId);
-        if (!delComment) {
-            res.sendStatus(404);
-        } else {
-            res.sendStatus(204);
-        }
-    };
-
-    async updateComment(req: Request, res: Response) {
-        const putComment = await this.commentsService.updateCommentById(req.params.commentId, req.body.content);
-        if (!putComment) {
-            res.sendStatus(404);
-        } else {
-            res.sendStatus(204);
-        }
-    };
-
-    async updateLikeStatusForComment(req: Request, res: Response) {
-        const comment = await this.commentsRepository.getCommentById(req.params.commentId);
-        if (!comment) {
-            res.sendStatus(404);
-            return;
-        }
-        const userId: any = await this.jwtService.getUserIdByToken(req.headers.authorization!.split(" ")[1]);
-        const user: any = await this.usersRepository.getUserId(userId!.toString());
-        const lakeStatus = await this.commentsService.createLikeStatus(req.params.commentId, userId.toString(), req.body.likeStatus, user.login);
-        if (lakeStatus) res.sendStatus(204);
-    };
-}
-
-const commentController = new CommentsController();
-
 commentsRouter.get("/:id", commentController.getComment.bind(commentController));
 commentsRouter.delete("/:commentId", checkToken, checkUser, commentController.deleteComment.bind(commentController));
-commentsRouter.put("/:commentId", checkToken, checkUser, contentLength, middleWare, commentController.updateComment.bind(commentController));
-commentsRouter.put("/:commentId/like-status", checkToken, checkLikeStatus, middleWare, commentController.updateLikeStatusForComment.bind(commentController));
+commentsRouter.put("/:commentId", checkToken, checkUser, contentLength, middleware, commentController.updateComment.bind(commentController));
+commentsRouter.put("/:commentId/like-status", checkToken, checkLikeStatus, middleware, commentController.updateLikeStatusForComment.bind(commentController));

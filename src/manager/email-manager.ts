@@ -1,9 +1,8 @@
 import {EmailAdapter} from "../adapters/email-adapter";
 
 export class EmailManager {
-    private emailAdapter: EmailAdapter;
 
-    constructor() {
+    constructor(protected emailAdapter: EmailAdapter) {
         this.emailAdapter = new EmailAdapter();
     };
 

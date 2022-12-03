@@ -6,10 +6,8 @@ import {
 } from "../repositories/videos-repository";
 
 export class VideosService {
-    private videosRepository: VideosRepository;
 
-    constructor() {
-        this.videosRepository = new VideosRepository();
+    constructor(protected videosRepository: VideosRepository) {
     };
 
     getAllVideo() {

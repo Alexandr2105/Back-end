@@ -2,10 +2,8 @@ import {SecurityDevicesRepository} from "../repositories/security-devices-reposi
 import {RefreshTokenDataTypeForDB} from "../helper/allTypes";
 
 export class DevicesService {
-    private securityDevicesRepository: SecurityDevicesRepository;
 
-    constructor() {
-        this.securityDevicesRepository = new SecurityDevicesRepository();
+    constructor(protected securityDevicesRepository: SecurityDevicesRepository) {
     };
 
     createDeviceId() {
