@@ -1,6 +1,8 @@
 import {commentsCollection, likeInfoCollection} from "../db/db";
 import {CommentsTypeForDB, ItemsComments, LikeInfoTypeForDB} from "../helper/allTypes";
+import {injectable} from "inversify";
 
+@injectable()
 export class CommentsRepository {
     async getCommentById(id: string): Promise<ItemsComments | null> {
         return commentsCollection.findOne({id: id});

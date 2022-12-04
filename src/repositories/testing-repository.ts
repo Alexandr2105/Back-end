@@ -7,7 +7,9 @@ import {
     registrationUsersCollection,
     usersCollection
 } from "../db/db";
+import {injectable} from "inversify";
 
+@injectable()
 export class TestingRepository {
     async deleteAllCollection() {
         await blogsCollection.deleteMany({});

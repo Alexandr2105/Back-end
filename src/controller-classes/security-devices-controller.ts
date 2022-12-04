@@ -2,14 +2,14 @@ import {SecurityDevicesRepository} from "../repositories/security-devices-reposi
 import {JwtService} from "../application/jwt-service";
 import {DevicesService} from "../domain/devices-service";
 import {Request, Response} from "express";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class SecurityDevicesController {
-    private securityDevicesRepository: SecurityDevicesRepository;
-    private jwtService: JwtService;
 
-    constructor(protected devicesService: DevicesService) {
-        this.securityDevicesRepository = new SecurityDevicesRepository();
-        this.jwtService = new JwtService();
+    constructor(@inject(DevicesService) protected devicesService: DevicesService,
+                @inject(SecurityDevicesRepository) protected securityDevicesRepository: SecurityDevicesRepository,
+                @inject(JwtService) protected jwtService: JwtService) {
     }
 
     async getDevices(req: Request, res: Response) {

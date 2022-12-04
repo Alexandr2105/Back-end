@@ -5,15 +5,17 @@ import {EmailManager} from "../manager/email-manager";
 import {JwtService} from "../application/jwt-service";
 import {AuthService} from "../domain/auth-service";
 import {Request, Response} from "express";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class AuthController {
 
-    constructor(protected authService: AuthService,
-                protected usersService: UsersService,
-                protected usersRepository: UsersRepository,
-                protected devicesService: DevicesService,
-                protected emailManager: EmailManager,
-                protected jwtService: JwtService) {
+    constructor(@inject(AuthService) protected authService: AuthService,
+                @inject(UsersService) protected usersService: UsersService,
+                @inject(UsersRepository) protected usersRepository: UsersRepository,
+                @inject(DevicesService) protected devicesService: DevicesService,
+                @inject(EmailManager) protected emailManager: EmailManager,
+                @inject(JwtService) protected jwtService: JwtService) {
     };
 
     async loginUser(req: Request, res: Response) {

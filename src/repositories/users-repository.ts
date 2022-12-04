@@ -1,7 +1,9 @@
 import {registrationUsersCollection, usersCollection} from "../db/db";
 import {add} from "date-fns";
 import {EmailConfirmationTypeForDB, ItemsUsers} from "../helper/allTypes";
+import {injectable} from "inversify";
 
+@injectable()
 export class UsersRepository {
     async creatNewUsers(newUser: ItemsUsers): Promise<ItemsUsers> {
         await usersCollection.create(newUser);

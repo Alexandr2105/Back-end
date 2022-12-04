@@ -1,6 +1,8 @@
 import {blogsCollection} from "../db/db";
 import {ItemsBlogs} from "../helper/allTypes";
+import {injectable} from "inversify";
 
+@injectable()
 export class BlogsDbRepository {
     async getBlogsId(id: string): Promise<ItemsBlogs | boolean> {
         const blog = await blogsCollection.findOne({id: id});

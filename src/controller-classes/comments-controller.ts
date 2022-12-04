@@ -3,13 +3,15 @@ import {UsersRepository} from "../repositories/users-repository";
 import {JwtService} from "../application/jwt-service";
 import {CommentsService} from "../domain/comments-service";
 import {Request, Response} from "express";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class CommentsController {
 
-    constructor(protected commentsService: CommentsService,
-                protected commentsRepository: CommentsRepository,
-                protected usersRepository: UsersRepository,
-                protected jwtService: JwtService) {
+    constructor(@inject(CommentsService) protected commentsService: CommentsService,
+                @inject(CommentsRepository) protected commentsRepository: CommentsRepository,
+                @inject(UsersRepository) protected usersRepository: UsersRepository,
+                @inject(JwtService) protected jwtService: JwtService) {
     };
 
     async getComment(req: Request, res: Response) {

@@ -3,11 +3,13 @@ import {add} from "date-fns";
 import {UsersRepository} from "../repositories/users-repository";
 import {EmailManager} from "../manager/email-manager";
 import {EmailConfirmationTypeForDB} from "../helper/allTypes";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class AuthService {
 
-    constructor(protected emailManager: EmailManager,
-                protected usersRepository: UsersRepository) {
+    constructor(@inject(EmailManager) protected emailManager: EmailManager,
+                @inject(UsersRepository) protected usersRepository: UsersRepository) {
     };
 
     async confirmation(id: string, login: string, email: string) {

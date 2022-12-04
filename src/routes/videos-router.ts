@@ -1,7 +1,10 @@
 import {Router} from "express";
 import {middleware} from "../middlewares/middleware";
 import {body} from "express-validator";
-import {videoController} from "../composition-root";
+import {container} from "../composition-root";
+import {VideosController} from "../controller-classes/videos-controller";
+
+const videoController = container.resolve(VideosController);
 
 export const videosRouter = Router();
 

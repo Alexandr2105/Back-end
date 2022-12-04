@@ -2,7 +2,10 @@ import {NextFunction, Request, Response, Router} from "express";
 import {body} from "express-validator";
 import {aut, middleware} from "../middlewares/middleware";
 import {blogsCollection} from "../db/db";
-import {blogsController} from "../composition-root";
+import {container} from "../composition-root";
+import {BlogsController} from "../controller-classes/blogs-controller";
+
+const blogsController = container.resolve(BlogsController);
 
 export const blogsRouter = Router();
 

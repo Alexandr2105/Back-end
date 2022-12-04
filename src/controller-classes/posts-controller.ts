@@ -1,20 +1,22 @@
 import {UsersRepository} from "../repositories/users-repository";
 import {PostsRepository} from "../repositories/posts-repository";
 import {CommentsService} from "../domain/comments-service";
-import {QueryRepository} from "../queryReposytories/QueryRepository";
+import {QueryRepository} from "../queryReposytories/query-Repository";
 import {JwtService} from "../application/jwt-service";
 import {PostsService} from "../domain/posts-service";
 import {Request, Response} from "express";
 import {queryCheckHelper} from "../helper/queryCount";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class PostsController {
 
-    constructor(protected postsService: PostsService,
-                protected usersRepository: UsersRepository,
-                protected postsRepository: PostsRepository,
-                protected commentsService: CommentsService,
-                protected queryRepository: QueryRepository,
-                protected jwtService: JwtService) {
+    constructor(@inject(PostsService) protected postsService: PostsService,
+                @inject(UsersRepository) protected usersRepository: UsersRepository,
+                @inject(PostsRepository) protected postsRepository: PostsRepository,
+                @inject(CommentsService) protected commentsService: CommentsService,
+                @inject(QueryRepository) protected queryRepository: QueryRepository,
+                @inject(JwtService) protected jwtService: JwtService) {
     };
 
     async getPosts(req: Request, res: Response) {

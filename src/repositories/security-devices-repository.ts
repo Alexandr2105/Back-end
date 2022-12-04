@@ -1,6 +1,8 @@
 import {refreshTokenDataCollection} from "../db/db";
 import {RefreshTokenDataTypeForDB} from "../helper/allTypes";
+import {injectable} from "inversify";
 
+@injectable()
 export class SecurityDevicesRepository {
     async saveInfoAboutRefreshToken(infoRefreshToken: RefreshTokenDataTypeForDB) {
         await refreshTokenDataCollection.create(infoRefreshToken);

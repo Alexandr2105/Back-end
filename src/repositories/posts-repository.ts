@@ -1,6 +1,8 @@
 import {likeInfoCollection, postsCollection} from "../db/db";
 import {ItemsPosts, LikeInfoTypeForDB} from "../helper/allTypes";
+import {injectable} from "inversify";
 
+@injectable()
 export class PostsRepository {
     async getPostId(id: string): Promise<ItemsPosts | null> {
         return postsCollection.findOne({id: id});

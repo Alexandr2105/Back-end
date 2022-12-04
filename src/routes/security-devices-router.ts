@@ -1,7 +1,10 @@
 import {NextFunction, Request, Response, Router} from "express";
 import {checkRefreshToken, middleware} from "../middlewares/middleware";
 import {refreshTokenDataCollection} from "../db/db";
-import {securityDevicesController} from "../composition-root";
+import {container} from "../composition-root";
+import {SecurityDevicesController} from "../controller-classes/security-devices-controller";
+
+const securityDevicesController = container.resolve(SecurityDevicesController);
 
 export const securityDevicesRouter = Router();
 

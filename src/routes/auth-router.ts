@@ -4,9 +4,12 @@ import {checkRefreshToken, checkToken, middleware} from "../middlewares/middlewa
 import {AuthService} from "../domain/auth-service";
 import {UsersRepository} from "../repositories/users-repository";
 import {countAttemptCollection, registrationUsersCollection, usersCollection} from "../db/db";
-import {authController} from "../composition-root";
+import {container} from "../composition-root";
 import {EmailManager} from "../manager/email-manager";
 import {EmailAdapter} from "../adapters/email-adapter";
+import {AuthController} from "../controller-classes/auth-controller";
+
+const authController = container.resolve(AuthController);
 
 export const authRouter = Router();
 

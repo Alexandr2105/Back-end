@@ -1,4 +1,7 @@
-import {middlewareController} from "../composition-root";
+import {container} from "../composition-root";
+import {MiddlewareController} from "./middleware-controller";
+
+const middlewareController = container.resolve(MiddlewareController);
 
 export const middleware = middlewareController.middleWare.bind(middlewareController);
 

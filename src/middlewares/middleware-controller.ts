@@ -4,11 +4,13 @@ import {NextFunction, Request, Response} from "express";
 import {validationResult} from "express-validator";
 import {refreshTokenDataCollection} from "../db/db";
 import {usersPassword} from "../auth-users/usersPasswords";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class MiddlewareController {
 
-    constructor(protected jwtService: JwtService,
-                protected usersService: UsersService) {
+    constructor(@inject(JwtService) protected jwtService: JwtService,
+                @inject(UsersService) protected usersService: UsersService) {
     };
 
     middleWare(req: Request, res: Response, next: NextFunction) {

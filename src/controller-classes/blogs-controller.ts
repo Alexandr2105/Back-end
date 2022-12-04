@@ -1,15 +1,17 @@
 import {PostsService} from "../domain/posts-service";
-import {QueryRepository} from "../queryReposytories/QueryRepository";
+import {QueryRepository} from "../queryReposytories/query-Repository";
 import {JwtService} from "../application/jwt-service";
 import {BlogsService} from "../domain/blogs-service";
 import {Request, Response} from "express";
 import {queryCheckHelper} from "../helper/queryCount";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class BlogsController {
-    constructor(protected blogsService: BlogsService,
-                protected postsService: PostsService,
-                protected queryRepository: QueryRepository,
-                protected jwtService: JwtService) {
+    constructor(@inject(BlogsService) protected blogsService: BlogsService,
+                @inject(PostsService) protected postsService: PostsService,
+                @inject(QueryRepository) protected queryRepository: QueryRepository,
+                @inject(JwtService) protected jwtService: JwtService) {
     };
 
     async getBlogs(req: Request, res: Response) {

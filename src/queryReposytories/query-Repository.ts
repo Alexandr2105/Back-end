@@ -3,11 +3,13 @@ import {BlogsQueryType, CommentsType, PostQueryType, UsersType} from "../helper/
 import {pagesCountHelper, skipHelper} from "../helper/queryCount";
 import {CommentsRepository} from "../repositories/comments-repository";
 import {PostsRepository} from "../repositories/posts-repository";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class QueryRepository {
 
-    constructor(protected commentsRepository: CommentsRepository,
-                protected postsRepository: PostsRepository) {
+    constructor(@inject(CommentsRepository) protected commentsRepository: CommentsRepository,
+                @inject(PostsRepository) protected postsRepository: PostsRepository) {
     };
 
     async getQueryBlogs(query: any): Promise<BlogsQueryType> {

@@ -1,7 +1,10 @@
 import {Router} from "express";
 import {body} from "express-validator";
 import {aut, middleware} from "../middlewares/middleware";
-import {usersController} from "../composition-root";
+import {container} from "../composition-root";
+import {UsersController} from "../controller-classes/users-controller";
+
+const usersController = container.resolve(UsersController);
 
 export const usersRouter = Router();
 

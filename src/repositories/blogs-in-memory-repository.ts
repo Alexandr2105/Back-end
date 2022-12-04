@@ -1,3 +1,6 @@
+import {injectable} from "inversify";
+
+@injectable()
 class BlogsType {
 
     constructor(public id: string,

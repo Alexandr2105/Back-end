@@ -1,5 +1,8 @@
+import {injectable} from "inversify";
+
 export type availableResolutionsType = ['P144' | 'P240' | 'P360' | 'P480' | 'P720' | 'P1080' | 'P1440' | 'P2160'];
 
+@injectable()
 export class VideoType {
     constructor(public id: number,
                 public title: string,
@@ -11,7 +14,7 @@ export class VideoType {
                 public availableResolutions: availableResolutionsType) {
     }
 }
-
+@injectable()
 export class VideosRepository {
     videos = [
         new VideoType(0, "video-00", "Alex", false, null, new Date(), new Date(), ["P144"]),

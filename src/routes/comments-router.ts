@@ -2,7 +2,10 @@ import {NextFunction, Request, Response, Router} from "express";
 import {body} from "express-validator";
 import {checkToken, middleware} from "../middlewares/middleware";
 import {CommentsRepository} from "../repositories/comments-repository";
-import {commentController} from "../composition-root";
+import {container} from "../composition-root";
+import {CommentsController} from "../controller-classes/comments-controller";
+
+const commentController = container.resolve(CommentsController);
 
 export const commentsRouter = Router();
 

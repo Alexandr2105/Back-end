@@ -1,9 +1,11 @@
 import {CommentsRepository} from "../repositories/comments-repository";
 import {ItemsComments, LikeInfoTypeForDB} from "../helper/allTypes";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class CommentsService {
 
-    constructor(protected commentsRepository: CommentsRepository) {
+    constructor(@inject(CommentsRepository) protected commentsRepository: CommentsRepository) {
     };
 
     async getCommentById(id: string) {

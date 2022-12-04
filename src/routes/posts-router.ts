@@ -2,7 +2,10 @@ import {Router} from "express";
 import {body} from "express-validator";
 import {aut, checkToken, middleware} from "../middlewares/middleware";
 import {blogsCollection} from "../db/db";
-import {postsController} from "../composition-root";
+import {container} from "../composition-root";
+import {PostsController} from "../controller-classes/posts-controller";
+
+const postsController = container.resolve(PostsController);
 
 export const postsRouter = Router();
 

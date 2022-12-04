@@ -1,12 +1,14 @@
-import {QueryRepository} from "../queryReposytories/QueryRepository";
+import {QueryRepository} from "../queryReposytories/query-Repository";
 import {UsersService} from "../domain/users-service";
 import {Request, Response} from "express";
 import {queryCheckHelper} from "../helper/queryCount";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class UsersController {
 
-    constructor(protected usersService: UsersService,
-                protected queryRepository: QueryRepository) {
+    constructor(@inject(UsersService) protected usersService: UsersService,
+                @inject(QueryRepository) protected queryRepository: QueryRepository) {
     };
 
     async getUsers(req: Request, res: Response) {

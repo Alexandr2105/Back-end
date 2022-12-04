@@ -1,10 +1,12 @@
 import {VideosService} from "../domain/videos-service";
 import {Request, Response} from "express";
 import {findAvailableResolutions} from "../routes/videos-router";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class VideosController {
 
-    constructor(protected videosService: VideosService) {
+    constructor(@inject(VideosService) protected videosService: VideosService) {
     };
 
     getVideos(req: Request, res: Response) {

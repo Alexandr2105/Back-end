@@ -1,10 +1,12 @@
 import bcrypt from "bcrypt";
 import {ItemsUsers, UserTypeForDB} from "../helper/allTypes";
 import {UsersRepository} from "../repositories/users-repository";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class UsersService {
 
-    constructor(protected usersRepository: UsersRepository) {
+    constructor(@inject(UsersRepository) protected usersRepository: UsersRepository) {
     };
 
     async creatNewUsers(login: string, email: string, password: string): Promise<ItemsUsers> {

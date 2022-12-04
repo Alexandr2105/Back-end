@@ -4,10 +4,12 @@ import {
     VideosRepository,
     VideoType
 } from "../repositories/videos-repository";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class VideosService {
 
-    constructor(protected videosRepository: VideosRepository) {
+    constructor(@inject(VideosRepository) protected videosRepository: VideosRepository) {
     };
 
     getAllVideo() {

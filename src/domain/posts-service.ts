@@ -2,12 +2,14 @@ import {PostsRepository} from "../repositories/posts-repository";
 import {CommentsRepository} from "../repositories/comments-repository";
 import {BlogsService} from "./blogs-service";
 import {CommentsTypeForDB, ItemsPosts, LikeInfoTypeForDB} from "../helper/allTypes";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class PostsService {
 
-    constructor(protected postsRepository: PostsRepository,
-                protected blogsService: BlogsService,
-                protected commentsRepository: CommentsRepository,) {
+    constructor(@inject(PostsRepository) protected postsRepository: PostsRepository,
+                @inject(BlogsService) protected blogsService: BlogsService,
+                @inject(CommentsRepository) protected commentsRepository: CommentsRepository,) {
     };
 
     async getPostId(id: string, userId: string) {

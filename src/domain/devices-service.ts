@@ -1,9 +1,11 @@
 import {SecurityDevicesRepository} from "../repositories/security-devices-repository";
 import {RefreshTokenDataTypeForDB} from "../helper/allTypes";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class DevicesService {
 
-    constructor(protected securityDevicesRepository: SecurityDevicesRepository) {
+    constructor(@inject(SecurityDevicesRepository) protected securityDevicesRepository: SecurityDevicesRepository) {
     };
 
     createDeviceId() {
