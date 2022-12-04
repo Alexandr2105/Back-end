@@ -30,44 +30,6 @@ import {Container} from "inversify";
 import {BlogsInMemoryRepository} from "./repositories/blogs-in-memory-repository";
 import {PostsInMemoryRepository} from "./repositories/posts-in-memory-repository";
 
-// const jwtService = new JwtService();
-//
-// const commentsRepository = new CommentsRepository();
-// const postsRepository = new PostsRepository();
-// const blogsRepository = new BlogsDbRepository();
-// const blogsService = new BlogsService(blogsRepository);
-// const postsService = new PostsService(postsRepository, blogsService, commentsRepository);
-//
-// export const query = new QueryRepository(commentsRepository, postsRepository);
-//
-// const videosRepository = new VideosRepository();
-// const videosService = new VideosService(videosRepository);
-// export const videoController = new VideosController(videosService);
-//
-// export const blogsController = new BlogsController(blogsService, postsService, query, jwtService);
-//
-// const usersRepository = new UsersRepository();
-// const usersService = new UsersService(usersRepository);
-// export const usersController = new UsersController(usersService, query);
-//
-// const commentsService = new CommentsService(commentsRepository);
-// export const commentController = new CommentsController(commentsService, commentsRepository, usersRepository, jwtService);
-//
-// export const postsController = new PostsController(postsService, usersRepository, postsRepository, commentsService, query, jwtService);
-//
-// const testingRepository = new TestingRepository();
-// export const testingController = new TestingController(testingRepository);
-//
-// const securityDevicesRepository = new SecurityDevicesRepository();
-// const devicesService = new DevicesService(securityDevicesRepository);
-// export const securityDevicesController = new SecurityDevicesController(devicesService);
-//
-// const emailAdapter = new EmailAdapter();
-// const emailManager = new EmailManager(emailAdapter);
-// const authService = new AuthService(emailManager, usersRepository);
-// export const authController = new AuthController(authService, usersService, usersRepository, devicesService, emailManager, jwtService);
-// export const middlewareController = new MiddlewareController(jwtService, usersService);
-
 export const container = new Container();
 
 container.bind(AuthController).to(AuthController);
