@@ -49,7 +49,6 @@ container.bind(PostsService).to(PostsService);
 container.bind(UsersService).to(UsersService);
 container.bind(VideosService).to(VideosService);
 
-
 container.bind(BlogsDbRepository).to(BlogsDbRepository);
 container.bind(BlogsInMemoryRepository).to(BlogsInMemoryRepository);
 container.bind(CommentsRepository).to(CommentsRepository);
